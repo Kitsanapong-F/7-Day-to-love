@@ -7,12 +7,12 @@ public class StartGame{
     public static void main(String[] args){
         showBackground();
 
+
     }
-
-
 
 public static void showBackground(){
     
+       ChooseMyGirlFriend choose = new ChooseMyGirlFriend();
         JFrame frame = new JFrame();
         frame.setTitle("7-Day-to-love");
         frame.setSize(600,400);
@@ -24,37 +24,33 @@ public static void showBackground(){
 
             @Override
             public void actionPerformed(ActionEvent e) {
-               
+                String name = null;
                 boolean loop = true;
-                String name =JOptionPane.showInputDialog("Enter you name :");
-                while (loop) {
                 
-               if(name == null || name.isEmpty() ){
-                  JOptionPane.showMessageDialog(null, "Please enter your name","Warning",JOptionPane.ERROR_MESSAGE);
-                  name =JOptionPane.showInputDialog("Enter you name :");
+                while (loop) {
+                     name =JOptionPane.showInputDialog("Enter you name :");
+                    if(name == null){
+                         return;
+                    }
+                    if(!name.trim().isEmpty() ){
+                        break;
               
-               }
-                else {
-                     loop = false;
+                    }
+                    
+                       JOptionPane.showMessageDialog(null, "Please enter your name.","Invalid Input",JOptionPane.ERROR_MESSAGE);
                      
-            }
-        }
+                }
 
                 int age = JOptionPane.showConfirmDialog(null, "Are you over 18 years old?", "Age Verification", JOptionPane.YES_NO_OPTION);
-             
-                if(age == JOptionPane.NO_OPTION){
-                         JOptionPane.showMessageDialog(null, "You must be over 18 to play this game.","Access Denied",JOptionPane.ERROR_MESSAGE);
-                         frame.dispose();
-
-              }
-                else {
-                             JOptionPane.showMessageDialog(null, "Welcome " + name + "! Let's start the game.");
-                            
-                }
-               
-
-        }
-        
+                  if(age == JOptionPane.YES_OPTION){
+                        JOptionPane.showMessageDialog(null, "Welcome " + name + "! Let's start the game.");
+                         choose.main(null);
+                   
+                } else {
+                    JOptionPane.showMessageDialog(null, "Sorry, you must be over 18 to play this game.", "Age Restriction", JOptionPane.WARNING_MESSAGE);
+             }
+  
+    }
         });
 
         frame.add(button);
