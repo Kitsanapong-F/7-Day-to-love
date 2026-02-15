@@ -1,42 +1,36 @@
 import javax.swing.*;
-import java.awt.*;
 
 public class Mainplay extends BaseFrame {
 
     public Mainplay() {
-        super("หน้าจอเล่นเกมหลัก");
+        super("7 Days to Love - Gameplay");
         
-        // ใส่พื้นหลังก่อน
-        setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg"); 
+        // ใส่รูปพื้นหลัง (ตรวจสอบ Path ให้ถูกต้อง)
+        setBackgroundImage("image/Bgscene/_front_of_classroom_1.jpg"); 
         
-        // สร้างเนื้อหา
         initContent();
     }
 
-   private void initContent() {
-    // กำหนดค่ามาตรฐานสำหรับตำแหน่งปุ่มทางขวา
-    int xPos = 1000;    // ตำแหน่งห่างจากขอบซ้าย 1000 (เหลือพื้นที่ฝั่งขวา 280)
-    int btnWidth = 200;
-    int btnHeight = 50;
+    private void initContent() {
+        // สร้างปุ่ม
+        JButton nextBtn = new JButton("เลือกข้อนี้");
+        BaseFrame.styleButton(nextBtn);
 
-    // สร้างปุ่มแรก (ปุ่มบน)
-    JButton nextBtn = new JButton("ข้อ 1");
-    nextBtn.setBounds(xPos, 250, btnWidth, btnHeight);
-    BaseFrame.styleButton(nextBtn); // ใช้สไตล์ที่เราแต่งไว้ใน BaseFrame
-    
-    // สร้างปุ่มที่สอง (ปุ่มล่าง)
-    JButton backBtn = new JButton("ข้อ 2");
-    backBtn.setBounds(xPos, 320, btnWidth, btnHeight); // วางห่างจากปุ่มแรก 70 พิกเซล
-    BaseFrame.styleButton(backBtn);
+        JButton backBtn = new JButton("กลับเมนู");
+        BaseFrame.styleButton(backBtn);
 
-    // สำคัญ: ต้องเพิ่มเข้า LayeredPane เพื่อให้ลอยทับพื้นหลัง
-    getLayeredPane().add(nextBtn, JLayeredPane.PALETTE_LAYER);
-    getLayeredPane().add(backBtn, JLayeredPane.PALETTE_LAYER);
-}
+        // --- จุดที่ทีมงานต้องทำ ---
+        // ใส่พิกัด x, y, กว้าง, สูง ที่ต้องการ (อิงจากจอ 1280)
+        // เช่น อยากให้ปุ่มอยู่ที่ x=1000, y=250
+        addComponent(nextBtn, 1000, 250, 200, 50);
+        // อยากให้อยู่ใต้กันพอดี
+        addComponent(backBtn, 1000, 320, 200, 50);
+    }
 
     public static void main(String[] args) {
-        // เมื่อสร้าง Object คลาสแม่จะจัดการหน้าต่างให้เสร็จสรรพ
-        Mainplay game = new Mainplay();
-        game.display(); 
+        SwingUtilities.invokeLater(() -> {
+            Mainplay game = new Mainplay();
+            game.display();
+        });
     }
 }
