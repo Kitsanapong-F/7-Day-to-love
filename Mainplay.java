@@ -7,7 +7,7 @@ public class Mainplay extends BaseFrame {
         super("หน้าจอเล่นเกมหลัก");
         
         // ใส่พื้นหลังก่อน
-        setBackgroundImage("image/_front_of_classroom_1.jpg"); 
+        setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg"); 
         
         // สร้างเนื้อหา
         initContent();
