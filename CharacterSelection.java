@@ -17,7 +17,7 @@ public class CharacterSelection extends JFrame {
         
         applyFullscreenState();
 
-        BackgroundPanel bg = new BackgroundPanel("_front_of_classroom_1.jpg");
+        BackgroundPanel bg = new BackgroundPanel("image\\Bgscene\\_front_of_classroom_1.jpg");
         bg.setLayout(new BorderLayout());
 
         // 1. TOP: Navigation
@@ -38,9 +38,9 @@ public class CharacterSelection extends JFrame {
         centerGrid.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 50));
 
         // Using your specific file names from the screenshot
-        centerGrid.add(createGirlCard("Akari", "22b9ada1-d037-49df-95c0-35e2c5531ded.png", "Your energetic childhood friend."));
-        centerGrid.add(createGirlCard("Shiori", "fa52fd12-fbd0-4119-8341-014c0b18c47a.png", "The quiet, mysterious librarian."));
-        centerGrid.add(createGirlCard("Reina", "a1fd8ce0-99fb-4881-bbee-4677d1b32676.png", "The proud school heiress."));
+        centerGrid.add(createGirlCard("Akari", "image\\Akari\\22b9ada1-d037-49df-95c0-35e2c5531ded.png", "Your energetic childhood friend."));
+        centerGrid.add(createGirlCard("Shiori", "image\\Shiori\\fa52fd12-fbd0-4119-8341-014c0b18c47a.png", "The quiet, mysterious librarian."));
+        centerGrid.add(createGirlCard("Reina", "image\\Reina\\a1fd8ce0-99fb-4881-bbee-4677d1b32676.png", "The proud school heiress."));
 
         bg.add(centerGrid, BorderLayout.CENTER);
 
