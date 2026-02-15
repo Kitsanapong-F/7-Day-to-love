@@ -14,7 +14,7 @@ public class mainMenu extends JFrame {
         applyFullscreenState();
 
         // Using your specific background filename from the screenshot
-        BackgroundPanel mainPanel = new BackgroundPanel("15a52c75-9650-403e-b795-101302a74f6b.png");
+        BackgroundPanel mainPanel = new BackgroundPanel("image\\15a52c75-9650-403e-b795-101302a74f6b.png");
         mainPanel.setLayout(new GridBagLayout());
         setupUI(mainPanel);
         add(mainPanel);
@@ -32,6 +32,7 @@ public class mainMenu extends JFrame {
     }
 
     private void setupUI(JPanel panel) {
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.EAST; 
