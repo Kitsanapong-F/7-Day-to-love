@@ -19,12 +19,12 @@ public class Mainplay extends BaseFrame {
     int btnWidth = 200;
     int btnHeight = 50;
 
-    // 1. สร้างปุ่มแรก (ปุ่มบน)
+    // สร้างปุ่มแรก (ปุ่มบน)
     JButton nextBtn = new JButton("ข้อ 1");
     nextBtn.setBounds(xPos, 250, btnWidth, btnHeight);
     BaseFrame.styleButton(nextBtn); // ใช้สไตล์ที่เราแต่งไว้ใน BaseFrame
     
-    // 2. สร้างปุ่มที่สอง (ปุ่มล่าง)
+    // สร้างปุ่มที่สอง (ปุ่มล่าง)
     JButton backBtn = new JButton("ข้อ 2");
     backBtn.setBounds(xPos, 320, btnWidth, btnHeight); // วางห่างจากปุ่มแรก 70 พิกเซล
     BaseFrame.styleButton(backBtn);
