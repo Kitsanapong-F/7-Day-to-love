@@ -36,6 +36,25 @@ public class BaseFrame extends JFrame{
         repaint();
     }
 
+    public static void styleButton(JButton btn) {
+        btn.setFont(new Font("Tahoma", Font.BOLD, 18));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(new Color(70, 90, 120)); // สีน้ำเงินอมเทาแบบเท่ๆ
+        btn.setFocusPainted(false); // เอาเส้นประรอบตัวอักษรออก
+        btn.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2)); // ใส่เส้นขอบขาว
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // เปลี่ยนเมาส์เป็นรูปมือ
+
+        // เพิ่มเอฟเฟกต์เวลาเอาเมาส์ไปวาง (Hover Effect)
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(100, 120, 150)); // สว่างขึ้น
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(70, 90, 120)); // กลับมาสีเดิม
+            }
+        });
+    }
+
     public void display(){
         setVisible(true);
     }
