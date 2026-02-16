@@ -5,21 +5,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BaseFrame extends JFrame {
+    protected JLayeredPane layeredPane; 
     protected GameBackground mainPanel;
-    // เก็บพิกัดเริ่มต้น (Original) ที่เพื่อนตั้งไว้เพื่อนำมาคำนวณ Scale
     private Map<Component, Rectangle> originalBounds = new HashMap<>();
 
     public BaseFrame(String title) {
         setTitle(title);
-        setSize(1280, 720); // ขนาดมาตรฐานของเกม
+        setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        mainPanel = new GameBackground("");
-        mainPanel.setLayout(null); // ใช้ null layout เพื่อให้เพื่อนใส่พิกัด x, y ได้เอง
-        setContentPane(mainPanel);
+        // 1. สร้าง LayeredPane เป็น ContentPane หลักเพื่อคุม Z-Order
+        layeredPane = new JLayeredPane();
+        layeredPane.setLayout(null);
+        setContentPane(layeredPane);
 
-        // ตรวจจับการเปลี่ยนขนาดหน้าจอเพื่อคำนวณพิกัดใหม่
+        // 2. สร้างพื้นหลังและกำหนดให้ขยายเต็มขนาดเริ่มต้น
+        mainPanel = new GameBackground("");
+        mainPanel.setBounds(0, 0, 1280, 720);
+        layeredPane.add(mainPanel, JLayeredPane.DEFAULT_LAYER);
+
+        // 3. Listener สำหรับตรวจจับการเปลี่ยนขนาดหน้าจอ (Fullscreen)
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -28,36 +34,41 @@ public class BaseFrame extends JFrame {
         });
     }
 
-    // เมธอดสำหรับทีม: ใส่พิกัดที่ต้องการ (อ้างอิงจากขนาดจอ 1280x720)
-    public void addComponent(Component comp, int x, int y, int width, int height) {
+    public void addComponent(Component comp, int x, int y, int width, int height, Integer layer) {
         comp.setBounds(x, y, width, height);
         originalBounds.put(comp, new Rectangle(x, y, width, height));
-        mainPanel.add(comp);
+        layeredPane.add(comp, layer); // เพิ่มลงใน layeredPane ตามชั้นที่ระบุ
     }
 
-    // ระบบคำนวณพิกัดตามสัดส่วน (Scaling)
-    private void updatePositions() {
-        if (mainPanel == null || originalBounds.isEmpty()) return;
+    public void updatePositions() {
+        if (layeredPane == null) return;
 
-        // หาอัตราส่วนการขยายเทียบกับจอ 1280x720
-        double scaleX = (double) getContentPane().getWidth() / 1280.0;
-        double scaleY = (double) getContentPane().getHeight() / 720.0;
+        int currentW = getContentPane().getWidth();
+        int currentH = getContentPane().getHeight();
+
+        // สำคัญ: ขยายพื้นหลังให้เต็มหน้าจอเสมอ
+        if (mainPanel != null) {
+            mainPanel.setBounds(0, 0, currentW, currentH);
+        }
+
+        if (originalBounds.isEmpty()) return;
+
+        double scaleX = (double) currentW / 1280.0;
+        double scaleY = (double) currentH / 720.0;
 
         for (Map.Entry<Component, Rectangle> entry : originalBounds.entrySet()) {
             Component comp = entry.getKey();
             Rectangle orig = entry.getValue();
 
-            // คำนวณ x, y ใหม่ตาม Scale
-            int newX = (int) (orig.x * scaleX);
-            int newY = (int) (orig.y * scaleY);
-            
-            // ปรับขนาดปุ่มตามสัดส่วนจอด้วย (ถ้าทีมไม่อยากให้ปุ่มขยาย ให้ใช้ orig.width แทน)
-            int newW = (int) (orig.width * scaleX); 
-            int newH = (int) (orig.height * scaleY);
-
-            comp.setBounds(newX, newY, newW, newH);
+            comp.setBounds(
+                (int) (orig.x * scaleX),
+                (int) (orig.y * scaleY),
+                (int) (orig.width * scaleX),
+                (int) (orig.height * scaleY)
+            );
         }
-        mainPanel.repaint();
+        layeredPane.revalidate();
+        layeredPane.repaint();
     }
 
     public void setBackgroundImage(String path) {
@@ -76,7 +87,6 @@ public class BaseFrame extends JFrame {
     public void display() { setVisible(true); }
 }
 
-// คลาสสำหรับพื้นหลัง
 class GameBackground extends JPanel {
     private Image img;
     public GameBackground(String path) { updateImage(path); }
