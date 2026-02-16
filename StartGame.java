@@ -12,15 +12,20 @@ public class StartGame{
 
 public static void showBackground(){
     JFrame frame = new JFrame("7-Day-to-love");
+
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(800, 600);
+    frame.setSize(1280,720);
+    
+    
     
    BackgroundPanel backgroundPanel = new BackgroundPanel("img" + java.io.File.separator + "img login.png");
    backgroundPanel.setLayout(new GridBagLayout());
+ 
+   
 
     
     JPanel freePanel = new JPanel();
-    freePanel.setPreferredSize(new Dimension(200, 200)); 
+    freePanel.setPreferredSize(new Dimension(1000, 400)); 
     freePanel.setLayout(null); 
     freePanel.setBackground(new Color(0, 0, 0, 0)); 
     freePanel.setOpaque(false);
@@ -29,10 +34,12 @@ public static void showBackground(){
 
   
     JButton button = new JButton("New Game");
-    button.setBounds(25, 100, 150, 40);
+    button.setBounds(800, 200, 150, 40);
+    BaseFrame.styleButton(button);
 
     JButton exitButton = new JButton("Exit");
-    exitButton.setBounds(25, 150, 150, 40);
+    exitButton.setBounds(800, 250, 150, 40);
+    BaseFrame.styleButton(exitButton);
 
 
     button.setBorderPainted(false);
@@ -62,16 +69,22 @@ public static void showBackground(){
             public void actionPerformed(ActionEvent e) {
                 String name = null;
                 boolean loop = true;
+                name playerName = null;
                 
                 while (loop) {
                      name =JOptionPane.showInputDialog("Enter you name :");
+
                     if(name == null){
                          return;
                     }
                     if(!name.trim().isEmpty() ){
-                        name playerName = new name(name);
-                        playerName.Welcome();
                        
+                        playerName = new name(name);
+                        playerName.Welcome();
+                        new CharacterSelection(false);
+                        
+                       
+                        
 
                         break;
               
@@ -104,11 +117,12 @@ public static void showBackground(){
 
 
         frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+
         .put(KeyStroke.getKeyStroke("F11"), "toggleFullscreen");
         frame.getRootPane().getActionMap().put("toggleFullscreen", toggleFullscreen);
 
         backgroundPanel.add(freePanel, gbc); 
-        frame.add(backgroundPanel);          
+        frame.add(backgroundPanel);         
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -142,9 +156,7 @@ class name{
         return Name;
     }
 
-   
-
-   
+    
     public void Welcome() {
         System.out.println("Player Name: " + getName());
 

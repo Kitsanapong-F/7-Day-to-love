@@ -24,7 +24,9 @@ public class CharacterSelection extends JFrame {
         JButton backBtn = new JButton("<- BACK TO MENU");
         backBtn.setFocusable(false);
         backBtn.addActionListener(e -> {
-            new mainMenu(this.isFullscreen);
+            // new mainMenu(this.isFullscreen);
+            // this.dispose();
+            new StartGame();
             this.dispose();
         });
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
