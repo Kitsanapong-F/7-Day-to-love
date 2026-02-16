@@ -16,12 +16,9 @@ public class StartGame extends BaseFrame {
         styleButton(exitBtn);
         addComponent(exitBtn, 850, 380, 250, 50);
 
-        newGameBtn.addActionListener(e -> {
-            String name = JOptionPane.showInputDialog(this, "Enter your name:");
-            if (name != null && !name.trim().isEmpty()) {
-                System.out.println("Player: " + name);
-                SceneManager.switchScene(new CharacterSelection(false));
-            }
+       newGameBtn.addActionListener(e -> {
+        // สั่งสลับฉากโดยตรง
+        SceneManager.switchScene(new CharacterSelection(false)); 
         });
         exitBtn.addActionListener(e -> System.exit(0));
     }
