@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BaseFrame extends JFrame {
+<<<<<<< HEAD
     protected JLayeredPane layeredPane; 
+=======
+>>>>>>> develop
     protected GameBackground mainPanel;
     private Map<Component, Rectangle> originalBounds = new HashMap<>();
 
@@ -15,6 +18,7 @@ public class BaseFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+<<<<<<< HEAD
         // 1. สร้าง LayeredPane เป็น ContentPane หลักเพื่อคุม Z-Order
         layeredPane = new JLayeredPane();
         layeredPane.setLayout(null);
@@ -55,10 +59,35 @@ public class BaseFrame extends JFrame {
 
         double scaleX = (double) currentW / 1280.0;
         double scaleY = (double) currentH / 720.0;
+=======
+        mainPanel = new GameBackground("");
+        mainPanel.setLayout(null);
+        setContentPane(mainPanel);
+
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) { updatePositions(); }
+        });
+
+        SwingUtilities.invokeLater(() -> updatePositions());
+    }
+
+    public void addComponent(Component comp, int x, int y, int width, int height) {
+        comp.setBounds(x, y, width, height);
+        originalBounds.put(comp, new Rectangle(x, y, width, height));
+        mainPanel.add(comp);
+    }
+
+    private void updatePositions() {
+        if (mainPanel == null || originalBounds.isEmpty()) return;
+        double scaleX = (double) getContentPane().getWidth() / 1280.0;
+        double scaleY = (double) getContentPane().getHeight() / 720.0;
+>>>>>>> develop
 
         for (Map.Entry<Component, Rectangle> entry : originalBounds.entrySet()) {
             Component comp = entry.getKey();
             Rectangle orig = entry.getValue();
+<<<<<<< HEAD
 
             comp.setBounds(
                 (int) (orig.x * scaleX),
@@ -74,6 +103,15 @@ public class BaseFrame extends JFrame {
     public void setBackgroundImage(String path) {
         mainPanel.updateImage(path);
     }
+=======
+            comp.setBounds((int)(orig.x * scaleX), (int)(orig.y * scaleY), 
+                           (int)(orig.width * scaleX), (int)(orig.height * scaleY));
+        }
+        mainPanel.repaint();
+    }
+
+    public void setBackgroundImage(String path) { mainPanel.updateImage(path); }
+>>>>>>> develop
 
     public static void styleButton(JButton btn) {
         btn.setFont(new Font("Tahoma", Font.BOLD, 18));
