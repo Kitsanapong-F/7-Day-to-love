@@ -22,6 +22,8 @@ public class BaseFrame extends JFrame {
             @Override
             public void componentResized(ComponentEvent e) { updatePositions(); }
         });
+
+        SwingUtilities.invokeLater(() -> updatePositions());
     }
 
     public void addComponent(Component comp, int x, int y, int width, int height) {
