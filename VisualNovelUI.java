@@ -158,9 +158,22 @@ public class VisualNovelUI extends BaseFrame {
             dialoguePointer++;
             
             if (dialoguePointer == dialogueQueue.length) {
-                if (isResponseMode) {
+
+                if (currentDay == 7) { 
+                // --- แก้ไข: ถ้าเป็นวันสุดท้าย ไม่ต้องแสดงปุ่ม Choice ---
+                choice1.setVisible(false);
+                choice2.setVisible(false);
+                
+                // รอ 3 วินาทีเพื่อให้คนอ่านดื่มด่ำกับฉากจบ แล้วค่อยขึ้นหน้าจอสรุป
+                Timer endTimer = new Timer(3000, e -> {
+                    showGameEndSummary(); 
+                });
+                endTimer.setRepeats(false);
+                endTimer.start();
+            } 
+                else if (isResponseMode) {
                     isResponseMode = false; 
-                    Timer timer = new Timer(1500, e -> {
+                    Timer timer = new Timer(2000, e -> {
                         currentDay++;
                         renderDay(currentDay);
                     });
@@ -180,7 +193,7 @@ public class VisualNovelUI extends BaseFrame {
         case 2: return "รางวัลแด่คนช่างฝัน"; // ชื่อตอนสำหรับวันที่ 2
         case 3: return "ความกดดันใต้รอยยิ้ม";
         case 4: return "ทางเดินหน้าโรงเรียนยามโพล้เพล้";
-        case 5: return "XD";
+        case 5: return "";
         case 6: return "คำสัญญาใต้แสงดาว";
         default: return "";
     }
@@ -355,9 +368,26 @@ public class VisualNovelUI extends BaseFrame {
                 };
                 advanceDialogue();
                 break;
+            
+            case 7:
+                setBackgroundImage("image\\Gemini_Generated_Image_oq0tuvoq0tuvoq0t.png"); // ฉากงานเทศกาลตอนกลางคืน
+    
+                // ตรวจสอบคะแนน (ถ้าคะแนนตั้งแต่ 80 ขึ้นไปให้เข้า Good Ending)
+                if (currentGirl.getScore() >= 80) {
+                dialogueQueue = endingData.getAkariGoodEnding();
+                } else {
+                // dialogueQueue = endingData.getAkariBadEnding();
+                }
+    
+                // ซ่อนปุ่มเลือก เพราะตอนจบคือการอ่านบทสรุป
+                choice1.setVisible(false);
+                choice2.setVisible(false);
+    
+                advanceDialogue();
+                break;
 
-        }
-    }
+                }
+            }
 
     private void applyFullscreenState() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -411,5 +441,17 @@ public class VisualNovelUI extends BaseFrame {
     showDayTransition(day, title, () -> {
         if (heroName.equals("Akari")) akariStory(day);
     });
-}
+    }
+
+    private void showGameEndSummary() {
+    String message = "ขอบคุณที่ใช้เวลาร่วมกับ " + currentGirl.getName() + "\n" +
+                     "คะแนนความสัมพันธ์สุดท้าย: " + currentGirl.getScore() + "%\n" +
+                     "บทสรุป: " + (currentGirl.getScore() >= 80 ? "Good Ending" : "Normal Ending");
+    
+    JOptionPane.showMessageDialog(this, message, "จบการเดินทาง", JOptionPane.INFORMATION_MESSAGE);
+    
+    // กลับสู่หน้าจอเมนูหลัก
+    new mainMenu(isFullscreen);
+    this.dispose();
+    }
 }
