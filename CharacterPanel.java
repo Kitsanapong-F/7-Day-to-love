@@ -14,4 +14,11 @@ class CharacterPanel extends JPanel {
             g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
         }
     }
+
+    public void updateImage(String path) {
+    if (path != null && !path.isEmpty() && !path.equals("ads")) {
+        this.img = new ImageIcon(path).getImage();
+        repaint();
+    }
+}
 }
