@@ -1,68 +1,75 @@
 import javax.swing.*;
 import java.awt.*;
-public class BaseFrame extends JFrame{
+import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
 
-    protected JLabel backgroundLabel;
-    
-    public BaseFrame(String title){
-        
+public class BaseFrame extends JFrame {
+    protected GameBackground mainPanel;
+    private Map<Component, Rectangle> originalBounds = new HashMap<>();
+
+    public BaseFrame(String title) {
         setTitle(title);
-        setSize(1280,720);
+        setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
 
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(1280,720));
-        setContentPane(layeredPane);
-        setLayout(null);
+        mainPanel = new GameBackground("");
+        mainPanel.setLayout(null);
+        setContentPane(mainPanel);
+
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) { updatePositions(); }
+        });
+
+        SwingUtilities.invokeLater(() -> updatePositions());
     }
-    
-    public void setBackgroundImage(String imagePath){
-        if(backgroundLabel != null){
-            getLayeredPane().remove(backgroundLabel);
+
+    public void addComponent(Component comp, int x, int y, int width, int height) {
+        comp.setBounds(x, y, width, height);
+        originalBounds.put(comp, new Rectangle(x, y, width, height));
+        mainPanel.add(comp);
+    }
+
+    private void updatePositions() {
+        if (mainPanel == null || originalBounds.isEmpty()) return;
+        double scaleX = (double) getContentPane().getWidth() / 1280.0;
+        double scaleY = (double) getContentPane().getHeight() / 720.0;
+
+        for (Map.Entry<Component, Rectangle> entry : originalBounds.entrySet()) {
+            Component comp = entry.getKey();
+            Rectangle orig = entry.getValue();
+            comp.setBounds((int)(orig.x * scaleX), (int)(orig.y * scaleY), 
+                           (int)(orig.width * scaleX), (int)(orig.height * scaleY));
         }
-        ImageIcon icon = new ImageIcon(imagePath);
-        Image img = icon.getImage().getScaledInstance(1280, 720, Image.SCALE_SMOOTH);
-        
-        backgroundLabel = new JLabel(new ImageIcon(img));
-        backgroundLabel.setBounds(0, 0, 1280, 720);
-
-        // เพิ่มลงใน Layer ต่ำที่สุด (DEFAULT_LAYER)
-        getLayeredPane().add(backgroundLabel, JLayeredPane.DEFAULT_LAYER);
-        
-        // สั่งให้วาดหน้าจอใหม่
-        revalidate(); 
-        repaint();
+        mainPanel.repaint();
     }
+
+    public void setBackgroundImage(String path) { mainPanel.updateImage(path); }
 
     public static void styleButton(JButton btn) {
         btn.setFont(new Font("Tahoma", Font.BOLD, 18));
         btn.setForeground(Color.WHITE);
-        btn.setBackground(new Color(70, 90, 120)); // สีน้ำเงินอมเทาแบบเท่ๆ
-        btn.setFocusPainted(false); // เอาเส้นประรอบตัวอักษรออก
-        btn.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2)); // ใส่เส้นขอบขาว
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); // เปลี่ยนเมาส์เป็นรูปมือ
-
-        // เพิ่มเอฟเฟกต์เวลาเอาเมาส์ไปวาง (Hover Effect)
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(100, 120, 150)); // สว่างขึ้น
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(70, 90, 120)); // กลับมาสีเดิม
-            }
-        });
+        btn.setBackground(new Color(70, 90, 120));
+        btn.setFocusable(false);
+        btn.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    public void display(){
-        setVisible(true);
-    }
+    public void display() { setVisible(true); }
 }
 
-
-//DEFAULT_LAYER = พื้นหลัง
-
-//PALETTE_LAYER = ปุ่มและตัวละคร
-
-//MODAL_LAYER = กล่องข้อความ (Dialogue Box)
+class GameBackground extends JPanel {
+    private Image img;
+    public GameBackground(String path) { updateImage(path); }
+    public void updateImage(String path) {
+        if (path != null && !path.isEmpty()) img = new ImageIcon(path).getImage();
+        repaint();
+    }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (img != null) g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+    }
+}
