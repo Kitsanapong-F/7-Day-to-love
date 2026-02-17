@@ -10,44 +10,34 @@ public class StartGame{
 
     }
 
+
 public static void showBackground(){
-    JFrame frame = new JFrame("7-Day-to-love");
-
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1280,720);
+  
+    BaseFrame baseframe = new BaseFrame("7-Day-to-love");
+    baseframe.setLayout(new GridBagLayout());
+    baseframe.setBackgroundImage("img" + java.io.File.separator + "img login.png");
     
-    
-    
-   BackgroundPanel backgroundPanel = new BackgroundPanel("img" + java.io.File.separator + "img login.png");
-   backgroundPanel.setLayout(new GridBagLayout());
- 
-   
-
     
     JPanel freePanel = new JPanel();
     freePanel.setPreferredSize(new Dimension(1000, 400)); 
-    freePanel.setLayout(null); 
     freePanel.setBackground(new Color(0, 0, 0, 0)); 
+    freePanel.setLayout(null); 
     freePanel.setOpaque(false);
 
     
 
   
     JButton button = new JButton("New Game");
-    button.setBounds(800, 200, 150, 40);
-    BaseFrame.styleButton(button);
-
     JButton exitButton = new JButton("Exit");
-    exitButton.setBounds(800, 250, 150, 40);
+
+    BaseFrame.styleButton(button);
     BaseFrame.styleButton(exitButton);
 
+    button.setBounds(800, 200, 150, 40);
+    exitButton.setBounds(800, 250, 150, 40);
 
     button.setBorderPainted(false);
-    button.setOpaque(true);
-
-
     exitButton.setBorderPainted(false);
-    exitButton.setOpaque(true);
 
     button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -69,29 +59,26 @@ public static void showBackground(){
             public void actionPerformed(ActionEvent e) {
                 String name = null;
                 boolean loop = true;
-                name playerName = null;
                 
                 while (loop) {
-                     name =JOptionPane.showInputDialog("Enter you name :");
+                     name =JOptionPane.showInputDialog(baseframe,"Enter you name :");
 
                     if(name == null){
                          return;
                     }
                     if(!name.trim().isEmpty() ){
                        
-                        playerName = new name(name);
-                        playerName.Welcome();
+                        PlayerName playerName = new PlayerName(name);
                         new CharacterSelection(false);
-                        
-                       
-                        
-
+                        // baseframe.dispose();
+                        loop = false;
                         break;
               
                     }
-                    JOptionPane.showMessageDialog(frame, "Please enter your name to start the game.", "Input Required", JOptionPane.WARNING_MESSAGE);
-                     return;
-                }              
+                    else {
+                    JOptionPane.showMessageDialog(baseframe, "Please enter your name to start the game.", "Input Required", JOptionPane.WARNING_MESSAGE);
+                }  
+            }            
     }
         });
 
@@ -103,52 +90,25 @@ public static void showBackground(){
         });
 
        
-    Action toggleFullscreen = new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          
-            if (frame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
-                frame.setExtendedState(JFrame.NORMAL);
-            } else {
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            }
-        }
-    };
+   
 
-
-        frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-
-        .put(KeyStroke.getKeyStroke("F11"), "toggleFullscreen");
-        frame.getRootPane().getActionMap().put("toggleFullscreen", toggleFullscreen);
-
-        backgroundPanel.add(freePanel, gbc); 
-        frame.add(backgroundPanel);         
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+        baseframe.add(freePanel, gbc);
+        baseframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        baseframe.pack();
+        baseframe.setLocationRelativeTo(null);
+        baseframe.setVisible(true);
     
-}
-}
 
-class BackgroundPanel extends JPanel {
-    private Image backgroundImage;
-
-    public BackgroundPanel(String fileName) {
-        backgroundImage = new ImageIcon(fileName).getImage();
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-    }
 }
 
 
-class name{
+}
+
+
+class PlayerName{
     String Name;
 
-    public name(String name){
+    public PlayerName(String name){
         this.Name = name;
     }
 
@@ -162,7 +122,4 @@ class name{
 
     }
 
-    
-   
-    
 }
