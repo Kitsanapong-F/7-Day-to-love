@@ -33,7 +33,7 @@ public class playmain extends BaseFrame {
         styleButton(datingBtn);
         addComponent(datingBtn, 950, 380, 250, 50);
 
-        nextBtn = new JButton("Next");
+        nextBtn = new JButton("skip");
         styleButton(nextBtn);
         addComponent(nextBtn, 950, 460, 250, 50);
 
