@@ -18,7 +18,7 @@ public class playAkari extends BaseFrame {
     private void initGameUI() {
         // 1. สร้างตัวละคร (spritePanel มีอยู่ใน BaseFrame แล้ว)
         spritePanel = new CharacterPanel("");
-        addComponent(spritePanel, 100, 50, 650, 700);
+        addComponent(spritePanel, 500, 100, 200, 500);
 
         // 2. สร้างกล่องข้อความ (textWindow มีอยู่ใน BaseFrame แล้ว)
         textWindow = new JPanel(null);
