@@ -3,39 +3,74 @@ public class StoryManager {
     private static int currentDay = 1;
     private static String currentRoute = "Akari";
 
-    public static void processNextDay(playAkari ui) {
+    public static void processNextDay(playmain ui) {
         if (currentDay < 7) {
             currentDay++; // เพิ่มวัน
-            System.out.println("ระบบ: กำลังเข้าสู่ความสัมพันธ์วันที่ " + currentDay);
+            System.out.println("ระบบ: กำลังก้าวเข้าสู่ความสัมพันธ์วันที่ " + currentDay);
             
             // ตรวจสอบว่าต้องรันรูทของใคร
             if (currentRoute.equals("Akari")) {
                 runAkari(ui, currentDay);
-            } else if (currentRoute.equals("Rayna")) {
-                runRayna(ui, currentDay);
+            } else if (currentRoute.equals("Reina")) {
+                runReina(ui, currentDay);
             } else if (currentRoute.equals("Shiori")) {
                 runShiori(ui, currentDay);
             }
         }
     }
 
+    public static void onChoiceSelected(Object ui, int scoreChange) {
+        if (scoreChange > 0) {
+            if (ui instanceof playmain) {
+                ((playmain) ui).earnAP(); // ให้ 1 AP เมื่อเลือกถูก
+                // แสดงข้อความบอกผู้เล่นเล็กน้อย
+                System.out.println("Excellent! You earned 1 AP.");
+            }
+        }
+    }
+
 
     // Method สำหรับ Reset วัน (เช่น เริ่มเกมใหม่)
-    public static void resetGame(playAkari ui, String route) {
+    public static void resetGame(playmain ui, String route) {
         currentDay = 1;
         currentRoute = route;
         if (route.equals("Akari")) runAkari(ui, 1);
-        else if (route.equals("Rayna")) runRayna(ui, 1);
+        else if (route.equals("Reina")) runReina(ui, 1);
         else if (route.equals("Shiori")) runShiori(ui, 1);
     }
+    public static void runStory(Object ui, String girlName, int day) {
+        // รีเซ็ตตำแหน่งบทสนทนาเมื่อเป็น UI ที่รองรับ
+        if (ui instanceof playmain) ((playmain) ui).setDialoguePointer(0);
 
-    public static void  runRayna(playAkari ui, int day) {}
-    public static void  runShiori(playAkari ui, int day) {}
+        if (girlName.equals("Akari")) {
+            if (ui instanceof playmain) runAkari((playmain) ui, day);
+            else {
+                // ถ้าเรียกจากที่อื่น ให้สร้างหน้าจอ playmain ใหม่
+                playmain m = new playmain();
+                m.display();
+                runAkari(m, day);
+            }
+        } else if (girlName.equals("Reina")) {
+            if (ui instanceof playmain) runReina((playmain) ui, day);
+            else {
+                playmain m = new playmain();
+                m.display();
+                runReina(m, day);
+            }
+        } else if (girlName.equals("Shiori")) {
+            if (ui instanceof playmain) runShiori((playmain) ui, day);
+            else {
+                playmain m = new playmain();
+                m.display();
+                runShiori(m, day);
+            }
+        }
+    }
 
-    public static void runAkari(playAkari ui, int day) {
+    public static void runAkari(playmain ui, int day) {
 
         ui.setDialoguePointer(0);
-
+        ui.setEventMenuVisible(false);
         switch (day) {
             case 1:
                 ui.runDayLogic(
@@ -109,7 +144,7 @@ public class StoryManager {
                     ui.setDialogueQueue(endingData.getAkariGoodEnding());
                 }
                 else {
-                    ui.setBackgroundImage("image\\Place\\Naohiro.jpg");
+                    ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
                     ui.setDialogueQueue(endingData.getAkariBadEnding());
                 }
                 ui.hideChoices();
@@ -117,4 +152,21 @@ public class StoryManager {
                 break;
         }   
     }
+
+    public static void handleStoryChoice(Object ui, int scoreChange) {
+        if (scoreChange > 0) {
+            if (ui instanceof playmain) ((playmain) ui).earnAP(); // ให้รางวัล 1 AP เมื่อผู้เล่นตอบถูก (Right Choice)
+        }
+        // ... จัดการคะแนนความสัมพันธ์ต่อไป ...
+    }
+
+    public static void  runReina(playmain ui, int day) {
+        System.out.println("Reina route not implemented yet (day " + day + ").");
+        // TODO: implement Reina route (use playmain.runDayLogic or similar)
+    }
+    public static void  runShiori(playmain ui, int day) {
+        System.out.println("Shiori route not implemented yet (day " + day + ").");
+        // TODO: implement Shiori route
+    }
+
 }
