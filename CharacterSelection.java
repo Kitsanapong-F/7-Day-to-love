@@ -29,6 +29,7 @@ public class CharacterSelection extends BaseFrame {
         styleButton(backBtn);
         addComponent(backBtn, 40, 30, 120, 40);
         backBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_back.wav");
             SceneManager.switchScene(new StartGame());
         });
 
@@ -55,6 +56,7 @@ public class CharacterSelection extends BaseFrame {
         addComponent(selectBtn, 490, 610, 300, 50);
 
         selectBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_con.wav");
             if (selectedName.equals("Akari")) {
                 // 1. สร้างข้อมูลตัวละครและหน้าจอเล่น (รวม Akari) โดยใช้ playmain
                 Character heroine = new Character(selectedName);
@@ -85,6 +87,8 @@ public class CharacterSelection extends BaseFrame {
         
         // เมื่อกด Detail ให้เปิดหน้าต่างข้อมูล (CharacterDetailFrame)
         det.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
+            
             if (detailFrame != null && detailFrame.isDisplayable()) {
                 detailFrame.toFront(); // ถ้าเปิดค้างไว้ให้เอามาไว้ด้านหน้า
             } else {
@@ -96,6 +100,8 @@ public class CharacterSelection extends BaseFrame {
         p.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                AudioManager.playSound("umamusume_click.wav");
+                
                 // ล้างขอบของตัวอื่นออก
                 for(CharacterPanel cp : panels) cp.setBorder(null);
                 
