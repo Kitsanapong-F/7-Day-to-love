@@ -56,12 +56,13 @@ public class CharacterSelection extends BaseFrame {
 
         selectBtn.addActionListener(e -> {
             if (selectedName.equals("Akari")) {
-                // 1. สร้างหน้าจอเล่นของ Akari
-                playAkari gameUI = new playAkari(); 
-                
+                // 1. สร้างข้อมูลตัวละครและหน้าจอเล่น (รวม Akari) โดยใช้ playmain
+                Character heroine = new Character(selectedName);
+                playmain gameUI = new playmain(heroine);
+
                 // 2. สลับหน้าจอโดยใช้ SceneManager
                 SceneManager.switchScene(gameUI);
-                
+
                 // 3. เริ่มรันเนื้อเรื่องวันที่ 1 ผ่าน StoryManager
                 StoryManager.resetGame(gameUI, "Akari");
             } else {
