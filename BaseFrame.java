@@ -8,7 +8,6 @@ public class BaseFrame extends JFrame {
     protected GameBackground mainPanel;
     private Map<Component, Rectangle> originalBounds = new ConcurrentHashMap<>();
     
-    // ประกาศไว้ให้คลาสลูกเรียกใช้ได้เลย ไม่ต้องประกาศซ้ำ
     protected JPanel textWindow;
     protected JLabel nameLabel;
     protected JTextArea dialogueArea;
@@ -35,16 +34,12 @@ public class BaseFrame extends JFrame {
         SwingUtilities.invokeLater(() -> updatePositions());
     }
 
-    // เมธอดว่างให้คลาสลูกเขียนทับ (Hook Method)
-    protected void onPositionUpdated(double scaleX, double scaleY) {
-    }
+    protected void onPositionUpdated(double scaleX, double scaleY) {}
 
     public void addComponent(Component comp, int x, int y, int width, int height) {
         comp.setBounds(x, y, width, height);
         originalBounds.put(comp, new Rectangle(x, y, width, height));
         mainPanel.add(comp);
-        mainPanel.revalidate();
-        mainPanel.repaint();
     }
 
     private void updatePositions() {
@@ -65,9 +60,7 @@ public class BaseFrame extends JFrame {
             );
         }
         
-        // *** จุดที่ต้องเพิ่ม: เรียกใช้ Hook Method เพื่อให้ playAkari ทำงานได้ ***
         onPositionUpdated(scaleX, scaleY);
-        
         mainPanel.revalidate();
         mainPanel.repaint();
     }
@@ -76,6 +69,8 @@ public class BaseFrame extends JFrame {
         mainPanel.updateImage(path); 
     }
 
+    // --- ส่วนที่แก้ไข: เพิ่ม static เพื่อให้คลาสอื่นเรียกใช้ได้โดยไม่มีเส้นแดง ---
+    
     public static void styleButton(JButton btn) {
         btn.setFont(new Font("Tahoma", Font.BOLD, 18));
         btn.setForeground(Color.WHITE);
@@ -85,25 +80,29 @@ public class BaseFrame extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    public void clearDynamicComponents(JPanel panel) {
-        if (panel != null) {
-            panel.removeAll();
-            panel.revalidate();
-            panel.repaint();
-            mainPanel.repaint();
-        }
-    }
-
-    public void styleChoiceButton(JButton btn) {
+    public static void styleChoiceButton(JButton btn) {
         btn.setFont(new Font("Tahoma", Font.BOLD, 18));
         btn.setForeground(Color.WHITE);
         btn.setBackground(new Color(45, 45, 65, 255));
         btn.setFocusable(false);
         btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
         btn.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.WHITE, 1),
             BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
+    }
+
+    // เมธอดพิเศษสำหรับล้างเงาตัวอักษรเก่า
+    protected JTextArea createCleanTextArea() {
+        return new JTextArea() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(new Color(0,0,0,0)); 
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
     }
 
     public void display() { setVisible(true); }
@@ -124,7 +123,7 @@ class GameBackground extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g); // ล้างพื้นหลังเก่า (สำคัญมาก!)
+        super.paintComponent(g); // ล้างเศษภาพเก่าออก
         if (img != null) {
             g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
         }
