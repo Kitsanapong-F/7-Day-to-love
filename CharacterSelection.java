@@ -63,7 +63,7 @@ public class CharacterSelection extends BaseFrame {
                 SceneManager.switchScene(gameUI);
                 
                 // 3. เริ่มรันเนื้อเรื่องวันที่ 1 ผ่าน StoryManager
-                StoryManager.runAkari(gameUI, 1); 
+                StoryManager.resetGame(gameUI, "Akari");
             } else {
                 JOptionPane.showMessageDialog(this, "The story for " + selectedName + " is coming soon!");
             }

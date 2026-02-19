@@ -11,7 +11,7 @@ public class endingData {
 
     public static DialogueLine[] getAkariBadEnding() {
         return new DialogueLine[] {
-            new DialogueLine(null, null, null)
+           new DialogueLine("พระเอก", "ผมบอกแล้วไงว่าผมจะรอรับเธอที่เส้นชัยเอง เห็นไหมว่าเธอทำได้!", "a"),
         };
     }
 
