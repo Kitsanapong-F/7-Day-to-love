@@ -42,7 +42,11 @@ public class CharacterDetailFrame extends JFrame {
         // 7. ปุ่มปิดหน้าต่าง
         JButton closeBtn = new JButton("CLOSE");
         BaseFrame.styleButton(closeBtn); // ใช้สไตล์ปุ่มจากคลาสแม่
-        closeBtn.addActionListener(e -> dispose());
+        closeBtn.addActionListener(e -> {
+        AudioManager.playSound("umamusume_back.wav"); // เสียงปิด
+        dispose();
+        });
+        
         mainPanel.add(closeBtn, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -81,6 +85,6 @@ public class CharacterDetailFrame extends JFrame {
 
             default:
                 return "ไม่มีข้อมูลของตัวละครนี้";
+            }
         }
-    }
 }

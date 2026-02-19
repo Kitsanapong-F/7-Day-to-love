@@ -18,9 +18,13 @@ public class StartGame extends BaseFrame {
 
        newGameBtn.addActionListener(e -> {
         // สั่งสลับฉากโดยตรง
+        AudioManager.playSound("umamusume_con.wav"); // เสียงเลือกเมนู
         SceneManager.switchScene(new CharacterSelection(false)); 
         });
-        exitBtn.addActionListener(e -> System.exit(0));
+        exitBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_back.wav");
+            System.exit(0);
+        });
     }
 
     public static void main(String[] args) {
