@@ -1,172 +1,106 @@
-public class StoryManager {
+import javax.swing.*;
 
-    private static int currentDay = 1;
+/**
+ * StoryManager: ควบคุมลำดับเหตุการณ์ในเกม (Main Logic Controller)
+ * จัดการการเปลี่ยนวัน, การเรียกใช้เนื้อเรื่อง และการตัดสินฉากจบ
+ */
+public class StoryManager {
     private static String currentRoute = "Akari";
 
-    public static void processNextDay(playmain ui) {
-        if (currentDay < 7) {
-            currentDay++; // เพิ่มวัน
-            System.out.println("ระบบ: กำลังก้าวเข้าสู่ความสัมพันธ์วันที่ " + currentDay);
-            
-            // ตรวจสอบว่าต้องรันรูทของใคร
-            if (currentRoute.equals("Akari")) {
-                runAkari(ui, currentDay);
-            } else if (currentRoute.equals("Reina")) {
-                runReina(ui, currentDay);
-            } else if (currentRoute.equals("Shiori")) {
-                runShiori(ui, currentDay);
-            }
-        }
-    }
-
-    public static void onChoiceSelected(Object ui, int scoreChange) {
-        if (scoreChange > 0) {
-            if (ui instanceof playmain) {
-                ((playmain) ui).earnAP(); // ให้ 1 AP เมื่อเลือกถูก
-                // แสดงข้อความบอกผู้เล่นเล็กน้อย
-                System.out.println("Excellent! You earned 1 AP.");
-            }
-        }
-    }
-
-
-    // Method สำหรับ Reset วัน (เช่น เริ่มเกมใหม่)
     public static void resetGame(playmain ui, String route) {
-        currentDay = 1;
         currentRoute = route;
-        if (route.equals("Akari")) runAkari(ui, 1);
-        else if (route.equals("Reina")) runReina(ui, 1);
-        else if (route.equals("Shiori")) runShiori(ui, 1);
+        // เริ่มต้นวันที่ 1
+        runStory(ui, route, 1);
     }
-    public static void runStory(Object ui, String girlName, int day) {
-        // รีเซ็ตตำแหน่งบทสนทนาเมื่อเป็น UI ที่รองรับ
-        if (ui instanceof playmain) ((playmain) ui).setDialoguePointer(0);
 
-        if (girlName.equals("Akari")) {
-            if (ui instanceof playmain) runAkari((playmain) ui, day);
-            else {
-                // ถ้าเรียกจากที่อื่น ให้สร้างหน้าจอ playmain ใหม่
-                playmain m = new playmain();
-                m.display();
-                runAkari(m, day);
-            }
-        } else if (girlName.equals("Reina")) {
-            if (ui instanceof playmain) runReina((playmain) ui, day);
-            else {
-                playmain m = new playmain();
-                m.display();
-                runReina(m, day);
-            }
-        } else if (girlName.equals("Shiori")) {
-            if (ui instanceof playmain) runShiori((playmain) ui, day);
-            else {
-                playmain m = new playmain();
-                m.display();
-                runShiori(m, day);
-            }
+    public static void processNextDay(playmain ui) {
+        // ปรับเข้าสู่ช่วง Free Action
+        ui.setEventMenuVisible(true);
+        ui.earnAP(); 
+        System.out.println("[System] Free Action Mode - Route: " + currentRoute);
+    }
+
+    public static void onChoiceSelected(playmain ui, int scoreChange) {
+        if (ui != null && scoreChange > 0) {
+            ui.earnAP(); // ให้รางวัลผู้เล่นที่เลือกคำตอบถูกด้วยการเพิ่ม Action Point
+            System.out.println("[System] Correct Choice! AP Refilled.");
         }
+    }
+
+    public static void runStory(playmain ui, String girlName, int day) {
+        if (ui == null) return;
+        
+        currentRoute = girlName;
+        ui.setDialoguePointer(0);
+        ui.setEventMenuVisible(false);
+
+        // แสดงแอนิเมชันเปลี่ยนวันก่อนเริ่มเนื้อเรื่อง
+        String dayTitle = (day == 7) ? "The Final Day" : "Daily Life";
+        ui.showDayTransition(day, dayTitle, () -> {
+            switch (girlName) {
+                case "Akari":  runAkari(ui, day);  break;
+                case "Reina":  runReina(ui, day);  break;
+                case "Shiori": runShiori(ui, day); break;
+                default: 
+                    System.err.println("Error: Route '" + girlName + "' not found!");
+                    break;
+            }
+        });
     }
 
     public static void runAkari(playmain ui, int day) {
-
+        if (ui == null) return;
         ui.setDialoguePointer(0);
-        ui.setEventMenuVisible(false);
-        switch (day) {
-            case 1:
-                ui.runDayLogic(
-                    storyData.getAkariDay1Backgroud(),
-                    storyData.getAkariDay1story(),
-                    storyData.getAkariDay1Choice(),
-                    15, -10,
-                    storyData.getAkariDay1ResponseA(),
-                    storyData.getAkariDay1ResponseB()
-                );
-                break;
-            
-            case 2:
-                ui.runDayLogic(
-                    storyData.getAkariDay2Backgroud(),
-                    storyData.getAkariDay2story(),
-                    storyData.getAkariDay2Choice(),
-                    15, -10,
-                    storyData.getAkariDay2ResponseA(),
-                    storyData.getAkariDay2ResponseB()
-                );
-                break;
 
-            case 3:
-                ui.runDayLogic(
-                    storyData.getAkariDay3Backgroud(),
-                    storyData.getAkariDay3story(),
-                    storyData.getAkariDay3Choice(),
-                    15, -10,
-                    storyData.getAkariDay3ResponseA(),
-                    storyData.getAkariDay3ResponseB()
-                );
-                break;
-            
-            case 4:
-                ui.runDayLogic(
-                    storyData.getAkariDay4Backgroud(),
-                    storyData.getAkariDay4story(),
-                    storyData.getAkariDay4Choice(),
-                    15, -10,
-                    storyData.getAkariDay4ResponseA(),
-                    storyData.getAkariDay4ResponseB()
-                );
-                break;
-
-            case 5:
-                ui.runDayLogic(
-                    storyData.getAkariDay5Backgroud(),
-                    storyData.getAkariDay5story(),
-                    storyData.getAkariDay5Choice(),
-                    15, -10,
-                    storyData.getAkariDay5ResponseA(),
-                    storyData.getAkariDay5ResponseB()
-                );
-                break;
-
-            case 6:
-                ui.runDayLogic(
-                    storyData.getAkariDay6Backgroud(),
-                    storyData.getAkariDay6story(),
-                    storyData.getAkariDay6Choice(),
-                    15, -10,
-                    storyData.getAkariDay6ResponseA(),
-                    storyData.getAkariDay6ResponseB()
-                );
-                break;
-
-            case 7:
-                if (ui.getCurrentGirlScore() >= 80) {
-                    ui.setBackgroundImage("image\\Akari\\Gemini_Generated_Image_oq0tuvoq0tuvoq0t.png");
-                    ui.setDialogueQueue(endingData.getAkariGoodEnding());
-                }
-                else {
-                    ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
-                    ui.setDialogueQueue(endingData.getAkariBadEnding());
-                }
-                ui.hideChoices();
-                ui.advanceDialogue();
-                break;
-        }   
-    }
-
-    public static void handleStoryChoice(Object ui, int scoreChange) {
-        if (scoreChange > 0) {
-            if (ui instanceof playmain) ((playmain) ui).earnAP(); // ให้รางวัล 1 AP เมื่อผู้เล่นตอบถูก (Right Choice)
+        if (day >= 1 && day <= 6) {
+            // ดึงข้อมูลจาก storyData มาใช้งาน (คะแนนบวก 15, ลบ 10)
+            ui.runDayLogic(
+                storyData.getAkariDayBackground(day), 
+                storyData.getAkariDayStory(day), 
+                storyData.getAkariDayChoice(day), 
+                15, -10, 
+                storyData.getAkariDayResponseA(day), 
+                storyData.getAkariDayResponseB(day)
+            );
+        } else if (day == 7) {
+            handleEnding(ui, "Akari");
+        } else {
+            finishGame(ui);
         }
-        // ... จัดการคะแนนความสัมพันธ์ต่อไป ...
     }
 
-    public static void  runReina(playmain ui, int day) {
-        System.out.println("Reina route not implemented yet (day " + day + ").");
-        // TODO: implement Reina route (use playmain.runDayLogic or similar)
-    }
-    public static void  runShiori(playmain ui, int day) {
-        System.out.println("Shiori route not implemented yet (day " + day + ").");
-        // TODO: implement Shiori route
+    private static void handleEnding(playmain ui, String girlName) {
+        ui.hideChoices();
+        ui.setEventMenuVisible(false);
+        
+        int finalScore = ui.getCurrentGirlScore();
+        System.out.println("[Ending Check] Final Score for " + girlName + ": " + finalScore);
+
+        if (girlName.equals("Akari")) {
+            if (finalScore >= 80) {
+                ui.setBackgroundImage("image\\Akari\\good_end_bg.png");
+                ui.setDialogueQueue(endingData.getAkariGoodEnding());
+            } else {
+                ui.setBackgroundImage("image\\bad_ending\\bad_end_bg.png");
+                ui.setDialogueQueue(endingData.getAkariBadEnding());
+            }
+        }
+        // สามารถเพิ่มเงื่อนไข Shiori และ Reina ได้ที่นี่
     }
 
+    private static void finishGame(playmain ui) {
+        JOptionPane.showMessageDialog(ui, "Your 7-day story has come to an end. Thank you for playing!");
+        System.exit(0);
+    }
+
+    // --- รูทที่กำลังพัฒนา ---
+    public static void runReina(playmain ui, int day) {
+        JOptionPane.showMessageDialog(ui, "Reina's route is coming soon in the next update!");
+        ui.dispose();
+    }
+
+    public static void runShiori(playmain ui, int day) {
+        JOptionPane.showMessageDialog(ui, "Shiori's route is coming soon in the next update!");
+        ui.dispose();
+    }
 }
