@@ -78,10 +78,10 @@ public class StoryManager {
 
         if (girlName.equals("Akari")) {
             if (finalScore >= 80) {
-                ui.setBackgroundImage("image\\Akari\\good_end_bg.png");
+                ui.setBackgroundImage("image\\Akari\\4dd1e007-648f-448d-8ccb-2a0d4d2885d0.png");
                 ui.setDialogueQueue(endingData.getAkariGoodEnding());
             } else {
-                ui.setBackgroundImage("image\\bad_ending\\bad_end_bg.png");
+                ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
                 ui.setDialogueQueue(endingData.getAkariBadEnding());
             }
         }
