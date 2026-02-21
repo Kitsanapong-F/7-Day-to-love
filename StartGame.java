@@ -1,29 +1,53 @@
 import javax.swing.*;
+import java.awt.*;
 
 public class StartGame extends BaseFrame {
     public StartGame() {
         super("7 Days to Love - Main Menu");
+        // แนะนำ: หากรันบน Mac/Linux อาจต้องใช้ / แทน \\ 
+        // แต่สำหรับ Windows ใช้ image\\... ถูกต้องแล้วครับ
         setBackgroundImage("image\\cover\\15a52c75-9650-403e-b795-101302a74f6b.png");
         initUI();
     }
 
     private void initUI() {
+        // เพิ่มชื่อเกม (Game Title) ให้ดูสวยงาม
+
+        // ปุ่ม New Game
         JButton newGameBtn = new JButton("New Game");
         styleButton(newGameBtn);
         addComponent(newGameBtn, 850, 300, 250, 50);
 
+        // ปุ่ม Exit
         JButton exitBtn = new JButton("Exit");
         styleButton(exitBtn);
         addComponent(exitBtn, 850, 380, 250, 50);
 
-       newGameBtn.addActionListener(e -> {
-        // สั่งสลับฉากโดยตรง
-        SceneManager.switchScene(new CharacterSelection(false)); 
+        // Action: ไปหน้าเลือกตัวละคร
+        newGameBtn.addActionListener(e -> {
+            SceneManager.switchScene(new CharacterSelection()); 
         });
-        exitBtn.addActionListener(e -> System.exit(0));
+
+        // Action: ออกจากเกม
+        exitBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to exit?", "Exit Game", 
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> SceneManager.switchScene(new StartGame()));
+        // ตั้งค่า Look and Feel ให้ดูเป็นสากล
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) { /* Ignore */ }
+
+        // เริ่มต้นเกมผ่าน SceneManager
+        SwingUtilities.invokeLater(() -> {
+            SceneManager.switchScene(new StartGame());
+        });
     }
 }
