@@ -25,12 +25,11 @@ public class playmain extends BaseFrame {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
         
-        // กำหนดพื้นหลังเริ่มต้น
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         
         initGameUI();
+        setupZOrder(); // จัดเลเยอร์ครั้งแรกตอนเริ่มเกม
         
-        // เริ่มต้นเนื้อเรื่อง
         if (currentGirl != null) {
             StoryManager.runStory(this, currentGirl.getName(), currentDay);
         } else {
@@ -39,21 +38,20 @@ public class playmain extends BaseFrame {
     }
 
     private void initGameUI() {
-        // 1. Sprite Panel (แสดงตัวละคร)
+        // 1. Sprite Panel (Layer 3 - อยู่ด้านหลัง)
         spritePanel = new CharacterPanel("");
         addComponent(spritePanel, 440, 50, 400, 600); 
 
-        // 2. AP Display - แสดงแต้มกิจกรรม
+        // 2. AP Display
         apLabel = new JLabel("AP: 0");
         apLabel.setFont(new Font("Tahoma", Font.BOLD, 28));
         apLabel.setForeground(new Color(255, 80, 80));
         addComponent(apLabel, 30, 20, 200, 40);
 
-        // 3. กล่องข้อความ (Text Window)
+        // 3. Text Window (Layer 2)
         textWindow = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
-                // วาดพื้นหลังกึ่งโปร่งใส
                 g.setColor(new Color(0, 0, 0, 180));
                 g.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 super.paintComponent(g);
@@ -78,13 +76,13 @@ public class playmain extends BaseFrame {
         
         addComponent(textWindow, 50, 510, 1180, 170);
 
-        // 4. Choice Panel (แสดงตัวเลือก)
+        // 4. Choice Panel (Layer 1)
         choicePanel = new JPanel(new GridLayout(2, 1, 0, 20));
         choicePanel.setOpaque(false);
         choicePanel.setVisible(false);
         addComponent(choicePanel, 800, 200, 430, 220);
 
-        // 5. ปุ่มกิจกรรม (Action Menu)
+        // 5. Action Menu (Layer 1) - พิกัดเดิม x=980
         giftBtn = new JButton("GIVE GIFT (-1 AP)");
         datingBtn = new JButton("GO ON DATE (-2 AP)");
         nextBtn = new JButton("END DAY / NEXT");
@@ -101,7 +99,7 @@ public class playmain extends BaseFrame {
         datingBtn.addActionListener(e -> { if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
         nextBtn.addActionListener(e -> handleDayTransition());
 
-        // 6. Transition Panel (หน้าจอเปลี่ยนวัน)
+        // 6. Transition Panel (Layer 0 - อยู่หน้าสุดเสมอ)
         transitionPanel = new JPanel(new BorderLayout());
         transitionPanel.setBackground(Color.BLACK);
         transitionPanel.setVisible(false);
@@ -111,14 +109,11 @@ public class playmain extends BaseFrame {
         transitionPanel.add(transitionLabel, BorderLayout.CENTER);
         addComponent(transitionPanel, 0, 0, 1280, 720);
 
-        // ระบบคลิกเพื่อเลื่อนบทสนทนา
         mainPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (transitionPanel.isVisible() || choicePanel.isVisible()) return;
-                
+                if (transitionPanel.isVisible() || choicePanel.isVisible() || giftBtn.isVisible()) return;
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
-                    // ถ้ากำลังพิมพ์อยู่ ให้หยุดแล้วแสดงข้อความเต็มทันที
                     stopTypewriter(currentQueue[pointer - 1].text);
                 } else {
                     advanceDialogue();
@@ -129,21 +124,54 @@ public class playmain extends BaseFrame {
         setEventMenuVisible(false);
     }
 
+    /**
+     * ระบบจัดการลำดับเลเยอร์ (Z-Order)
+     * ยิ่งเลขน้อย (เช่น 0) จะยิ่งอยู่หน้าสุดของจอ
+     */
+    private void setupZOrder() {
+        if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0);
+        
+        // กลุ่มปุ่มกดและทางเลือก (อยู่หน้ากล่องข้อความ)
+        if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
+        if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
+        if (datingBtn != null) mainPanel.setComponentZOrder(datingBtn, 1);
+        if (nextBtn != null) mainPanel.setComponentZOrder(nextBtn, 1);
+
+        // กล่องข้อความและสเตตัส (Layer กลาง)
+        if (textWindow != null) mainPanel.setComponentZOrder(textWindow, 2);
+        if (apLabel != null) mainPanel.setComponentZOrder(apLabel, 2);
+
+        // ตัวละคร (Layer ลึกสุด แต่อยู่บนฉากหลัง)
+        if (spritePanel != null) mainPanel.setComponentZOrder(spritePanel, 3);
+        
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    public void setEventMenuVisible(boolean visible) {
+        giftBtn.setVisible(visible); 
+        datingBtn.setVisible(visible); 
+        nextBtn.setVisible(visible);
+        textWindow.setVisible(!visible);
+        
+        // เมื่อเปลี่ยนโหมดหน้าจอ ให้จัดเลเยอร์ใหม่เพื่อให้ปุ่มอยู่หน้าสุดเสมอ
+        if (visible) setupZOrder();
+    }
+
     public void advanceDialogue() {
         if (currentQueue == null) return;
         if (pointer < currentQueue.length) {
             DialogueLine line = currentQueue[pointer];
             nameLabel.setText(line.characterName);
             startTypewriter(line.text);
-            
             if (line.spritePath != null && !line.spritePath.isEmpty()) {
                 spritePanel.updateImage(line.spritePath);
             }
             pointer++;
         } else {
-            // จบ Queue ปัจจุบัน
             if (choicePanel.getComponentCount() > 0 && !isWaitingForResponse) {
                 choicePanel.setVisible(true);
+                setupZOrder(); // จัดเลเยอร์ให้ choicePanel อยู่หน้าสุด
                 isWaitingForResponse = true;
             } else {
                 StoryManager.processNextDay(this);
@@ -166,6 +194,7 @@ public class playmain extends BaseFrame {
         choicePanel.add(btnA);
         choicePanel.add(btnB);
         setDialogueQueue(story);
+        setupZOrder(); // จัดเลเยอร์เพื่อให้องค์ประกอบหน้าใหม่แสดงผลถูกต้อง
     }
 
     private void handleSelection(DialogueLine[] response) {
@@ -177,11 +206,12 @@ public class playmain extends BaseFrame {
     public void showDayTransition(int day, String title, Runnable onComplete) {
         transitionLabel.setText("<html><center>Day " + day + "<br><small>" + title + "</small></center></html>");
         transitionPanel.setVisible(true);
-        mainPanel.setComponentZOrder(transitionPanel, 0); // เอาไว้บนสุด
+        mainPanel.setComponentZOrder(transitionPanel, 0); // บังคับ Layer 0 หน้าสุด
         
         Timer timer = new Timer(2200, e -> {
             transitionPanel.setVisible(false);
             if (onComplete != null) onComplete.run();
+            setupZOrder(); // คืนค่าเลเยอร์ปกติหลังจบการเปลี่ยนวัน
             mainPanel.repaint();
         });
         timer.setRepeats(false);
@@ -221,13 +251,6 @@ public class playmain extends BaseFrame {
         choicePanel.setVisible(false); 
         choicePanel.removeAll(); 
         choicePanel.revalidate();
-    }
-
-    public void setEventMenuVisible(boolean visible) {
-        giftBtn.setVisible(visible); 
-        datingBtn.setVisible(visible); 
-        nextBtn.setVisible(visible);
-        textWindow.setVisible(!visible);
     }
 
     public boolean canPerformAction(int cost, String type) {

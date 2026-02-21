@@ -108,17 +108,54 @@ public class BaseFrame extends JFrame {
     });
 }
     public static void styleChoiceButton(JButton btn) {
-        btn.setFont(new Font("Tahoma", Font.BOLD, 20));
-        btn.setForeground(Color.WHITE);
-        // ใช้พื้นหลังกึ่งโปร่งใสให้ดูหรูหรา
-        btn.setBackground(new Color(0, 0, 0, 150)); 
-        btn.setFocusable(false);
-        btn.setOpaque(false); // ต้องเป็น false เพื่อให้วาดพื้นหลังเองใน paintComponent ได้เนียนๆ
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 255, 255, 100), 2),
-            BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
-    }
+    btn.setFont(new Font("Tahoma", Font.BOLD, 20));
+    btn.setForeground(Color.WHITE);
+    btn.setFocusable(false);
+    btn.setContentAreaFilled(false); // ปิดการวาดพื้นหลังมาตรฐานของ Swing
+    btn.setBorderPainted(false);     // เราจะวาดขอบเองใน paintComponent
+
+    // เพิ่ม MouseListener สำหรับเอฟเฟกต์ Hover
+    btn.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+            btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btn.putClientProperty("isHover", true);
+            btn.repaint();
+        }
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+            btn.putClientProperty("isHover", false);
+            btn.repaint();
+        }
+    });
+
+    // ใช้การวาดใหม่เพื่อให้ดูหรูหราแบบ Modern VN
+    btn.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+        @Override
+        public void paint(Graphics g, JComponent c) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            boolean isHover = Boolean.TRUE.equals(c.getClientProperty("isHover"));
+            
+            // 1. วาดพื้นหลัง (ไล่เฉดสีเบาๆ)
+            if (isHover) {
+                // เมื่อเมาส์ชี้: สีเหลืองทอง/ส้มจางๆ แบบปุ่มที่ถูกเลือก
+                g2d.setPaint(new GradientPaint(0, 0, new Color(180, 140, 50, 200), 
+                             0, c.getHeight(), new Color(120, 90, 30, 220)));
+            } else {
+                // ปกติ: สีดำโปร่งใส
+                g2d.setColor(new Color(0, 0, 0, 180));
+            }
+            g2d.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+
+            // 2. วาดเส้นขอบ (Gold Border)
+            g2d.setStroke(new BasicStroke(isHover ? 3 : 2));
+            g2d.setColor(isHover ? new Color(255, 215, 0) : new Color(212, 175, 55, 150));
+            g2d.drawRoundRect(1, 1, c.getWidth() - 3, c.getHeight() - 3, 15, 15);
+
+            super.paint(g, c);
+        }
+    });
+}
 
     public void display() { setVisible(true); }
 }
