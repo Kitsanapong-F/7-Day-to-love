@@ -3,8 +3,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class playmain extends BaseFrame {
-    private JPanel transitionPanel;
-    private JLabel transitionLabel;
+
+    private JPanel transitionPanel, textWindow, choicePanel;
+    private JLabel transitionLabel, nameLabel;
+    private JTextArea dialogueArea;
+    private CharacterPanel spritePanel;
     private int pointer = 0; 
     private int nextDayTarget = -1;
     private int ap = 0;           
@@ -20,6 +23,12 @@ public class playmain extends BaseFrame {
     private int score = 0; 
     private boolean isWaitingForResponse = false;
     private Timer typewriterTimer;
+
+    private boolean isResponseMode = false;
+
+    public void setResponseMode(boolean mode) { 
+    this.isResponseMode = mode; 
+}
 
     public playmain(Character selectedGirl) {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
@@ -85,7 +94,7 @@ public class playmain extends BaseFrame {
         // 5. Action Menu (Layer 1) - พิกัดเดิม x=980
         giftBtn = new JButton("GIVE GIFT (-1 AP)");
         datingBtn = new JButton("GO ON DATE (-2 AP)");
-        nextBtn = new JButton("END DAY / NEXT");
+        nextBtn = new JButton("NEXT DAY");
         
         JButton[] actionButtons = {giftBtn, datingBtn, nextBtn};
         int yPos = 280;
@@ -97,7 +106,11 @@ public class playmain extends BaseFrame {
 
         giftBtn.addActionListener(e -> { if(canPerformAction(1, "gift")) { currentGirl.addScore(10); updateUI(); } });
         datingBtn.addActionListener(e -> { if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
-        nextBtn.addActionListener(e -> handleDayTransition());
+        nextBtn.addActionListener(e -> {
+        setEventMenuVisible(false);
+        isResponseMode = false; // รีเซ็ตโหมด
+        StoryManager.runStory(this, currentGirl.getName(), currentDay); // เริ่มเนื้อเรื่องของวันที่เพิ่งเปลี่ยนมา
+        });
 
         // 6. Transition Panel (Layer 0 - อยู่หน้าสุดเสมอ)
         transitionPanel = new JPanel(new BorderLayout());
@@ -122,6 +135,7 @@ public class playmain extends BaseFrame {
         });
         
         setEventMenuVisible(false);
+        setupZOrder();
     }
 
     /**
@@ -129,55 +143,59 @@ public class playmain extends BaseFrame {
      * ยิ่งเลขน้อย (เช่น 0) จะยิ่งอยู่หน้าสุดของจอ
      */
     private void setupZOrder() {
-        if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0);
-        
-        // กลุ่มปุ่มกดและทางเลือก (อยู่หน้ากล่องข้อความ)
-        if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
-        if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
-        if (datingBtn != null) mainPanel.setComponentZOrder(datingBtn, 1);
-        if (nextBtn != null) mainPanel.setComponentZOrder(nextBtn, 1);
+    if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0); // หน้าสุด
+    if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
+    if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
+    if (datingBtn != null) mainPanel.setComponentZOrder(datingBtn, 1);
+    if (nextBtn != null) mainPanel.setComponentZOrder(nextBtn, 1);
+    
+    // กล่องข้อความ (Layer 2) อยู่หน้าตัวละคร 
+    if (textWindow != null) mainPanel.setComponentZOrder(textWindow, 2);
+    
+    // ตัวละคร (Layer 3) อยู่หลังสุด 
+    if (spritePanel != null) mainPanel.setComponentZOrder(spritePanel, 3);
 
-        // กล่องข้อความและสเตตัส (Layer กลาง)
-        if (textWindow != null) mainPanel.setComponentZOrder(textWindow, 2);
-        if (apLabel != null) mainPanel.setComponentZOrder(apLabel, 2);
+    mainPanel.revalidate();
+    mainPanel.repaint();
+}
 
-        // ตัวละคร (Layer ลึกสุด แต่อยู่บนฉากหลัง)
-        if (spritePanel != null) mainPanel.setComponentZOrder(spritePanel, 3);
+   public void setEventMenuVisible(boolean visible) {
+        if (giftBtn != null) giftBtn.setVisible(visible);
+        if (datingBtn != null) datingBtn.setVisible(visible);
+        if (nextBtn != null) nextBtn.setVisible(visible);
         
-        mainPanel.revalidate();
-        mainPanel.repaint();
-    }
-
-    public void setEventMenuVisible(boolean visible) {
-        giftBtn.setVisible(visible); 
-        datingBtn.setVisible(visible); 
-        nextBtn.setVisible(visible);
-        textWindow.setVisible(!visible);
-        
-        // เมื่อเปลี่ยนโหมดหน้าจอ ให้จัดเลเยอร์ใหม่เพื่อให้ปุ่มอยู่หน้าสุดเสมอ
-        if (visible) setupZOrder();
+        // ถ้าแสดงเมนู ให้ซ่อนกล่องข้อความ และในทางกลับกัน
+        if (textWindow != null) textWindow.setVisible(!visible);
     }
 
     public void advanceDialogue() {
-        if (currentQueue == null) return;
-        if (pointer < currentQueue.length) {
-            DialogueLine line = currentQueue[pointer];
-            nameLabel.setText(line.characterName);
-            startTypewriter(line.text);
-            if (line.spritePath != null && !line.spritePath.isEmpty()) {
-                spritePanel.updateImage(line.spritePath);
-            }
-            pointer++;
+    if (currentQueue == null) return;
+    if (pointer < currentQueue.length) {
+        // ... (โค้ดแสดงบทสนทนาปกติของคุณ) ...
+        DialogueLine line = currentQueue[pointer];
+        nameLabel.setText(line.characterName);
+        startTypewriter(line.text);
+        if (line.spritePath != null && !line.spritePath.isEmpty()) {
+            spritePanel.updateImage(line.spritePath);
+        }
+        pointer++;
+    } else {
+        if (choicePanel.getComponentCount() > 0 && !isWaitingForResponse) {
+            choicePanel.setVisible(true);
+            setupZOrder();
+            isWaitingForResponse = true;
         } else {
-            if (choicePanel.getComponentCount() > 0 && !isWaitingForResponse) {
-                choicePanel.setVisible(true);
-                setupZOrder(); // จัดเลเยอร์ให้ choicePanel อยู่หน้าสุด
-                isWaitingForResponse = true;
+            // --- แก้ไขตรงนี้เพื่อแก้ปัญหาการแสดงเมนูซ้ำซ้อน ---
+            if (isResponseMode) {
+                // ถ้าจบจากฉากเดท (Response) ให้ข้ามเมนูแล้วไปหน้าเนื้อเรื่องวันถัดไปทันที
+                handleDayTransition(); 
             } else {
-                StoryManager.processNextDay(this);
+                // ถ้าจบจากเนื้อเรื่องหลัก ให้โชว์ Transition วันใหม่ และตามด้วยเมนูเลือกกิจกรรม
+                triggerEveningChoice(); 
             }
         }
     }
+}
 
     public void runDayLogic(String bg, DialogueLine[] story, String[] choices, int scoreA, int scoreB, DialogueLine[] resA, DialogueLine[] resB) {
         setBackgroundImage(bg);
@@ -218,16 +236,33 @@ public class playmain extends BaseFrame {
         timer.start();
     }
 
+        public void triggerEveningChoice() {
+    // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)
+    this.currentDay++; 
+    
+    showDayTransition(currentDay, "Evening Activities", () -> {
+        setEventMenuVisible(true); // แสดงปุ่มเลือกกิจกรรมหลังจอดำหายไป [cite: 13]
+        setupZOrder();
+    });
+}
+    
+
     private void handleDayTransition() {
-        if (nextDayTarget != -1) { 
-            currentDay = nextDayTarget; 
-            nextDayTarget = -1; 
-        } else { 
-            currentDay++; 
-        }
-        giftCount = 0; dateCount = 0;
-        StoryManager.runStory(this, currentGirl.getName(), currentDay);
+    isResponseMode = false; // ปิดโหมดเดทเมื่อเข้าสู่เนื้อเรื่องปกติ
+    giftCount = 0; dateCount = 0; // รีเซ็ตโควต้ากิจกรรม
+
+    if (nextDayTarget != -1) { 
+        this.currentDay = nextDayTarget; // ข้ามวันตามที่ DatingEvent กำหนด (เช่น 2 + 2 = 4) 
+        nextDayTarget = -1; 
+    } else { 
+        // ปกติ handleDayTransition จะถูกเรียกเฉพาะหลังจบเดท/ให้ของขวัญ
+        // ถ้าไม่มีเป้าหมายข้ามวันพิเศษ ก็แค่เพิ่มวันตามปกติ
+        this.currentDay++; 
     }
+    
+    setEventMenuVisible(false);
+    StoryManager.runStory(this, currentGirl.getName(), currentDay);
+}
 
     private void startTypewriter(String text) {
         if (typewriterTimer != null) typewriterTimer.stop();
@@ -278,4 +313,7 @@ public class playmain extends BaseFrame {
         if (nameLabel != null) nameLabel.setBounds((int)(30 * scaleX), (int)(15 * scaleY), (int)(400 * scaleX), (int)(40 * scaleY));
         if (dialogueArea != null) dialogueArea.setBounds((int)(30 * scaleX), (int)(60 * scaleY), (int)(1100 * scaleX), (int)(100 * scaleY));
     }
+
+    // ใน playmain.java [cite: 12]
+    
 }
