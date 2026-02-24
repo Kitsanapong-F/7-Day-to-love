@@ -55,9 +55,18 @@ public class CharacterSelection extends BaseFrame {
         addComponent(selectBtn, 490, 610, 300, 50);
 
         selectBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Starting your 7 days with " + selectedName);
-            // ตรงนี้ให้คุณเชื่อมต่อไปยังหน้า VisualNovelUI (หน้าเล่นเกม) ในอนาคต
-            // SceneManager.switchScene(new VisualNovelUI(selectedName));
+            if (selectedName.equals("Akari")) {
+                // 1. สร้างหน้าจอเล่นของ Akari
+                playAkari gameUI = new playAkari(); 
+                
+                // 2. สลับหน้าจอโดยใช้ SceneManager
+                SceneManager.switchScene(gameUI);
+                
+                // 3. เริ่มรันเนื้อเรื่องวันที่ 1 ผ่าน StoryManager
+                StoryManager.runAkari(gameUI, 1); 
+            } else {
+                JOptionPane.showMessageDialog(this, "The story for " + selectedName + " is coming soon!");
+            }
         });
     }
 

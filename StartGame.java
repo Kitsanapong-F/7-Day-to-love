@@ -25,5 +25,10 @@ public class StartGame extends BaseFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> SceneManager.switchScene(new StartGame()));
+     
+        
+        
+        
+        
     }
 }

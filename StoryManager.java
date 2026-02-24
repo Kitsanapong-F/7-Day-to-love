@@ -1,5 +1,5 @@
 public class StoryManager {
-    public static void runAkari(VisualNovelUI ui, int day) {
+    public static void runAkari(playAkari ui, int day) {
 
         ui.setDialoguePointer(0);
 
