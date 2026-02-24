@@ -9,7 +9,9 @@ class miniGame {
         // // ตั้งค่าฟอนต์ไทยให้ดูละมุน
         setUIFont(new FontUIResource("Tahoma", Font.PLAIN, 16));
         // SwingUtilities.invokeLater(() -> new DatingGameInterface());
-        WhackAMoleGame game = new WhackAMoleGame();
+        // WhackAMoleGame game = new WhackAMoleGame();
+        // game.start();
+        HappyBirdGame game = new HappyBirdGame();
         game.start();
     }
 
