@@ -1,10 +1,12 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 
 class miniGame {
     public static void main(String[] args) {
-        new interfaceGame();
+
+        // new interfaceGame();
     }
 }
 
@@ -14,6 +16,10 @@ class interfaceGame {
 
     public interfaceGame() {
         JFrame frame = new JFrame();
+        Font thaiFont = new Font("Tahoma", Font.PLAIN, 16);
+
+        UIManager.put("OptionPane.messageFont", thaiFont);
+        UIManager.put("OptionPane.buttonFont", thaiFont);
 
         frame.setUndecorated(true);
         
@@ -28,7 +34,7 @@ class interfaceGame {
         panel.setBackground(new Color(205, 92, 92));
         panel.setLayout(new BorderLayout());
 
-        JButton button = new JButton("push");
+        JButton button = new JButton("start");
         button.setFont(new Font("Arial", Font.BOLD, 20));
         button.setForeground(new Color(255, 255, 255));
         button.setBackground(new Color(165, 42, 42));
