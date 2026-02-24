@@ -247,22 +247,29 @@ public class playmain extends BaseFrame {
 }
     
 
-    private void handleDayTransition() {
-    isResponseMode = false; // ปิดโหมดเดทเมื่อเข้าสู่เนื้อเรื่องปกติ
-    giftCount = 0; dateCount = 0; // รีเซ็ตโควต้ากิจกรรม
+   private void handleDayTransition() {
+    // 1. ตรวจสอบเงื่อนไขจบเกมก่อนเป็นอันดับแรก
+    // ถ้า currentDay เป็น 8 หรือ Target เป็น 99 แสดงว่าจบฉากจบแล้ว
+    if (this.currentDay >= 8 || nextDayTarget == 99) {
+        StoryManager.finishGame(this); 
+        return; // หยุดการทำงานเพื่อไม่ให้รัน StoryManager.runStory ซ้ำ
+    }
 
+    isResponseMode = false; 
+    giftCount = 0; dateCount = 0; 
+    
     if (nextDayTarget != -1) { 
-        this.currentDay = nextDayTarget; // ข้ามวันตามที่ DatingEvent กำหนด (เช่น 2 + 2 = 4) 
+        this.currentDay = nextDayTarget; 
         nextDayTarget = -1; 
     } else { 
-        // ปกติ handleDayTransition จะถูกเรียกเฉพาะหลังจบเดท/ให้ของขวัญ
-        // ถ้าไม่มีเป้าหมายข้ามวันพิเศษ ก็แค่เพิ่มวันตามปกติ
         this.currentDay++; 
     }
     
     setEventMenuVisible(false);
+    
+    // 2. ส่งค่าไปให้ StoryManager รันเนื้อเรื่องวันถัดไป หรือรัน Ending
     StoryManager.runStory(this, currentGirl.getName(), currentDay);
-}
+    }
 
     private void startTypewriter(String text) {
         if (typewriterTimer != null) typewriterTimer.stop();

@@ -2,7 +2,7 @@ import javax.swing.*;
 
 /**
  * StoryManager: ควบคุมลำดับเหตุการณ์ในเกม (Main Logic Controller)
- * จัดการการเปลี่ยนวัน, การเรียกใช้เนื้อเรื่อง และการตัดสินฉากจบ
+ * ทำหน้าที่จัดการการเปลี่ยนวัน, เรียกใช้เนื้อเรื่องแต่ละตัวละคร และตัดสินฉากจบ
  */
 public class StoryManager {
     private static String currentRoute = "Akari";
@@ -14,9 +14,9 @@ public class StoryManager {
     }
 
     public static void processNextDay(playmain ui) {
-        // ปรับเข้าสู่ช่วง Free Action
+        // ปรับเข้าสู่ช่วง Free Action ให้ผู้เล่นเลือกกิจกรรม
         ui.setEventMenuVisible(true);
-        ui.earnAP(); 
+        ui.earnAP();
         System.out.println("[System] Free Action Mode - Route: " + currentRoute);
     }
 
@@ -33,6 +33,13 @@ public class StoryManager {
         currentRoute = girlName;
         ui.setDialoguePointer(0);
         ui.setEventMenuVisible(false);
+
+        // หากเป็นวันที่ 8 (หลังจากจบกิจกรรมคืนวันที่ 7) ให้รัน Logic สำหรับฉากจบโดยตรง
+        if (day >= 8) {
+            if (girlName.equals("Akari")) runAkari(ui, day);
+            // สามารถเพิ่มรูทตัวละครอื่นๆ ได้ที่นี่
+            return;
+        }
 
         // แสดงแอนิเมชันเปลี่ยนวันก่อนเริ่มเนื้อเรื่อง
         String dayTitle = (day == 7) ? "The Final Day" : "Daily Life";
@@ -52,8 +59,8 @@ public class StoryManager {
         if (ui == null) return;
         ui.setDialoguePointer(0);
 
+        // เนื้อเรื่องปกติวันที่ 1-6
         if (day >= 1 && day <= 6) {
-            // ดึงข้อมูลจาก storyData มาใช้งาน (คะแนนบวก 15, ลบ 10)
             ui.runDayLogic(
                 storyData.getAkariDayBackground(day), 
                 storyData.getAkariDayStory(day), 
@@ -62,10 +69,10 @@ public class StoryManager {
                 storyData.getAkariDayResponseA(day), 
                 storyData.getAkariDayResponseB(day)
             );
-        } else if (day == 7) {
+        } 
+        // เมื่อจบวันที่ 6 แล้วเข้าสู่วันที่ 7 (Ending State)
+        else if (day >= 7) {
             handleEnding(ui, "Akari");
-        } else {
-            finishGame(ui);
         }
     }
 
@@ -74,33 +81,45 @@ public class StoryManager {
         ui.setEventMenuVisible(false);
         
         int finalScore = ui.getCurrentGirlScore();
+        ui.setResponseMode(true);
+        ui.setNextDayTarget(99); // Flag พิเศษบอก playmain ว่าเมื่อจบไดอะล็อกนี้ให้เรียก finishGame
+        
         System.out.println("[Ending Check] Final Score for " + girlName + ": " + finalScore);
 
         if (girlName.equals("Akari")) {
-            if (finalScore >= 80) {
-                ui.setBackgroundImage("image\\Akari\\4dd1e007-648f-448d-8ccb-2a0d4d2885d0.png");
-                ui.setDialogueQueue(endingData.getAkariGoodEnding());
-            } else {
-                ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
-                ui.setDialogueQueue(endingData.getAkariBadEnding());
+            if (finalScore >= 20) { // เงื่อนไข Good Ending
+                ui.showDayTransition(7, "GOOD ENDING", () -> {
+                    ui.setBackgroundImage("image\\Akari\\4dd1e007-648f-448d-8ccb-2a0d4d2885d0.png");
+                    ui.setDialogueQueue(endingData.getAkariGoodEnding());
+                });
+            } else { // เงื่อนไข Bad Ending
+                ui.showDayTransition(7, "BAD ENDING", () -> {
+                    ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
+                    ui.setDialogueQueue(endingData.getAkariBadEnding());
+                });
             }
         }
-        // สามารถเพิ่มเงื่อนไข Shiori และ Reina ได้ที่นี่
     }
 
-    private static void finishGame(playmain ui) {
+    /**
+     * เมธอดต้องเป็น public เพื่อให้ playmain สามารถเรียกใช้ได้จากภายนอกคลาส
+     */
+    public static void finishGame(playmain ui) {
         JOptionPane.showMessageDialog(ui, "Your 7-day story has come to an end. Thank you for playing!");
-        System.exit(0);
+        ui.dispose(); // ปิดหน้าต่างเกมปัจจุบัน
+        
+        // สลับไปยังหน้าเลือกตัวละคร
+        SceneManager.switchScene(new CharacterSelection());
     }
 
     // --- รูทที่กำลังพัฒนา ---
     public static void runReina(playmain ui, int day) {
-        JOptionPane.showMessageDialog(ui, "Reina's route is coming soon in the next update!");
+        JOptionPane.showMessageDialog(ui, "Reina's route is coming soon!");
         ui.dispose();
     }
 
     public static void runShiori(playmain ui, int day) {
-        JOptionPane.showMessageDialog(ui, "Shiori's route is coming soon in the next update!");
+        JOptionPane.showMessageDialog(ui, "Shiori's route is coming soon!");
         ui.dispose();
     }
 }
