@@ -217,5 +217,12 @@ public class storyData {
         };
     }
 
+    public static DialogueLine[] getAkariGiftStory() {
+    return new DialogueLine[] {
+        new DialogueLine("อาคาริ", "เอ๊ะ? ให้ฉันเหรอ? ว้าว! ขอบใจนะ! รู้ใจสมเป็นเพื่อนกันมานานจริงๆ","image\\Akari\\_blank.png"),
+        new DialogueLine("อาคาริ", "เอ๊ะ? ให้ฉันเหรอ? ขอบใจนะ! ฉันจะรักษาอย่างดีเลยล่ะ!", "image\\Akari\\_blank.png")
+    };
+}
+
 
 }

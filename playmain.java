@@ -104,7 +104,28 @@ public class playmain extends BaseFrame {
             yPos += 70;
         }
 
-        giftBtn.addActionListener(e -> { if(canPerformAction(1, "gift")) { currentGirl.addScore(10); updateUI(); } });
+        giftBtn.addActionListener(e -> { 
+            if(canPerformAction(1, "gift")) { 
+            currentGirl.addScore(10); 
+            setEventMenuVisible(false); // ซ่อนปุ่มเลือกกิจกรรมก่อน
+        
+            showDayTransition(currentDay, "A Small Gift", () -> {
+            // สำคัญ: ต้องเข้าโหมด Response เพื่อไม่ให้วนกลับไปหน้าเมนูทันที
+            setResponseMode(true); 
+            
+            // ตรวจสอบชื่อตัวละคร (ใช้ trim เพื่อตัดช่องว่างที่อาจติดมา)
+            String name = currentGirl.getName().trim();
+            if (name.equalsIgnoreCase("Akari")) {
+                setDialogueQueue(storyData.getAkariGiftStory());
+            } else if (name.equalsIgnoreCase("Reina")) {
+
+            } else if (name.equalsIgnoreCase("Shiori")) {
+
+            }
+        });
+        updateUI();
+        } 
+    });
         datingBtn.addActionListener(e -> { if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
         nextBtn.addActionListener(e -> {
         setEventMenuVisible(false);
@@ -145,6 +166,7 @@ public class playmain extends BaseFrame {
     private void setupZOrder() {
     if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0); // หน้าสุด
     if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
+
     if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
     if (datingBtn != null) mainPanel.setComponentZOrder(datingBtn, 1);
     if (nextBtn != null) mainPanel.setComponentZOrder(nextBtn, 1);
@@ -186,11 +208,17 @@ public class playmain extends BaseFrame {
             isWaitingForResponse = true;
         } else {
             // --- แก้ไขตรงนี้เพื่อแก้ปัญหาการแสดงเมนูซ้ำซ้อน ---
-            if (isResponseMode) {
-                // ถ้าจบจากฉากเดท (Response) ให้ข้ามเมนูแล้วไปหน้าเนื้อเรื่องวันถัดไปทันที
-                handleDayTransition(); 
+           if (isResponseMode) {
+                if (nextDayTarget != -1) {
+                    // กรณี Dating: มีการตั้งข้ามวันไว้ -> เรียก handleDayTransition (มีการข้ามวัน) 
+                    handleDayTransition(); 
+                } else {
+                    // กรณี Gift: ไม่มีการข้ามวัน -> รันเนื้อเรื่องวันปัจจุบันต่อทันที (No Transition 2)
+                    isResponseMode = false; // ปิดโหมดตอบโต้
+                    StoryManager.runStory(this, currentGirl.getName(), currentDay); 
+                }
             } else {
-                // ถ้าจบจากเนื้อเรื่องหลัก ให้โชว์ Transition วันใหม่ และตามด้วยเมนูเลือกกิจกรรม
+                // จบเนื้อเรื่องหลัก -> ไปสู่หน้าเลือกกิจกรรม (ที่มี Transition)
                 triggerEveningChoice(); 
             }
         }
@@ -238,7 +266,23 @@ public class playmain extends BaseFrame {
 
         public void triggerEveningChoice() {
     // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)
-    this.currentDay++; 
+    this.currentDay++;
+
+    String name = currentGirl.getName().trim();
+    String newBG = null;
+
+    if (name.equalsIgnoreCase("Akari")) {
+        newBG = storyData.getAkariDayBackground(currentDay); // [cite: 5]
+    } else if (name.equalsIgnoreCase("Reina")) {
+        //newBG = storyDataReina.getReinaDayBackground(currentDay); // [cite: 6]
+    } else if (name.equalsIgnoreCase("Shiori")) {
+        //newBG = storyDataShiori.getShioriDayBackground(currentDay); // [cite: 8]
+    }
+
+    // 4. อัปเดตพื้นหลังทันทีก่อนขึ้น Transition [cite: 4]
+    if (newBG != null) {
+        setBackgroundImage(newBG); 
+    }
     
     showDayTransition(currentDay, "Evening Activities", () -> {
         setEventMenuVisible(true); // แสดงปุ่มเลือกกิจกรรมหลังจอดำหายไป [cite: 13]
