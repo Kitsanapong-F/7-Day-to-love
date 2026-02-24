@@ -6,9 +6,11 @@ import javax.swing.plaf.FontUIResource;
 
 class miniGame {
     public static void main(String[] args) {
-        // ตั้งค่าฟอนต์ไทยให้ดูละมุน
+        // // ตั้งค่าฟอนต์ไทยให้ดูละมุน
         setUIFont(new FontUIResource("Tahoma", Font.PLAIN, 16));
-        SwingUtilities.invokeLater(() -> new DatingGameInterface());
+        // SwingUtilities.invokeLater(() -> new DatingGameInterface());
+        WhackAMoleGame game = new WhackAMoleGame();
+        game.start();
     }
 
     public static void setUIFont(FontUIResource f) {
