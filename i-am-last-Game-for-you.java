@@ -6,7 +6,7 @@ import javax.swing.plaf.FontUIResource;
 class miniGame {
     public static void main(String[] args) {
 
-        // new interfaceGame();
+        new interfaceGame();
     }
 }
 
