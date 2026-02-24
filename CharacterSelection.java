@@ -30,8 +30,7 @@ public class CharacterSelection extends BaseFrame {
         styleButton(backBtn);
         addComponent(backBtn, 40, 30, 140, 45);
         backBtn.addActionListener(e -> {
-            // เชื่อมต่อกลับไปหน้า Start (ต้องมีคลาส StartGame)
-            // SceneManager.switchScene(new StartGame()); 
+            SceneManager.switchScene(new StartGame()); 
         });
 
         // สร้างการ์ดตัวละคร 3 ตัว (ปรับตำแหน่ง X ให้สมดุลขึ้น)

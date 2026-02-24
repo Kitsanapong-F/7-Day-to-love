@@ -38,7 +38,7 @@ public class StartGame extends BaseFrame {
             }
         });
     }
-
+    
     public static void main(String[] args) {
         // ตั้งค่า Look and Feel ให้ดูเป็นสากล
         try {
