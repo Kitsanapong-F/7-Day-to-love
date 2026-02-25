@@ -57,21 +57,32 @@ public class CharacterSelection extends BaseFrame {
         addComponent(selectBtn, 440, 600, 400, 60);
 
         selectBtn.addActionListener(e -> {
-            if (selectedName.equals("Akari")) {
-                // สร้าง Object Character และเข้าสู่เกม
-                Character heroine = new Character(selectedName);
-                playmain gameUI = new playmain(heroine);
-                SceneManager.switchScene(gameUI);
-                
-                if (detailFrame != null) detailFrame.dispose();
-                this.dispose();
-            } else {
-                // แสดงผลสำหรับรูทที่ยังไม่เปิด
-                JOptionPane.showMessageDialog(this, 
-                    "Currently, only Akari's route is available in this version!", 
-                    "Under Development", JOptionPane.WARNING_MESSAGE);
-            }
-        });
+        // 1. สร้าง Object Character สำหรับนางเอกที่เลือก
+        Character heroine = new Character(selectedName);
+
+        if (selectedName.equals("Akari")) {
+            // เข้าสู่รูท Akari (ใช้ playmain ปกติ)
+            playmain gameUI = new playmain(heroine);
+            SceneManager.switchScene(gameUI);
+            
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose();
+
+        } else if (selectedName.equals("Reina")) {
+            // เข้าสู่รูท Reina (ใช้ playmainReina ที่คุณเพิ่งสร้าง)
+            playmainReina gameUI = new playmainReina(heroine);
+            SceneManager.switchScene(gameUI);
+            
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose();
+
+        } else {
+            // สำหรับรูท Shiori หรืออื่นๆ ที่ยังไม่เสร็จ
+            JOptionPane.showMessageDialog(this, 
+                "Currently, " + selectedName + "'s route is still under development!", 
+                "Coming Soon", JOptionPane.INFORMATION_MESSAGE);
+        }
+    });
     }
 
     private void addCard(String name, String path, String bio, int x, int y) {
