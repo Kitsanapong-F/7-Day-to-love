@@ -49,7 +49,7 @@ public class playmain extends BaseFrame {
     private void initGameUI() {
         // 1. Sprite Panel (Layer 3 - อยู่ด้านหลัง)
         spritePanel = new CharacterPanel("");
-        addComponent(spritePanel, 440, 50, 400, 600); 
+        addComponent(spritePanel, 540, 100, 200, 600); 
 
         // 2. AP Display
         apLabel = new JLabel("AP: 0");

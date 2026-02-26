@@ -31,27 +31,29 @@ public class StoryManager {
     }
 
     // สำหรับรูท Reina (ใช้ playmainReina UI)
-    public static void runReina(playmainReina ui, int day) {
-        if (ui == null) return;
-        ui.setDialoguePointer(0);
-        ui.setEventMenuVisible(false);
+   public static void runReina(playmainReina ui, int day) {
+    if (ui == null) return;
+    ui.setDialoguePointer(0);
+    ui.setEventMenuVisible(false);
 
-        if (day >= 7) {
-            handleEnding(ui, "Reina");
-            return;
-        }
+    if (day >= 7) {
+        handleEnding(ui, "Reina");
+        return;
+    }
 
-        // Logic เนื้อเรื่องวันที่ 1-6
+    // เพิ่ม Transition เพื่อให้เหมือน playmain
+    String dayTitle = "Student Council Work"; 
+    ui.showDayTransition(day, dayTitle, () -> {
         ui.runDayLogic(
             storyDataReina.getRaynaDayBackground(day), 
             storyDataReina.getRaynaDayStory(day), 
             storyDataReina.getRaynaDayChoice(day), 
-            20, -5, // คะแนนสำหรับ Reina
+            20, -5, 
             storyDataReina.getRaynaDayResponseA(day), 
             storyDataReina.getRaynaDayResponseB(day)
         );
-    }
-
+    });
+}
     // --- รูท Akari ---
     public static void runAkari(playmain ui, int day) {
         ui.runDayLogic(
