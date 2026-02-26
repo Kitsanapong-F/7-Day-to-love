@@ -33,6 +33,8 @@ public class CharacterSelection extends BaseFrame {
             SceneManager.switchScene(new StartGame()); 
         });
 
+        // ใน CharacterSelection.java (ตัวอย่างพิกัดที่แนะนำ)
+
         // สร้างการ์ดตัวละคร 3 ตัว (ปรับตำแหน่ง X ให้สมดุลขึ้น)
         addCard("Akari", "image\\Akari\\22b9ada1-d037-49df-95c0-35e2c5531ded.png", 
                 "Energetic childhood friend who's always by your side.", 120, 120);
@@ -90,7 +92,7 @@ public class CharacterSelection extends BaseFrame {
         CharacterPanel p = new CharacterPanel(path);
         panels.add(p);
         p.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addComponent(p, x, y, 250, 380);
+        addComponent(p, x, y, 250, 395);
         
         // ปุ่มดูรายละเอียด (Detail)
         JButton det = new JButton("VIEW PROFILE");
