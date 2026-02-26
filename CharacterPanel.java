@@ -18,12 +18,16 @@ class CharacterPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (img != null) {
-            Graphics2D g2d = (Graphics2D) g;
-            // เพิ่มความคมชัดของ Sprite ตัวละครเวลาขยายจอ
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            
-            // วาดรูปตัวละครให้เต็มพื้นที่ Panel
-            g2d.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+            double scale = (double) getHeight() / img.getHeight(null);
+            int newW = (int) (img.getWidth(null) * scale);
+            int newH = getHeight();
+
+            // 2. คำนวณตำแหน่ง X เพื่อให้อยู่กึ่งกลางกรอบ
+            int x = (getWidth() - newW) / 2;
+            int y = 0; 
+
+            // 3. วาดภาพโดยใช้ตัวแปร 'img' และพิกัดที่คำนวณได้
+            g.drawImage(img, x, y, newW, newH, this);
         }
     }
 
