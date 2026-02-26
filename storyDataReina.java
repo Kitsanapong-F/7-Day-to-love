@@ -1,5 +1,67 @@
 public class storyDataReina {
-     public class storyData {
+    
+    public static String  getRaynaDayBackground(int day) {
+        switch (day) {
+            case 1: return  getRaynaDay1Backgroud();
+            case 2: return  getRaynaDay2Backgroud();
+            case 3: return  getRaynaDay3Backgroud();
+            case 4: return  getRaynaDay4Backgroud();
+            case 5: return  getRaynaDay5Backgroud();
+            case 6: return  getRaynaDay6Backgroud();
+            default: return null;
+        }
+    }
+
+    public static DialogueLine[] getRaynaDayStory(int day) {
+        switch (day) {
+            case 1: return getRaynaDay1story();
+            case 2: return  getRaynaDay2story();
+            case 3: return  getRaynaDay3story();
+            case 4: return  getRaynaDay4story();
+            case 5: return  getRaynaDay5story();
+            case 6: return  getRaynaDay6story();
+            default: return null;
+        }
+    }
+
+    public static String[]  getRaynaDayChoice(int day) {
+        switch (day) {
+            case 1: return  getRaynaDay1Choice();
+            case 2: return  getRaynaDay2Choice();
+            case 3: return  getRaynaDay3Choice();
+            case 4: return  getRaynaDay4Choice();
+            case 5: return  getRaynaDay5Choice();
+            case 6: return  getRaynaDay6Choice();
+            default: return new String[]{"...", "..."};
+        }
+    }
+
+    public static DialogueLine[]  getRaynaDayResponseA(int day) {
+        switch (day) {
+            case 1: return  getRaynaDay1ResponseA();
+            case 2: return  getRaynaDay2ResponseA();
+            case 3: return  getRaynaDay3ResponseA();
+            case 4: return  getRaynaDay4ResponseA();
+            case 5: return  getRaynaDay5ResponseA();
+            case 6: return  getRaynaDay6ResponseA();
+            default: return null;
+        }
+    }
+
+    public static DialogueLine[]  getRaynaDayResponseB(int day) {
+        switch (day) {
+            case 1: return  getRaynaDay1ResponseB();
+            case 2: return  getRaynaDay2ResponseB();
+            case 3: return  getRaynaDay3ResponseB();
+            case 4: return  getRaynaDay4ResponseB();
+            case 5: return  getRaynaDay5ResponseB();
+            case 6: return  getRaynaDay6ResponseB();
+            default: return null;
+        }
+    }
+
+
+
     public static String getRaynaDay1Backgroud(){
         return "image\\Naohiro.jpg";
     };
@@ -162,7 +224,7 @@ public class storyDataReina {
                     new DialogueLine("เรย์นะ", "\"คนที่จะช่วยฉันควรจะเป็นนายสิ! ฮึก... ออกไปให้หมดเลยนะ!\"", "image\\b90f8c5f-34e4-47bf-ae57-d2e6335b3d61.png")
         };
         };
-    };
+    
 
 //==============================================================================================================================================================================
     public static String getRaynaDay6Backgroud(){
@@ -196,5 +258,18 @@ public class storyDataReina {
 }
 
 //===============================================================================================================================================================================
-
+public static DialogueLine[] getReinaDateStory() {
+        return new DialogueLine[] {
+            new DialogueLine("เรย์นะ", "ไม่นึกเลยนะว่าคนอย่างนายจะกล้าชวนประธานนักเรียนมาที่คาเฟ่แบบนี้", "image\\Reina\\normal.png"),
+            new DialogueLine("พระเอก", "ผมแค่อยากให้คุณได้พักผ่อนบ้างน่ะครับ เรย์นะ", "image\\Bgscene\\cafe_interior.jpg"),
+            new DialogueLine("เรย์นะ", "(จิบชาเงียบๆ ก่อนจะหันมองหน้าต่าง) ...ขอบใจนะ นานๆ ทีได้อยู่เงียบๆ แบบนี้ก็ไม่เลวเหมือนกัน", "image\\Reina\\blushing.png"),
+            new DialogueLine("ระบบ", "คุณและเรย์นะใช้เวลาช่วงเย็นด้วยกัน ความสัมพันธ์ของคุณทั้งคู่ดูสนิทสนมกันมากขึ้น", "")
+        };
+    }
+ public static DialogueLine[] getReinaGiftStory() {
+    return new DialogueLine[] {
+        new DialogueLine("อาคาริ", "เอ๊ะ? ให้ฉันเหรอ? ว้าว! ขอบใจนะ! รู้ใจสมเป็นเพื่อนกันมานานจริงๆ","image\\Akari\\_blank.png"),
+        new DialogueLine("อาคาริ", "เอ๊ะ? ให้ฉันเหรอ? ขอบใจนะ! ฉันจะรักษาอย่างดีเลยล่ะ!", "image\\Akari\\_blank.png")
+    };
+    }
 }
