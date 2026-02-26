@@ -1,80 +1,100 @@
 import javax.swing.*;
 
 public class StoryManager {
-    private static String currentRoute = "Akari";
+    private static String currentRoute = "";
 
-    // --- เมธอดเริ่มต้นเกม (เรียกจาก CharacterSelection) ---
-    public static void resetGame(playmain ui, String route) {
+    // --- 1. เมธอดเริ่มต้นเกม (เรียกจาก CharacterSelection) ---
+    public static void resetGame(JFrame ui, String route) {
         currentRoute = route;
-        runStory(ui, route, 1);
+        if (ui instanceof playmain) {
+            runStory((playmain) ui, route, 1);
+        } else if (ui instanceof playmainReina) {
+            runReina((playmainReina) ui, 1);
+        } else if (ui instanceof playmainShiori) {
+            runShiori((playmainShiori) ui, 1);
+        }
     }
 
-    // --- ระบบรันเนื้อเรื่องแยกตามประเภท UI (Overloading) ---
-    
-    // สำหรับรูทปกติ (Akari / Shiori)
+    // --- 2. ระบบรันเนื้อเรื่องแยกตามประเภท UI (Overloading) ---
+
+    // [ROUTE: AKARI] ใช้ playmain UI
     public static void runStory(playmain ui, String girlName, int day) {
         if (ui == null) return;
         currentRoute = girlName;
         ui.setDialoguePointer(0);
         ui.setEventMenuVisible(false);
 
-        if (day >= 7) { // เข้าสู่ช่วงจบเกม
-            if (girlName.equals("Akari")) handleEnding(ui, "Akari");
+        if (day >= 7) {
+            handleEnding(ui, "Akari");
             return;
         }
 
-        String dayTitle = "Daily Life";
+        String dayTitle = "School Life";
         ui.showDayTransition(day, dayTitle, () -> {
-            if (girlName.equals("Akari")) runAkari(ui, day);
-            else if (girlName.equals("Shiori")) runShiori(ui, day);
+            ui.runDayLogic(
+                storyData.getAkariDayBackground(day), 
+                storyData.getAkariDayStory(day), 
+                storyData.getAkariDayChoice(day), 
+                15, -10, 
+                storyData.getAkariDayResponseA(day), 
+                storyData.getAkariDayResponseB(day)
+            );
         });
     }
 
-    // สำหรับรูท Reina (ใช้ playmainReina UI)
-   public static void runReina(playmainReina ui, int day) {
-    if (ui == null) return;
-    ui.setDialoguePointer(0);
-    ui.setEventMenuVisible(false);
+    // [ROUTE: REINA] ใช้ playmainReina UI
+    public static void runReina(playmainReina ui, int day) {
+        if (ui == null) return;
+        currentRoute = "Reina";
+        ui.setDialoguePointer(0);
+        ui.setEventMenuVisible(false);
 
-    if (day >= 7) {
-        handleEnding(ui, "Reina");
-        return;
+        if (day >= 7) {
+            handleEnding(ui, "Reina");
+            return;
+        }
+
+        String dayTitle = "Student Council Work"; 
+        ui.showDayTransition(day, dayTitle, () -> {
+            ui.runDayLogic(
+                storyDataReina.getRaynaDayBackground(day), 
+                storyDataReina.getRaynaDayStory(day), 
+                storyDataReina.getRaynaDayChoice(day), 
+                20, -5, 
+                storyDataReina.getRaynaDayResponseA(day), 
+                storyDataReina.getRaynaDayResponseB(day)
+            );
+        });
     }
 
-    // เพิ่ม Transition เพื่อให้เหมือน playmain
-    String dayTitle = "Student Council Work"; 
-    ui.showDayTransition(day, dayTitle, () -> {
-        ui.runDayLogic(
-            storyDataReina.getRaynaDayBackground(day), 
-            storyDataReina.getRaynaDayStory(day), 
-            storyDataReina.getRaynaDayChoice(day), 
-            20, -5, 
-            storyDataReina.getRaynaDayResponseA(day), 
-            storyDataReina.getRaynaDayResponseB(day)
-        );
-    });
-}
-    // --- รูท Akari ---
-    public static void runAkari(playmain ui, int day) {
-        ui.runDayLogic(
-            storyData.getAkariDayBackground(day), 
-            storyData.getAkariDayStory(day), 
-            storyData.getAkariDayChoice(day), 
-            15, -10, 
-            storyData.getAkariDayResponseA(day), 
-            storyData.getAkariDayResponseB(day)
-        );
+    // [ROUTE: SHIORI] ใช้ playmainShiori UI
+    public static void runShiori(playmainShiori ui, int day) {
+        if (ui == null) return;
+        currentRoute = "Shiori";
+        ui.setDialoguePointer(0);
+        ui.setEventMenuVisible(false);
+
+        if (day >= 7) {
+            handleEnding(ui, "Shiori");
+            return;
+        }
+
+        String dayTitle = "Library Quiet Time"; 
+        ui.showDayTransition(day, dayTitle, () -> {
+            ui.runDayLogic(
+                storyDataShiori.getShioriDayBackground(day), 
+                storyDataShiori.getShioriDayStory(day), 
+                storyDataShiori.getShioriDayChoice(day), 
+                15, 0, 
+                storyDataShiori.getShioriDayResponseA(day), 
+                storyDataShiori.getShioriDayResponseB(day)
+            );
+        });
     }
 
-    public static void runShiori(playmain ui, int day) {
-        JOptionPane.showMessageDialog(ui, "Shiori's route is coming soon!");
-        ui.dispose();
-        SceneManager.switchScene(new CharacterSelection());
-    }
+    // --- 3. ระบบจัดการฉากจบ (Ending Logic) ---
 
-    // --- ระบบจัดการฉากจบ (Ending Logic) ---
-
-    // ฉากจบ Akari (playmain)
+    // Ending สำหรับ Akari
     private static void handleEnding(playmain ui, String girlName) {
         ui.hideChoices();
         ui.setEventMenuVisible(false);
@@ -84,18 +104,18 @@ public class StoryManager {
 
         if (finalScore >= 20) {
             ui.showDayTransition(7, "GOOD ENDING", () -> {
-                ui.setBackgroundImage("image\\Akari\\4dd1e007-648f-448d-8ccb-2a0d4d2885d0.png");
+                ui.setBackgroundImage("image\\Akari\\good_end.png");
                 ui.setDialogueQueue(endingData.getAkariGoodEnding());
             });
         } else {
             ui.showDayTransition(7, "BAD ENDING", () -> {
-                ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
+                ui.setBackgroundImage("image\\bad ending\\bad_end.png");
                 ui.setDialogueQueue(endingData.getAkariBadEnding());
             });
         }
     }
 
-    // ฉากจบ Reina (playmainReina)
+    // Ending สำหรับ Reina
     private static void handleEnding(playmainReina ui, String girlName) {
         ui.hideChoices();
         ui.setEventMenuVisible(false);
@@ -110,20 +130,41 @@ public class StoryManager {
             });
         } else {
             ui.showDayTransition(7, "BAD ENDING", () -> {
-                ui.setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
+                ui.setBackgroundImage("image\\bad ending\\bad_end.png");
                 ui.setDialogueQueue(endingData.getReinaBadEnding());
             });
         }
     }
 
-    // --- จบเกมและกลับหน้าเลือกตัวละคร ---
+    // Ending สำหรับ Shiori
+    private static void handleEnding(playmainShiori ui, String girlName) {
+        ui.hideChoices();
+        ui.setEventMenuVisible(false);
+        int finalScore = ui.getCurrentGirlScore();
+        ui.setResponseMode(true);
+        ui.setNextDayTarget(99); 
+
+        if (finalScore >= 20) {
+            ui.showDayTransition(7, "GOOD ENDING", () -> {
+                ui.setBackgroundImage("image\\Shiori\\library_sunset.png");
+                ui.setDialogueQueue(endingData.getShioriGoodEnding());
+            });
+        } else {
+            ui.showDayTransition(7, "BAD ENDING", () -> {
+                ui.setBackgroundImage("image\\bad ending\\bad_end.png");
+                ui.setDialogueQueue(endingData.getShioriBadEnding());
+            });
+        }
+    }
+
+    // --- 4. เมธอดจบเกมและกลับหน้าหลัก ---
     public static void finishGame(JFrame ui) {
         JOptionPane.showMessageDialog(ui, "Your 7-day story has come to an end. Thank you for playing!");
         ui.dispose();
         SceneManager.switchScene(new CharacterSelection());
     }
 
-    // ระบบเพิ่ม AP เมื่อเลือกตอบถูก (สำหรับ playmain)
+    // ระบบเพิ่ม AP เมื่อเลือกตอบถูก
     public static void onChoiceSelected(playmain ui, int scoreChange) {
         if (ui != null && scoreChange > 0) ui.earnAP();
     }

@@ -71,15 +71,23 @@ public class CharacterSelection extends BaseFrame {
             this.dispose();
 
         } else if (selectedName.equals("Reina")) {
-            // เข้าสู่รูท Reina (ใช้ playmainReina ที่คุณเพิ่งสร้าง)
+            // เข้าสู่รูท Reina (ใช้ playmainReina )
             playmainReina gameUI = new playmainReina(heroine);
             SceneManager.switchScene(gameUI);
             
             if (detailFrame != null) detailFrame.dispose();
             this.dispose();
 
-        } else {
-            // สำหรับรูท Shiori หรืออื่นๆ ที่ยังไม่เสร็จ
+        } else if (selectedName.equals("Shiori")) {
+            // เข้าสู่รูท Shiori (ใช้ playmainShiori )
+            playmainShiori gameUI = new playmainShiori(heroine);
+            SceneManager.switchScene(gameUI);
+            
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose(); 
+        }
+        else {
+            // สำหรับรูทหรืออื่นๆ ที่ยังไม่เสร็จ
             JOptionPane.showMessageDialog(this, 
                 "Currently, " + selectedName + "'s route is still under development!", 
                 "Coming Soon", JOptionPane.INFORMATION_MESSAGE);
