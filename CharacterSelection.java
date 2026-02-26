@@ -26,7 +26,7 @@ public class CharacterSelection extends BaseFrame {
         addComponent(title, 0, 30, 1280, 60);
 
         // ปุ่มย้อนกลับไปหน้าแรก
-        JButton backBtn = new JButton("<- BACK");
+        JButton backBtn = new JButton("BACK");
         styleButton(backBtn);
         addComponent(backBtn, 40, 30, 140, 45);
         backBtn.addActionListener(e -> {
@@ -55,7 +55,7 @@ public class CharacterSelection extends BaseFrame {
         selectBtn = new JButton("START STORY");
         styleButton(selectBtn);
         selectBtn.setEnabled(false);
-        selectBtn.setBackground(new Color(50, 100, 50)); // สีเขียวเข้มบอกความพร้อม
+        selectBtn.setBackground(new Color(255, 150, 200)); // สีเบอกความพร้อม
         addComponent(selectBtn, 440, 600, 400, 60);
 
         selectBtn.addActionListener(e -> {
@@ -129,7 +129,7 @@ public class CharacterSelection extends BaseFrame {
                 bioLabel.setText("<html><center>" + bio + "</center></html>");
                 selectBtn.setText("PROCEED WITH " + name.toUpperCase());
                 selectBtn.setEnabled(true);
-                selectBtn.setBackground(new Color(0, 150, 0));
+                selectBtn.setBackground(new Color(255, 105, 180));
             }
 
             @Override
