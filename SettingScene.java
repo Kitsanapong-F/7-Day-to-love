@@ -7,7 +7,9 @@ import java.awt.geom.RoundRectangle2D;
 public class SettingScene extends BaseFrame {
 
     public static void main(String[] args) {
+        // สำหรับรันแยกเพื่อทดสอบหน้าจอ
         SwingUtilities.invokeLater(() -> {
+            AudioManager.loadSettings(); // โหลดค่าก่อนแสดงผล
             SettingScene settings = new SettingScene();
             settings.setVisible(true);
         });
@@ -15,7 +17,7 @@ public class SettingScene extends BaseFrame {
 
     public SettingScene() {
         super("7 Days to Love - Setting");
-        // เล่นเพลง BGM ทันทีที่เข้าหน้า Setting
+        // เล่นเพลงสำหรับหน้า Setting โดยเฉพาะ
         BGMManager.playBGM("Blue_Archive_Irasshaimase.wav");
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         initUI();
@@ -44,38 +46,44 @@ public class SettingScene extends BaseFrame {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         glassPanel.add(titleLabel);
         
-        // ระยะห่างระหว่างหัวข้อกับ Slider
         glassPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 
+        // --- ดึงค่าปัจจุบันจาก Manager มาแสดงผลบน Slider ---
+        int currentBGM = (int) (BGMManager.getVolume() * 100);
+        int currentSFX = (int) (AudioManager.getSFXVolume() * 100);
+
         // 3. Slider สำหรับ Music (BGM)
-        glassPanel.add(createSliderRow("Music Volume", 70, true)); 
+        glassPanel.add(createSliderRow("Music Volume", currentBGM, true)); 
         glassPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
         // 4. Slider สำหรับ SFX
-        glassPanel.add(createSliderRow("SFX Volume", 70, false));
+        glassPanel.add(createSliderRow("SFX Volume", currentSFX, false));
 
-        // 5. ปุ่ม BACK (วางไว้ข้างในกรอบ)
-        glassPanel.add(Box.createRigidArea(new Dimension(0, 60))); // ระยะห่างจาก Slider ตัวสุดท้าย
+        // 5. ปุ่ม BACK & SAVE
+        glassPanel.add(Box.createRigidArea(new Dimension(0, 60)));
         
-        JButton backBtn = new JButton("BACK");
-        styleButton(backBtn); // ใช้สไตล์ปุ่มจาก BaseFrame
-        backBtn.setAlignmentX(Component.CENTER_ALIGNMENT); // จัดปุ่มให้อยู่กึ่งกลางกรอบขาว
-        backBtn.setPreferredSize(new Dimension(200, 50)); // กำหนดขนาดปุ่ม
+        JButton backBtn = new JButton("BACK & SAVE");
+        styleButton(backBtn);
+        backBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backBtn.setPreferredSize(new Dimension(200, 50));
         backBtn.setMaximumSize(new Dimension(200, 50));
 
         backBtn.addActionListener(e -> {
+            // เล่นเสียง Back
             AudioManager.playSound("umamusume_back.wav");
+            
+            // บันทึกค่าลงไฟล์ settings.properties
+            AudioManager.saveSettings();
+            
             // กลับไปหน้าเมนูหลัก
-            BGMManager.stopBGM();
             SceneManager.switchScene(new StartGame()); 
         });
         
         glassPanel.add(backBtn);
 
-        // 6. นำ glassPanel ไปวางกลางจอ (ใช้พิกัด X, Y จาก BaseFrame)
+        // 6. วาง glassPanel ไว้กลางจอตามตำแหน่งที่คุณกำหนด
         addComponent(glassPanel, 340, 110, 600, 500);
         
-        // อัปเดตเลเยอร์หน้าจอ
         mainPanel.revalidate();
         mainPanel.repaint();
     }
@@ -101,6 +109,11 @@ public class SettingScene extends BaseFrame {
             } else {
                 AudioManager.setSFXVolume(volume);
             }
+            
+            // เซฟค่าทันทีเมื่อปล่อยมือจาก Slider
+            if (!slider.getValueIsAdjusting()) {
+                AudioManager.saveSettings();
+            }
         });
 
         row.add(label, BorderLayout.WEST);
@@ -108,7 +121,7 @@ public class SettingScene extends BaseFrame {
         return row;
     }
 
-    // --- ส่วนตกแต่ง Slider สีชมพู ---
+    // UI ตกแต่ง Slider สีชมพูหวานๆ
     private static class PinkSliderUI extends BasicSliderUI {
         public PinkSliderUI(JSlider b) { super(b); }
         
@@ -116,7 +129,7 @@ public class SettingScene extends BaseFrame {
         public void paintTrack(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(255, 210, 225)); // รางสีชมพูอ่อน
+            g2.setColor(new Color(255, 210, 225)); // ชมพูอ่อน
             g2.fill(new RoundRectangle2D.Float(trackRect.x, trackRect.y + (trackRect.height/2)-4, trackRect.width, 8, 10, 10));
             g2.dispose();
         }
@@ -125,7 +138,7 @@ public class SettingScene extends BaseFrame {
         public void paintThumb(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(255, 105, 180)); // ปุ่มสไลด์สีชมพูเข้ม
+            g2.setColor(new Color(255, 105, 180)); // ชมพูเข้ม
             g2.fillOval(thumbRect.x, thumbRect.y + 2, thumbRect.width - 4, thumbRect.height - 4);
             g2.dispose();
         }

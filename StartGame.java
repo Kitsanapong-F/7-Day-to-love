@@ -49,6 +49,10 @@ public class StartGame extends BaseFrame {
                 AudioManager.playSound("sound/umamusume_back.wav");
                 System.exit(0);
             }
+            if (confirm == JOptionPane.YES_OPTION) {
+                AudioManager.saveSettings(); // บันทึกก่อนปิดเกม
+                System.exit(0);
+            }
         });
     }
          public static void main(String[] args) {
@@ -59,6 +63,7 @@ public class StartGame extends BaseFrame {
 
         // เริ่มต้นเกมผ่าน SceneManager
         SwingUtilities.invokeLater(() -> {
+            AudioManager.loadSettings();
             SceneManager.switchScene(new StartGame());
         });
     }

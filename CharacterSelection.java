@@ -13,7 +13,7 @@ public class CharacterSelection extends BaseFrame {
     public CharacterSelection() {
         super("Select Heroine");
         // ตรวจสอบ Path รูปพื้นหลัง
-        BGMManager.playBGM("The Tale of a Cruel World.wav");
+        BGMManager.playBGM("Blue_Archive_Irasshaimase.wav");
         setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg");
         setupUI();
     }

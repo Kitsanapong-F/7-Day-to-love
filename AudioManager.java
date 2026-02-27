@@ -1,9 +1,40 @@
 import javax.sound.sampled.*;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Properties;
 
 public class AudioManager {
     private static float sfxVolume = 0.7f; // ค่าเริ่มต้น 70%
+    private static final String SAVE_FILE = "settings.properties"; // ชื่อไฟล์ที่จะบันทึก
 
+    // --- ส่วนที่เพิ่มใหม่: บันทึกค่าลงไฟล์ ---
+    public static void saveSettings() {
+        Properties props = new Properties();
+        props.setProperty("sfxVolume", String.valueOf(sfxVolume));
+        props.setProperty("bgmVolume", String.valueOf(BGMManager.getVolume())); // ดึงค่าจาก BGMManager
+
+        try (OutputStream out = new FileOutputStream(SAVE_FILE)) {
+            props.store(out, "7 Days to Love Settings");
+            System.out.println("Settings Saved!");
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    // --- ส่วนที่เพิ่มใหม่: โหลดค่าจากไฟล์ ---
+    public static void loadSettings() {
+        Properties props = new Properties();
+        try (InputStream in = new FileInputStream(SAVE_FILE)) {
+            props.load(in);
+            sfxVolume = Float.parseFloat(props.getProperty("sfxVolume", "0.7"));
+            BGMManager.setVolume(Float.parseFloat(props.getProperty("bgmVolume", "0.7")));
+        } catch (IOException e) {
+            System.out.println("No save file found, using defaults.");
+        }
+    }
     public static void playSound(String fileName) {
         try {
             // แก้ไข: ใช้ fileName ที่ส่งเข้ามา
@@ -47,4 +78,6 @@ public class AudioManager {
     public static void setSFXVolume(float volume) {
         sfxVolume = volume;
     }
+
+public static float getSFXVolume() { return sfxVolume; }
 }
