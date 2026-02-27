@@ -127,8 +127,9 @@ public class playmain extends BaseFrame {
         });
         updateUI();
         } 
-    });
-        datingBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
+        });
+        datingBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); currentGirl.addScore(25);} 
+        });
         nextBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav");
         setEventMenuVisible(false);
         isResponseMode = false; // รีเซ็ตโหมด
@@ -270,8 +271,7 @@ public class playmain extends BaseFrame {
 
         public void triggerEveningChoice() {
     // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)
-    this.currentDay++;
-
+    this.currentDay++;        
     String name = currentGirl.getName().trim();
     String newBG = null;
 
