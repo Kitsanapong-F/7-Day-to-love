@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class playmainReina extends BaseFrame {
+public class playmainShiori extends BaseFrame {
 
     private JPanel transitionPanel, textWindow, choicePanel;
     private JLabel transitionLabel, nameLabel, apLabel;
@@ -29,7 +29,7 @@ public class playmainReina extends BaseFrame {
         this.isResponseMode = mode; 
     }
 
-    public playmainReina(Character selectedGirl) {
+    public playmainShiori(Character selectedGirl) {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
         
@@ -40,7 +40,7 @@ public class playmainReina extends BaseFrame {
         
         if (currentGirl != null) {
             // เรียกใช้ runReina แทน runStory เพื่อเข้าสู่รูทเฉพาะ
-            StoryManager.runReina(this, currentDay);
+            StoryManager.runShiori(this, currentDay);
         } else {
             System.err.println("Warning: No character selected!");
         }
@@ -126,15 +126,11 @@ public class playmainReina extends BaseFrame {
         });
 
         nextBtn.addActionListener(e -> {
-<<<<<<< HEAD
-            AudioManager.playSound("nextday.wav");   // ✅
-            handleDayTransition();
-=======
+            AudioManager.playSound("umamusume_click.wav");
             setEventMenuVisible(false);
             isResponseMode = false; 
             // เมื่อกด Next Day ให้รันเนื้อเรื่องวันปัจจุบัน (ที่ถูกบวกค่ารอไว้แล้ว)
-            StoryManager.runReina(this, currentDay);
->>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
+            StoryManager.runShiori(this, currentDay);
         });
 
         // 6. Transition Panel (Layer 0)
@@ -151,12 +147,10 @@ public class playmainReina extends BaseFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (transitionPanel.isVisible() || choicePanel.isVisible() || giftBtn.isVisible()) return;
-
-                AudioManager.playSound("umamusume_click.wav");
-
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
                     stopTypewriter(currentQueue[pointer - 1].text);
                 } else {
+                    AudioManager.playSound("umamusume_click.wav");
                     advanceDialogue();
                 }
             }
@@ -207,7 +201,7 @@ public class playmainReina extends BaseFrame {
                         handleDayTransition(); 
                     } else {
                         isResponseMode = false;
-                        StoryManager.runReina(this, currentDay); 
+                        StoryManager.runShiori(this, currentDay); 
                     }
                 } else {
                     triggerEveningChoice(); 
@@ -225,8 +219,8 @@ public class playmainReina extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { score += scoreA; handleSelection(resA); });
-        btnB.addActionListener(e -> { score += scoreB; handleSelection(resB); });
+        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); });
+        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);
@@ -290,7 +284,7 @@ public class playmainReina extends BaseFrame {
         }
         
         setEventMenuVisible(false);
-        StoryManager.runReina(this, currentDay);
+        StoryManager.runShiori(this, currentDay);
     }
 
     private void startTypewriter(String text) {
@@ -307,13 +301,9 @@ public class playmainReina extends BaseFrame {
                 }
 
                 i[0]++;
-<<<<<<< HEAD
             } else {
                 typewriterTimer.stop();
             }
-=======
-            } else { typewriterTimer.stop(); }
->>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
         });
         typewriterTimer.start();
     }

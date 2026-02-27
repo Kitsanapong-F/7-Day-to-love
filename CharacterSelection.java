@@ -35,6 +35,8 @@ public class CharacterSelection extends BaseFrame {
             SceneManager.switchScene(new StartGame()); 
         });
 
+        // ใน CharacterSelection.java (ตัวอย่างพิกัดที่แนะนำ)
+
         // สร้างการ์ดตัวละคร 3 ตัว (ปรับตำแหน่ง X ให้สมดุลขึ้น)
         addCard("Akari", "image\\Akari\\22b9ada1-d037-49df-95c0-35e2c5531ded.png", 
                 "Energetic childhood friend who's always by your side.", 120, 120);
@@ -73,15 +75,23 @@ public class CharacterSelection extends BaseFrame {
             this.dispose();
 
         } else if (selectedName.equals("Reina")) {
-            // เข้าสู่รูท Reina (ใช้ playmainReina ที่คุณเพิ่งสร้าง)
+            // เข้าสู่รูท Reina (ใช้ playmainReina )
             playmainReina gameUI = new playmainReina(heroine);
             SceneManager.switchScene(gameUI);
             
             if (detailFrame != null) detailFrame.dispose();
             this.dispose();
 
-        } else {
-            // สำหรับรูท Shiori หรืออื่นๆ ที่ยังไม่เสร็จ
+        } else if (selectedName.equals("Shiori")) {
+            // เข้าสู่รูท Shiori (ใช้ playmainShiori )
+            playmainShiori gameUI = new playmainShiori(heroine);
+            SceneManager.switchScene(gameUI);
+            
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose(); 
+        }
+        else {
+            // สำหรับรูทหรืออื่นๆ ที่ยังไม่เสร็จ
             JOptionPane.showMessageDialog(this, 
                 "Currently, " + selectedName + "'s route is still under development!", 
                 "Coming Soon", JOptionPane.INFORMATION_MESSAGE);
@@ -94,7 +104,7 @@ public class CharacterSelection extends BaseFrame {
         CharacterPanel p = new CharacterPanel(path);
         panels.add(p);
         p.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addComponent(p, x, y, 250, 380);
+        addComponent(p, x, y, 250, 395);
         
         // ปุ่มดูรายละเอียด (Detail)
         JButton det = new JButton("VIEW PROFILE");
