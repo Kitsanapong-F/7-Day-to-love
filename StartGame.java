@@ -24,15 +24,18 @@ public class StartGame extends BaseFrame {
 
         // Action: ไปหน้าเลือกตัวละคร
         newGameBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_con.wav");
             SceneManager.switchScene(new CharacterSelection()); 
         });
 
         // Action: ออกจากเกม
         exitBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to exit?", "Exit Game", 
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (confirm == JOptionPane.YES_OPTION) {
+                AudioManager.playSound("sound/umamusume_back.wav");
                 System.exit(0);
             }
         });

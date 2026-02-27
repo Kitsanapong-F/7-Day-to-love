@@ -1,6 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class playmainReina extends BaseFrame {
 
@@ -105,6 +105,7 @@ public class playmainReina extends BaseFrame {
         }
 
         giftBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(1, "gift")) { 
                 currentGirl.addScore(10); 
                 setEventMenuVisible(false);
@@ -118,16 +119,22 @@ public class playmainReina extends BaseFrame {
         });
 
         datingBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(2, "date")) { 
                 DatingEvent.startDate(this, currentGirl.getName(), currentDay); 
             } 
         });
 
         nextBtn.addActionListener(e -> {
+<<<<<<< HEAD
+            AudioManager.playSound("nextday.wav");   // ✅
+            handleDayTransition();
+=======
             setEventMenuVisible(false);
             isResponseMode = false; 
             // เมื่อกด Next Day ให้รันเนื้อเรื่องวันปัจจุบัน (ที่ถูกบวกค่ารอไว้แล้ว)
             StoryManager.runReina(this, currentDay);
+>>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
         });
 
         // 6. Transition Panel (Layer 0)
@@ -144,6 +151,9 @@ public class playmainReina extends BaseFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (transitionPanel.isVisible() || choicePanel.isVisible() || giftBtn.isVisible()) return;
+
+                AudioManager.playSound("umamusume_click.wav");
+
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
                     stopTypewriter(currentQueue[pointer - 1].text);
                 } else {
@@ -289,9 +299,21 @@ public class playmainReina extends BaseFrame {
         final int[] i = {0};
         typewriterTimer = new Timer(30, e -> {
             if (i[0] < text.length()) {
+
                 dialogueArea.append(String.valueOf(text.charAt(i[0])));
+
+                if (i[0] % 2 == 0) {
+                    AudioManager.playSound("undertale_type.wav");
+                }
+
                 i[0]++;
+<<<<<<< HEAD
+            } else {
+                typewriterTimer.stop();
+            }
+=======
             } else { typewriterTimer.stop(); }
+>>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
         });
         typewriterTimer.start();
     }

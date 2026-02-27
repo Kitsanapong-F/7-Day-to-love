@@ -1,6 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class playmainShiori extends BaseFrame {
 
@@ -105,6 +105,7 @@ public class playmainShiori extends BaseFrame {
         }
 
         giftBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(1, "gift")) { 
                 currentGirl.addScore(10); 
                 setEventMenuVisible(false);
@@ -118,12 +119,14 @@ public class playmainShiori extends BaseFrame {
         });
 
         datingBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(2, "date")) { 
                 DatingEvent.startDate(this, currentGirl.getName(), currentDay); 
             } 
         });
 
         nextBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             setEventMenuVisible(false);
             isResponseMode = false; 
             // เมื่อกด Next Day ให้รันเนื้อเรื่องวันปัจจุบัน (ที่ถูกบวกค่ารอไว้แล้ว)
@@ -147,6 +150,7 @@ public class playmainShiori extends BaseFrame {
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
                     stopTypewriter(currentQueue[pointer - 1].text);
                 } else {
+                    AudioManager.playSound("umamusume_click.wav");
                     advanceDialogue();
                 }
             }
@@ -215,8 +219,8 @@ public class playmainShiori extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { score += scoreA; handleSelection(resA); });
-        btnB.addActionListener(e -> { score += scoreB; handleSelection(resB); });
+        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); });
+        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);
@@ -289,9 +293,17 @@ public class playmainShiori extends BaseFrame {
         final int[] i = {0};
         typewriterTimer = new Timer(30, e -> {
             if (i[0] < text.length()) {
+
                 dialogueArea.append(String.valueOf(text.charAt(i[0])));
+
+                if (i[0] % 2 == 0) {
+                    AudioManager.playSound("undertale_type.wav");
+                }
+
                 i[0]++;
-            } else { typewriterTimer.stop(); }
+            } else {
+                typewriterTimer.stop();
+            }
         });
         typewriterTimer.start();
     }
