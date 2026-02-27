@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import javax.swing.*;
 
 public class CharacterSelection extends BaseFrame {
     private String selectedName = "";
@@ -27,9 +27,11 @@ public class CharacterSelection extends BaseFrame {
 
         // ปุ่มย้อนกลับไปหน้าแรก
         JButton backBtn = new JButton("<- BACK");
+        
         styleButton(backBtn);
         addComponent(backBtn, 40, 30, 140, 45);
         backBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_back.wav");
             SceneManager.switchScene(new StartGame()); 
         });
 
@@ -51,6 +53,7 @@ public class CharacterSelection extends BaseFrame {
 
         // ปุ่มยืนยันการเลือก
         selectBtn = new JButton("START STORY");
+
         styleButton(selectBtn);
         selectBtn.setEnabled(false);
         selectBtn.setBackground(new Color(50, 100, 50)); // สีเขียวเข้มบอกความพร้อม
@@ -58,6 +61,7 @@ public class CharacterSelection extends BaseFrame {
 
         selectBtn.addActionListener(e -> {
         // 1. สร้าง Object Character สำหรับนางเอกที่เลือก
+        AudioManager.playSound("umamusume_con.wav");
         Character heroine = new Character(selectedName);
 
         if (selectedName.equals("Akari")) {
@@ -99,6 +103,7 @@ public class CharacterSelection extends BaseFrame {
         addComponent(det, x + 50, y + 395, 150, 35);
         
         det.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             // ป้องกันการเปิดหน้าต่างซ้ำซ้อน
             if (detailFrame != null) detailFrame.dispose();
             detailFrame = new CharacterDetailFrame(name);
@@ -108,6 +113,7 @@ public class CharacterSelection extends BaseFrame {
         p.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                AudioManager.playSound("umamusume_click.wav");
                 // ล้างสถานะเก่า
                 for(CharacterPanel cp : panels) {
                     cp.setBorder(null);

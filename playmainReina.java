@@ -1,6 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class playmainReina extends BaseFrame {
 
@@ -94,6 +94,7 @@ public class playmainReina extends BaseFrame {
 
         // Listeners
         giftBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(1, "gift")) { 
                 score += 10;
                 setEventMenuVisible(false);
@@ -105,12 +106,16 @@ public class playmainReina extends BaseFrame {
         });
 
         datingBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(2, "date")) { 
                 DatingEvent.startDate(this, "Reina", currentDay); 
             } 
         });
 
-        nextBtn.addActionListener(e -> handleDayTransition());
+        nextBtn.addActionListener(e -> {
+            AudioManager.playSound("nextday.wav");   // ✅
+            handleDayTransition();
+        });
 
         // Transition Layer
         transitionPanel = new JPanel(new BorderLayout());
@@ -126,6 +131,9 @@ public class playmainReina extends BaseFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (transitionPanel.isVisible() || choicePanel.isVisible() || giftBtn.isVisible()) return;
+
+                AudioManager.playSound("umamusume_click.wav");
+
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
                     stopTypewriter(currentQueue[pointer - 1].text);
                 } else { advanceDialogue(); }
@@ -234,9 +242,17 @@ public class playmainReina extends BaseFrame {
         final int[] i = {0};
         typewriterTimer = new Timer(30, e -> {
             if (i[0] < text.length()) {
+
                 dialogueArea.append(String.valueOf(text.charAt(i[0])));
+
+                if (i[0] % 2 == 0) {
+                    AudioManager.playSound("undertale_type.wav");
+                }
+
                 i[0]++;
-            } else typewriterTimer.stop();
+            } else {
+                typewriterTimer.stop();
+            }
         });
         typewriterTimer.start();
     }

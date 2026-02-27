@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /**
  * คลาสสำหรับแสดงรายละเอียดโปรไฟล์ของตัวละครแต่ละคน
@@ -50,7 +50,10 @@ public class CharacterDetailFrame extends JFrame {
         // เรียกใช้ Static Method จาก BaseFrame เพื่อคุมธีมปุ่มให้เหมือนกันทั้งเกม
         BaseFrame.styleButton(closeBtn); 
         closeBtn.setPreferredSize(new Dimension(0, 50));
-        closeBtn.addActionListener(e -> dispose()); // ปิดเฉพาะหน้าต่างนี้
+        closeBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_back.wav");
+            dispose(); // ปิดเฉพาะหน้าต่างนี้
+        });
         mainPanel.add(closeBtn, BorderLayout.SOUTH);
 
         // เพิ่ม Main Panel เข้าหน้าต่าง

@@ -1,26 +1,24 @@
+import java.net.URL;
 import javax.sound.sampled.*;
 
 public class AudioManager {
 
-    public static void playSound(String fileName) {
+    public static void playSound(String path) {
         try {
-            AudioInputStream audioStream =
-                    AudioSystem.getAudioInputStream(
-                            AudioManager.class.getResource("/sound/" + fileName)
-                    );
+            URL soundURL = AudioManager.class.getClassLoader().getResource(path);
+            if (soundURL == null) {
+                System.out.println("Sound not found: " + path);
+                return;
+            }
 
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundURL);
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-
-            clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP) {
-                    clip.close();
-                }
-            });
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+// เวลาเรียกใช้ให้ใช้ AudioManager.playSound("ชื่อไฟล์.wav ในโฟลเดอร์ sound"); เช่น AudioManager.playSound("click.wav");
