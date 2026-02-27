@@ -34,6 +34,8 @@ public class StartGame extends BaseFrame {
         
 
         settingBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_con.wav");
+            SceneManager.switchScene(new SettingScene()); 
         });
         
 
