@@ -112,7 +112,7 @@ public class playmainShiori extends BaseFrame {
                 showDayTransition(currentDay, "A Small Gift", () -> {
                     setResponseMode(true); 
                     // ดึงเนื้อเรื่องของขวัญจาก storyDataReina
-                    setDialogueQueue(storyDataReina.getReinaGiftStory());
+                    setDialogueQueue(storyDataShiori.getShioriGiftStory());
                 });
                 updateUI();
             } 
@@ -337,6 +337,18 @@ public class playmainShiori extends BaseFrame {
     public void setDialogueQueue(DialogueLine[] queue) { this.currentQueue = queue; this.pointer = 0; advanceDialogue(); }
     public int getCurrentGirlScore() { return this.score; }
     public void setNextDayTarget(int t) { this.nextDayTarget = t; }
+
+    public void playDayBGM(int day) {
+
+        switch (day) {
+            case 1 -> BGMManager.playBGM("Blue_Archive_Future_Bossa.wav");
+            case 2 -> BGMManager.playBGM("Blue_Archive_Mischievous_Step.wav");
+            case 3 -> BGMManager.playBGM("Blue_Archive_Lovely_Picnic.wav");
+            case 4 -> BGMManager.playBGM("Blue_Archive_Midsummer_Cat.wav");
+            case 5 -> BGMManager.playBGM("Blue_Archive_Shooting_Stars.wav");
+            case 6 -> BGMManager.playBGM("Blue_Archive_Morose_Dreamer.wav");
+        }
+    }
 
     @Override
     protected void onPositionUpdated(double scaleX, double scaleY) {

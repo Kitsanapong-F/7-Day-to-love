@@ -14,7 +14,7 @@ public class DatingEvent {
     public static void startDate(playmainReina ui, String girlName, int currentDay) {
         if (girlName.equals("Reina")) {
             // เปลี่ยนพื้นหลังเป็นสถานที่เดทของเรย์นะ (เช่น สวนสาธารณะหรือร้านกาแฟ)
-            ui.setBackgroundImage("image\\Bgscene\\park_date.jpg"); 
+            ui.setBackgroundImage("image\\Reina\\Gemini_Generated_Image_t012sat012sat012.png"); 
             // ดึงเนื้อเรื่องเดทจาก storyDataReina
             ui.setDialogueQueue(storyDataReina.getReinaDateStory()); 
         }
@@ -25,9 +25,9 @@ public class DatingEvent {
        public static void startDate(playmainShiori ui, String girlName, int currentDay) {
         if (girlName.equals("Shiori")) {
             // เปลี่ยนพื้นหลังเป็นสถานที่เดทของเรย์นะ (เช่น สวนสาธารณะหรือร้านกาแฟ)
-            ui.setBackgroundImage("image\\Bgscene\\park_date.jpg"); 
+            ui.setBackgroundImage("image\\Shiori\\Gemini_Generated_Image_qvcgu4qvcgu4qvcg.png"); 
             // ดึงเนื้อเรื่องเดทจาก storyDatashiori
-            ui.setDialogueQueue(storyDataReina.getReinaDateStory()); 
+            ui.setDialogueQueue(storyDataShiori.getShioriDateStory()); 
         }
         
         setupDateStateShiori(ui, currentDay);

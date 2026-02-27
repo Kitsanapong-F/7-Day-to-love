@@ -23,6 +23,7 @@ public class StoryManager {
         currentRoute = girlName;
         ui.setDialoguePointer(0);
         ui.setEventMenuVisible(false);
+        ui.playDayBGM(day);
 
         if (day >= 7) {
             handleEnding(ui, "Akari");
@@ -48,6 +49,7 @@ public class StoryManager {
         currentRoute = "Reina";
         ui.setDialoguePointer(0);
         ui.setEventMenuVisible(false);
+        ui.playDayBGM(day);
 
         if (day >= 7) {
             handleEnding(ui, "Reina");
@@ -73,6 +75,7 @@ public class StoryManager {
         currentRoute = "Shiori";
         ui.setDialoguePointer(0);
         ui.setEventMenuVisible(false);
+        ui.playDayBGM(day);
 
         if (day >= 7) {
             handleEnding(ui, "Shiori");
@@ -103,11 +106,15 @@ public class StoryManager {
         ui.setNextDayTarget(99); 
 
         if (finalScore >= 20) {
+            BGMManager.playBGM("Blue_Archive_Aira.wav");
+
             ui.showDayTransition(7, "GOOD ENDING", () -> {
                 ui.setBackgroundImage("image\\Akari\\good_end.png");
                 ui.setDialogueQueue(endingData.getAkariGoodEnding());
             });
         } else {
+            BGMManager.playBGM("Skyfall.wav");
+
             ui.showDayTransition(7, "BAD ENDING", () -> {
                 ui.setBackgroundImage("image\\bad ending\\bad_end.png");
                 ui.setDialogueQueue(endingData.getAkariBadEnding());
@@ -124,12 +131,16 @@ public class StoryManager {
         ui.setNextDayTarget(99); 
 
         if (finalScore >= 25) {
+            BGMManager.playBGM("Touhou15.5_ending.wav");
+
             ui.showDayTransition(7, "GOOD ENDING", () -> {
                 ui.setBackgroundImage("image\\Bgscene\\student_council_room.jpg");
                 ui.setDialogueQueue(endingData.getReinaGoodEnding());
             });
         } else {
             ui.showDayTransition(7, "BAD ENDING", () -> {
+            BGMManager.playBGM("Skyfall.wav");
+
                 ui.setBackgroundImage("image\\bad ending\\bad_end.png");
                 ui.setDialogueQueue(endingData.getReinaBadEnding());
             });
@@ -146,11 +157,15 @@ public class StoryManager {
 
         if (finalScore >= 20) {
             ui.showDayTransition(7, "GOOD ENDING", () -> {
+                BGMManager.playBGM("TouhouRelax-Gensokyo_Past_and_Present _Flower_Land.wav");
+
                 ui.setBackgroundImage("image\\Shiori\\library_sunset.png");
                 ui.setDialogueQueue(endingData.getShioriGoodEnding());
             });
         } else {
             ui.showDayTransition(7, "BAD ENDING", () -> {
+                BGMManager.playBGM("Skyfall.wav");
+
                 ui.setBackgroundImage("image\\bad ending\\bad_end.png");
                 ui.setDialogueQueue(endingData.getShioriBadEnding());
             });

@@ -35,7 +35,6 @@ public class playmain extends BaseFrame {
         this.currentGirl = selectedGirl;
         
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
-        
         initGameUI();
         setupZOrder(); // จัดเลเยอร์ครั้งแรกตอนเริ่มเกม
         
@@ -271,7 +270,7 @@ public class playmain extends BaseFrame {
 
         public void triggerEveningChoice() {
     // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)
-    this.currentDay++;        
+    this.currentDay++;       
     String name = currentGirl.getName().trim();
     String newBG = null;
 
@@ -361,6 +360,18 @@ public class playmain extends BaseFrame {
         ap -= cost;
         if (type.equals("gift")) giftCount++; else dateCount++;
         updateUI(); return true;
+    }
+
+    public void playDayBGM(int day) {
+
+        switch (day) {
+            case 1 -> BGMManager.playBGM("Blue_Archive_Future_Bossa.wav");
+            case 2 -> BGMManager.playBGM("Blue_Archive_Mischievous_Step.wav");
+            case 3 -> BGMManager.playBGM("Blue_Archive_Lovely_Picnic.wav");
+            case 4 -> BGMManager.playBGM("Blue_Archive_Midsummer_Cat.wav");
+            case 5 -> BGMManager.playBGM("Blue_Archive_Shooting_Stars.wav");
+            case 6 -> BGMManager.playBGM("Blue_Archive_Morose_Dreamer.wav");
+        }
     }
 
     private void updateUI() { if (apLabel != null) apLabel.setText("AP: " + ap); }
