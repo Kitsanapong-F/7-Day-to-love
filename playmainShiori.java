@@ -112,7 +112,7 @@ public class playmainShiori extends BaseFrame {
                 showDayTransition(currentDay, "A Small Gift", () -> {
                     setResponseMode(true); 
                     // ดึงเนื้อเรื่องของขวัญจาก storyDataReina
-                    setDialogueQueue(storyDataReina.getReinaGiftStory());
+                    setDialogueQueue(storyDataShiori.getShioriGiftStory());
                 });
                 updateUI();
             } 
