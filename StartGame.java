@@ -5,6 +5,7 @@ public class StartGame extends BaseFrame {
         super("7 Days to Love - Main Menu");
         // แนะนำ: หากรันบน Mac/Linux อาจต้องใช้ / แทน \\ 
         // แต่สำหรับ Windows ใช้ image\\... ถูกต้องแล้วครับ
+        BGMManager.playBGM("Blue_Archive_MX_Adventure.wav");
         setBackgroundImage("image\\cover\\15a52c75-9650-403e-b795-101302a74f6b.png");
         initUI();
     }
