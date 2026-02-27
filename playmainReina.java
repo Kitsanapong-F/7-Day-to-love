@@ -126,15 +126,10 @@ public class playmainReina extends BaseFrame {
         });
 
         nextBtn.addActionListener(e -> {
-<<<<<<< HEAD
-            AudioManager.playSound("nextday.wav");   // ✅
-            handleDayTransition();
-=======
             setEventMenuVisible(false);
             isResponseMode = false; 
             // เมื่อกด Next Day ให้รันเนื้อเรื่องวันปัจจุบัน (ที่ถูกบวกค่ารอไว้แล้ว)
             StoryManager.runReina(this, currentDay);
->>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
         });
 
         // 6. Transition Panel (Layer 0)
@@ -307,13 +302,7 @@ public class playmainReina extends BaseFrame {
                 }
 
                 i[0]++;
-<<<<<<< HEAD
-            } else {
-                typewriterTimer.stop();
-            }
-=======
             } else { typewriterTimer.stop(); }
->>>>>>> c9de4e69330395a3f833296c46f43003fff68fa3
         });
         typewriterTimer.start();
     }
