@@ -21,6 +21,17 @@ public class DatingEvent {
         
         setupDateStateReina(ui, currentDay);
     }
+        // --- เพิ่มส่วนนี้: สำหรับ shiori (ใช้ playmainshiori) ---
+       public static void startDate(playmainShiori ui, String girlName, int currentDay) {
+        if (girlName.equals("Shiori")) {
+            // เปลี่ยนพื้นหลังเป็นสถานที่เดทของเรย์นะ (เช่น สวนสาธารณะหรือร้านกาแฟ)
+            ui.setBackgroundImage("image\\Bgscene\\park_date.jpg"); 
+            // ดึงเนื้อเรื่องเดทจาก storyDatashiori
+            ui.setDialogueQueue(storyDataReina.getReinaDateStory()); 
+        }
+        
+        setupDateStateShiori(ui, currentDay);
+    }
 
     // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ Akari
     private static void setupDateState(playmain ui, int currentDay) {
@@ -31,6 +42,13 @@ public class DatingEvent {
 
     // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ Reina
     private static void setupDateStateReina(playmainReina ui, int currentDay) {
+        ui.setNextDayTarget(currentDay + 1); 
+        ui.setResponseMode(true);
+        ui.setEventMenuVisible(false);
+    }
+
+     // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ shiori
+    private static void setupDateStateShiori(playmainShiori ui, int currentDay) {
         ui.setNextDayTarget(currentDay + 1); 
         ui.setResponseMode(true);
         ui.setEventMenuVisible(false);

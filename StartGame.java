@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 
 public class StartGame extends BaseFrame {
     public StartGame() {
@@ -12,28 +11,39 @@ public class StartGame extends BaseFrame {
 
     private void initUI() {
         // เพิ่มชื่อเกม (Game Title) ให้ดูสวยงาม
-
         // ปุ่ม New Game
         JButton newGameBtn = new JButton("New Game");
         styleButton(newGameBtn);
         addComponent(newGameBtn, 850, 300, 250, 50);
 
+        JButton settingBtn = new JButton(" Setting");
+        styleButton( settingBtn);
+        addComponent( settingBtn, 850, 380, 250, 50);
+
         // ปุ่ม Exit
         JButton exitBtn = new JButton("Exit");
         styleButton(exitBtn);
-        addComponent(exitBtn, 850, 380, 250, 50);
+        addComponent(exitBtn, 850, 460, 250, 50);
 
         // Action: ไปหน้าเลือกตัวละคร
         newGameBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_con.wav");
             SceneManager.switchScene(new CharacterSelection()); 
         });
+        
+
+        settingBtn.addActionListener(e -> {
+        });
+        
 
         // Action: ออกจากเกม
         exitBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to exit?", "Exit Game", 
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (confirm == JOptionPane.YES_OPTION) {
+                AudioManager.playSound("sound/umamusume_back.wav");
                 System.exit(0);
             }
         });

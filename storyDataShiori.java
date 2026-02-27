@@ -1,5 +1,64 @@
 public class storyDataShiori {
-    public class storyData {
+      public static String getShioriDayBackground(int day) {
+        switch (day) {
+            case 1: return getShioriDay1Backgroud();
+            case 2: return getShioriDay2Backgroud();
+            case 3: return getShioriDay3Backgroud();
+            case 4: return getShioriDay4Backgroud();
+            case 5: return getShioriDay5Backgroud();
+            case 6: return getShioriDay6Backgroud();
+            default: return null;
+        }
+    }
+
+    public static DialogueLine[] getShioriDayStory(int day) {
+        switch (day) {
+            case 1: return getShioriDay1story();
+            case 2: return getShioriDay2story();
+            case 3: return getShioriDay3story();
+            case 4: return getShioriDay4story();
+            case 5: return getShioriDay5story();
+            case 6: return getShioriDay6story();
+            default: return null;
+        }
+    }
+
+    public static String[] getShioriDayChoice(int day) {
+        switch (day) {
+            case 1: return getShioriDay1Choice();
+            case 2: return getShioriDay2Choice();
+            case 3: return getShioriDay3Choice();
+            case 4: return getShioriDay4Choice();
+            case 5: return getShioriDay5Choice();
+            case 6: return getShioriDay6Choice();
+            default: return new String[]{"...", "..."};
+        }
+    }
+
+    public static DialogueLine[] getShioriDayResponseA(int day) {
+        switch (day) {
+            case 1: return getShioriDay1ResponseA();
+            case 2: return getShioriDay2ResponseA();
+            case 3: return getShioriDay3ResponseA();
+            case 4: return getShioriDay4ResponseA();
+            case 5: return getShioriDay5ResponseA();
+            case 6: return getShioriDay6ResponseA();
+            default: return null;
+        }
+    }
+
+    public static DialogueLine[] getShioriDayResponseB(int day) {
+        switch (day) {
+            case 1: return getShioriDay1ResponseB();
+            case 2: return getShioriDay2ResponseB();
+            case 3: return getShioriDay3ResponseB();
+            case 4: return getShioriDay4ResponseB();
+            case 5: return getShioriDay5ResponseB();
+            case 6: return getShioriDay6ResponseB();
+            default: return null;
+        }
+    }
+
     public static String getShioriDay1Backgroud(){
         return "image\\Naohiro.jpg";
     };
@@ -161,8 +220,7 @@ public class storyDataShiori {
                     new DialogueLine("พระเอก", "\"พักการเรียนมันสำคัญกว่าความรู้สึกของฉันเหรอ...? เข้าใจแล้วล่ะ... นับจากนี้ไป... ไม่ต้องมาหาฉันที่นี่อีกแล้วล่ะ\"", "image\\b90f8c5f-34e4-47bf-ae57-d2e6335b3d61.png")
         };
         };
-    };
-
+    
 //==============================================================================================================================================================================
     public static String getShioriDay6Backgroud(){
         return "image\\_cultural_club_room_3.jpg";
