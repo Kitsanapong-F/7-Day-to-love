@@ -1,6 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class playmain extends BaseFrame {
 
@@ -105,6 +105,8 @@ public class playmain extends BaseFrame {
         }
 
         giftBtn.addActionListener(e -> { 
+            AudioManager.playSound("umamusume_click.wav");
+
             if(canPerformAction(1, "gift")) { 
             currentGirl.addScore(10); 
             setEventMenuVisible(false); // ซ่อนปุ่มเลือกกิจกรรมก่อน
@@ -126,8 +128,8 @@ public class playmain extends BaseFrame {
         updateUI();
         } 
     });
-        datingBtn.addActionListener(e -> { if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
-        nextBtn.addActionListener(e -> {
+        datingBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); } });
+        nextBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav");
         setEventMenuVisible(false);
         isResponseMode = false; // รีเซ็ตโหมด
         StoryManager.runStory(this, currentGirl.getName(), currentDay); // เริ่มเนื้อเรื่องของวันที่เพิ่งเปลี่ยนมา
@@ -146,6 +148,8 @@ public class playmain extends BaseFrame {
         mainPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                AudioManager.playSound("umamusume_click.wav");
+
                 if (transitionPanel.isVisible() || choicePanel.isVisible() || giftBtn.isVisible()) return;
                 if (typewriterTimer != null && typewriterTimer.isRunning()) {
                     stopTypewriter(currentQueue[pointer - 1].text);
@@ -234,8 +238,8 @@ public class playmain extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { score += scoreA; handleSelection(resA); StoryManager.onChoiceSelected(this, scoreA); });
-        btnB.addActionListener(e -> { score += scoreB; handleSelection(resB); StoryManager.onChoiceSelected(this, scoreB); });
+        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); StoryManager.onChoiceSelected(this, scoreA); });
+        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); StoryManager.onChoiceSelected(this, scoreB); });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);
@@ -321,9 +325,17 @@ public class playmain extends BaseFrame {
         final int[] i = {0};
         typewriterTimer = new Timer(30, e -> {
             if (i[0] < text.length()) {
+
                 dialogueArea.append(String.valueOf(text.charAt(i[0])));
+
+                if (i[0] % 2 == 0) {
+                    AudioManager.playSound("undertale_type.wav");
+                }
+
                 i[0]++;
-            } else { typewriterTimer.stop(); }
+            } else {
+                typewriterTimer.stop();
+            }
         });
         typewriterTimer.start();
     }
