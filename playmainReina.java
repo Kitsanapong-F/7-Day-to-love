@@ -195,7 +195,7 @@ public class playmainReina extends BaseFrame {
         if (datingBtn != null) datingBtn.setVisible(visible);
         if (nextBtn != null) nextBtn.setVisible(visible);
         if (textWindow != null) textWindow.setVisible(!visible);
-        if (apLabel != null) apLabel.setVisible(visible);
+        
     }
 
     public void advanceDialogue() {
@@ -238,8 +238,19 @@ public class playmainReina extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); });
-        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); });
+       btnA.addActionListener(e -> { 
+        AudioManager.playSound("umamusume_click.wav"); 
+        score += scoreA; 
+        handleSelection(resA); 
+        StoryManager.onChoiceSelected(this, scoreA); // ส่งแต้มไปคำนวณ AP
+    });
+    
+    btnB.addActionListener(e -> { 
+        AudioManager.playSound("umamusume_click.wav"); 
+        score += scoreB; 
+        handleSelection(resB); 
+        StoryManager.onChoiceSelected(this, scoreB); // ส่งแต้มไปคำนวณ AP
+    });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);

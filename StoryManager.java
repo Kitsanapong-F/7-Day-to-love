@@ -189,5 +189,19 @@ public class StoryManager {
         ui.earnAP(); 
         System.out.println("[Log] Player " + (ui.getCurrentPlayer() + 1) + " earns 1 AP! (" + points + " pts)");
     }
+    }
+
+    public static void onChoiceSelected(playmainReina ui, int points) {
+    ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+    if (points >= 10) {
+        ui.earnAP();
+    }
+    }
+
+    public static void onChoiceSelected(playmainShiori ui, int points) {
+    ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+    if (points >= 10) {
+        ui.earnAP();
+    }
 }
 }
