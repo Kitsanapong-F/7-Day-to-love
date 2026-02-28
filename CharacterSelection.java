@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import javax.swing.*;
 
 public class CharacterSelection extends BaseFrame {
     private String selectedName = "";
@@ -13,6 +13,7 @@ public class CharacterSelection extends BaseFrame {
     public CharacterSelection() {
         super("Select Heroine");
         // ตรวจสอบ Path รูปพื้นหลัง
+        BGMManager.playBGM("Blue_Archive_Irasshaimase.wav");
         setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg");
         setupUI();
     }
@@ -26,12 +27,15 @@ public class CharacterSelection extends BaseFrame {
         addComponent(title, 0, 30, 1280, 60);
 
         // ปุ่มย้อนกลับไปหน้าแรก
-        JButton backBtn = new JButton("<- BACK");
+        JButton backBtn = new JButton("BACK");
         styleButton(backBtn);
         addComponent(backBtn, 40, 30, 140, 45);
         backBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_back.wav");
             SceneManager.switchScene(new StartGame()); 
         });
+
+        // ใน CharacterSelection.java (ตัวอย่างพิกัดที่แนะนำ)
 
         // สร้างการ์ดตัวละคร 3 ตัว (ปรับตำแหน่ง X ให้สมดุลขึ้น)
         addCard("Akari", "image\\Akari\\22b9ada1-d037-49df-95c0-35e2c5531ded.png", 
@@ -51,26 +55,20 @@ public class CharacterSelection extends BaseFrame {
 
         // ปุ่มยืนยันการเลือก
         selectBtn = new JButton("START STORY");
+
         styleButton(selectBtn);
         selectBtn.setEnabled(false);
-        selectBtn.setBackground(new Color(50, 100, 50)); // สีเขียวเข้มบอกความพร้อม
+        selectBtn.setBackground(new Color(255, 150, 200)); // สีเบอกความพร้อม
         addComponent(selectBtn, 440, 600, 400, 60);
 
         selectBtn.addActionListener(e -> {
-            if (selectedName.equals("Akari")) {
-                // สร้าง Object Character และเข้าสู่เกม
-                Character heroine = new Character(selectedName);
-                playmain gameUI = new playmain(heroine);
-                SceneManager.switchScene(gameUI);
-                
-                if (detailFrame != null) detailFrame.dispose();
-                this.dispose();
-            } else {
-                // แสดงผลสำหรับรูทที่ยังไม่เปิด
-                JOptionPane.showMessageDialog(this, 
-                    "Currently, only Akari's route is available in this version!", 
-                    "Under Development", JOptionPane.WARNING_MESSAGE);
-            }
+            AudioManager.playSound("umamusume_con.wav");
+            Character heroine = new Character(selectedName);
+            // Go to player mode selection; that screen will launch the
+            // appropriate playmain variant with the correct constructor.
+            SceneManager.switchScene(new PlayerSelectionScene(heroine));
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose();
         });
     }
 
@@ -79,7 +77,7 @@ public class CharacterSelection extends BaseFrame {
         CharacterPanel p = new CharacterPanel(path);
         panels.add(p);
         p.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addComponent(p, x, y, 250, 380);
+        addComponent(p, x, y, 250, 395);
         
         // ปุ่มดูรายละเอียด (Detail)
         JButton det = new JButton("VIEW PROFILE");
@@ -88,6 +86,7 @@ public class CharacterSelection extends BaseFrame {
         addComponent(det, x + 50, y + 395, 150, 35);
         
         det.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             // ป้องกันการเปิดหน้าต่างซ้ำซ้อน
             if (detailFrame != null) detailFrame.dispose();
             detailFrame = new CharacterDetailFrame(name);
@@ -97,6 +96,7 @@ public class CharacterSelection extends BaseFrame {
         p.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                AudioManager.playSound("umamusume_click.wav");
                 // ล้างสถานะเก่า
                 for(CharacterPanel cp : panels) {
                     cp.setBorder(null);
@@ -108,7 +108,7 @@ public class CharacterSelection extends BaseFrame {
                 bioLabel.setText("<html><center>" + bio + "</center></html>");
                 selectBtn.setText("PROCEED WITH " + name.toUpperCase());
                 selectBtn.setEnabled(true);
-                selectBtn.setBackground(new Color(0, 150, 0));
+                selectBtn.setBackground(new Color(255, 105, 180));
             }
 
             @Override

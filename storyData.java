@@ -68,8 +68,8 @@ public class storyData {
     public static String getAkariDay1Backgroud() { return "image\\Place\\Naohiro.jpg"; }
     public static DialogueLine[] getAkariDay1story() {
         return new DialogueLine[] {
-            new DialogueLine("อาคาริ", "\"ฮึ่มมม...! อีกนิดเดียว... อีกแค่ 7 วันก็จะถึงงานเทศกาลแล้วแท้ๆ ทำไมกล่องพวกนี้มันหนักเหมือนใส่หินไว้ข้างในเลยเนี่ย!\"", "image\\Akari\\0aaa6b48-e691-4426-9321-dd7c1d29cc97.png"),
-            new DialogueLine("พระเอก", "\"บ่นเป็นคนแก่เลยนะอาคาริ ให้คนแรงเยอะแบบผมจัดการเองดีกว่า เธอไปพักดื่มน้ำก่อนเถอะ\"", "image\\Akari\\0aaa6b48-e691-4426-9321-dd7c1d29cc97.png"),
+            new DialogueLine("อาคาริ", "\"ฮึ่มมม...! อีกนิดเดียว... อีกแค่ 7 วันก็จะถึงงานเทศกาลแล้วแท้ๆ ทำไมกล่องพวกนี้มันหนักเหมือนใส่หินไว้ข้างในเลยเนี่ย!\"", "image\\Akari\\b90f8c5f-34e4-47bf-ae57-d2e6335b3d61.png"),
+            new DialogueLine("พระเอก", "\"บ่นเป็นคนแก่เลยนะอาคาริ ให้คนแรงเยอะแบบผมจัดการเองดีกว่า เธอไปพักดื่มน้ำก่อนเถอะ\"", "image\\Akari\\b90f8c5f-34e4-47bf-ae57-d2e6335b3d61.png"),
             new DialogueLine("อาคาริ", "\"อย่าบอกนะว่านายกะจะอู้งานน่ะ! ฉันลงชื่อพวกเราช่วยแต่งเวทีหลักไปแล้วนะ งานนี้ต้องใช้แรงเยอะแน่!\"", "image\\Akari\\b90f8c5f-34e4-47bf-ae57-d2e6335b3d61.png")
         };
     }
