@@ -1,56 +1,25 @@
 public class DatingEvent {
     
-    // สำหรับ Akari (ใช้ playmain ดั้งเดิม)
     public static void startDate(playmain ui, String girlName, int currentDay) {
-        if (girlName.equals("Akari")) {
+        // 1. เปลี่ยนพื้นหลังและดึงเนื้อเรื่องตามตัวละคร
+        if (girlName.equalsIgnoreCase("Akari")) {
             ui.setBackgroundImage("image\\Akari\\Gemini_Generated_Image_jjep3zjjep3zjjep.png");
             ui.setDialogueQueue(storyData.getAkariDateStory()); 
         }
-        
-        setupDateState(ui, currentDay);
-    }
-
-    // --- เพิ่มส่วนนี้: สำหรับ Reina (ใช้ playmainReina) ---
-    public static void startDate(playmainReina ui, String girlName, int currentDay) {
-        if (girlName.equals("Reina")) {
-            // เปลี่ยนพื้นหลังเป็นสถานที่เดทของเรย์นะ (เช่น สวนสาธารณะหรือร้านกาแฟ)
+        else if (girlName.equalsIgnoreCase("Reina")) {
             ui.setBackgroundImage("image\\Reina\\Gemini_Generated_Image_t012sat012sat012.png"); 
-            // ดึงเนื้อเรื่องเดทจาก storyDataReina
             ui.setDialogueQueue(storyDataReina.getReinaDateStory()); 
         }
-        
-        setupDateStateReina(ui, currentDay);
-    }
-        // --- เพิ่มส่วนนี้: สำหรับ shiori (ใช้ playmainshiori) ---
-       public static void startDate(playmainShiori ui, String girlName, int currentDay) {
-        if (girlName.equals("Shiori")) {
-            // เปลี่ยนพื้นหลังเป็นสถานที่เดทของเรย์นะ (เช่น สวนสาธารณะหรือร้านกาแฟ)
+        else if (girlName.equalsIgnoreCase("Shiori")) {
             ui.setBackgroundImage("image\\Shiori\\Gemini_Generated_Image_qvcgu4qvcgu4qvcg.png"); 
-            // ดึงเนื้อเรื่องเดทจาก storyDatashiori
             ui.setDialogueQueue(storyDataShiori.getShioriDateStory()); 
         }
+
+        // 2. ตั้งค่าสถานะหลังจบ Event เดท (ข้ามวัน หรือ เข้าโหมดตอบสนอง)
+        ui.setNextDayTarget(currentDay + 1); 
+        ui.setResponseMode(true);
+        ui.setEventMenuVisible(false);
         
-        setupDateStateShiori(ui, currentDay);
-    }
-
-    // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ Akari
-    private static void setupDateState(playmain ui, int currentDay) {
-        ui.setNextDayTarget(currentDay + 1); 
-        ui.setResponseMode(true);
-        ui.setEventMenuVisible(false);
-    }
-
-    // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ Reina
-    private static void setupDateStateReina(playmainReina ui, int currentDay) {
-        ui.setNextDayTarget(currentDay + 1); 
-        ui.setResponseMode(true);
-        ui.setEventMenuVisible(false);
-    }
-
-     // Helper เพื่อลดโค้ดซ้ำซ้อนสำหรับ shiori
-    private static void setupDateStateShiori(playmainShiori ui, int currentDay) {
-        ui.setNextDayTarget(currentDay + 1); 
-        ui.setResponseMode(true);
-        ui.setEventMenuVisible(false);
+        System.out.println("[Event] Dating started with " + girlName + " on Day " + currentDay);
     }
 }
