@@ -207,11 +207,12 @@ public class playmainShiori extends BaseFrame {
                 isWaitingForResponse = true;
             } else {
                 if (isResponseMode) {
+                    isResponseMode = false;
                     if (nextDayTarget != -1) {
                         handleDayTransition(); 
                     } else {
-                        isResponseMode = false;
-                        StoryManager.runShiori(this, currentDay); 
+                        setEventMenuVisible(true); 
+                        setupZOrder();
                     }
                 } else {
                     triggerEveningChoice(); 

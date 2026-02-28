@@ -210,11 +210,12 @@ public class playmainReina extends BaseFrame {
                 isWaitingForResponse = true;
             } else {
                 if (isResponseMode) {
+                    isResponseMode = false;
                     if (nextDayTarget != -1) {
                         handleDayTransition(); 
                     } else {
-                        isResponseMode = false;
-                        StoryManager.runReina(this, currentDay); 
+                        setEventMenuVisible(true); 
+                        setupZOrder();
                     }
                 } else {
                     triggerEveningChoice(); 

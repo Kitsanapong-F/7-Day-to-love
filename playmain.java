@@ -226,13 +226,14 @@ public class playmain extends BaseFrame {
         } else {
             // --- แก้ไขตรงนี้เพื่อแก้ปัญหาการแสดงเมนูซ้ำซ้อน ---
            if (isResponseMode) {
+            isResponseMode = false;
                 if (nextDayTarget != -1) {
                     // กรณี Dating: มีการตั้งข้ามวันไว้ -> เรียก handleDayTransition (มีการข้ามวัน) 
                     handleDayTransition(); 
                 } else {
                     // กรณี Gift: ไม่มีการข้ามวัน -> รันเนื้อเรื่องวันปัจจุบันต่อทันที (No Transition 2)
-                    isResponseMode = false; // ปิดโหมดตอบโต้
-                    StoryManager.runStory(this, currentGirl.getName(), currentDay); 
+                    setEventMenuVisible(true); 
+                    setupZOrder();
                 }
             } else {
                 // จบเนื้อเรื่องหลัก -> ไปสู่หน้าเลือกกิจกรรม (ที่มี Transition)
