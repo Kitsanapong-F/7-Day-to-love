@@ -4,10 +4,13 @@ import javax.swing.*;
 
 public class playmainReina extends BaseFrame {
 
+    private int currentPlayer = 0;
+    private int totalPlayers;
     private JPanel transitionPanel, textWindow, choicePanel;
     private JLabel transitionLabel, nameLabel, apLabel;
     private JTextArea dialogueArea;
     private CharacterPanel spritePanel;
+    private JLabel pTurnLabel;
     
     private int pointer = 0; 
     private int nextDayTarget = -1;
@@ -29,9 +32,10 @@ public class playmainReina extends BaseFrame {
         this.isResponseMode = mode; 
     }
 
-    public playmainReina(Character selectedGirl) {
+    public playmainReina(Character selectedGirl, int players) {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
+        this.totalPlayers = players;
         
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         initGameUI();
@@ -39,7 +43,9 @@ public class playmainReina extends BaseFrame {
         
         if (currentGirl != null) {
             // เรียกใช้ runReina แทน runStory เพื่อเข้าสู่รูทเฉพาะ
-            StoryManager.runReina(this, currentDay);
+            showDayTransition(currentDay, "PLAYER 1'S TURN", () -> {
+                StoryManager.runReina(this, currentDay);
+            });
         } else {
             System.err.println("Warning: No character selected!");
         }
@@ -84,6 +90,11 @@ public class playmainReina extends BaseFrame {
         
         addComponent(textWindow, 50, 510, 1180, 170);
 
+        pTurnLabel = new JLabel("PLAYER 1");
+        pTurnLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+        pTurnLabel.setForeground(Color.CYAN);
+        addComponent(pTurnLabel, 1100, 20, 150, 40);
+
         // 4. Choice Panel (Layer 1)
         choicePanel = new JPanel(new GridLayout(2, 1, 0, 20));
         choicePanel.setOpaque(false);
@@ -106,7 +117,7 @@ public class playmainReina extends BaseFrame {
         giftBtn.addActionListener(e -> { 
             AudioManager.playSound("umamusume_click.wav");
             if(canPerformAction(1, "gift")) { 
-                currentGirl.addScore(10); 
+                currentGirl.addScore(currentPlayer, 10);
                 setEventMenuVisible(false);
                 showDayTransition(currentDay, "A Small Gift", () -> {
                     setResponseMode(true); 
@@ -125,10 +136,11 @@ public class playmainReina extends BaseFrame {
         });
 
         nextBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
             setEventMenuVisible(false);
             isResponseMode = false; 
             // เมื่อกด Next Day ให้รันเนื้อเรื่องวันปัจจุบัน (ที่ถูกบวกค่ารอไว้แล้ว)
-            StoryManager.runReina(this, currentDay);
+            handleDayTransition();
         });
 
         // 6. Transition Panel (Layer 0)
@@ -162,6 +174,7 @@ public class playmainReina extends BaseFrame {
 
     private void setupZOrder() {
         if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0);
+        if (pTurnLabel != null) mainPanel.setComponentZOrder(pTurnLabel, 1);
         if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
         if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
         if (datingBtn != null) mainPanel.setComponentZOrder(datingBtn, 1);
@@ -251,9 +264,7 @@ public class playmainReina extends BaseFrame {
 
     public void triggerEveningChoice() {
         // อิงตาม logic ใน playmain: เพิ่มวันรอก่อน Transition
-        this.currentDay++;
 
-        String name = currentGirl.getName().trim();
         String newBG = storyDataReina.getRaynaDayBackground(currentDay);
 
         if (newBG != null) {
@@ -268,13 +279,25 @@ public class playmainReina extends BaseFrame {
     }
 
     private void handleDayTransition() {
-        if (this.currentDay >= 8 || nextDayTarget == 99) {
-            StoryManager.finishGame(this); 
-            return;
-        }
-
-        isResponseMode = false; 
-        giftCount = 0; dateCount = 0; 
+    // 1. ตรวจสอบว่ายังมีผู้เล่นคนถัดไปในวันเดียวกันหรือไม่
+    if (currentPlayer < totalPlayers - 1) {
+        currentPlayer++; // เลื่อนเป็น Player ถัดไป
+        
+        // รีเซ็ตค่าสถานะสำหรับการเล่นใหม่ในวันเดิม
+        this.ap = 0; 
+        updateUI();
+        pTurnLabel.setText("PLAYER " + (currentPlayer + 1));
+        
+        // แสดง Transition แจ้งตาผู้เล่นคนถัดไป (โดยยังเป็นวันเดิม) 
+        showDayTransition(currentDay, "PLAYER " + (currentPlayer + 1) + "'S TURN", () -> {
+            StoryManager.runReina(this, currentDay);
+        });
+        
+    } else {
+        // 2. ถ้าเล่นครบทุกคนแล้ว ค่อยเริ่มวันใหม่ที่ Player 1
+        currentPlayer = 0;
+        this.ap = 0;
+        pTurnLabel.setText("PLAYER 1"); 
         
         if (nextDayTarget != -1) { 
             this.currentDay = nextDayTarget; 
@@ -282,10 +305,21 @@ public class playmainReina extends BaseFrame {
         } else { 
             this.currentDay++; 
         }
-        
+
+        // ตรวจสอบเงื่อนไขจบเกม
+        if (this.currentDay >= 8 || nextDayTarget == 99) {
+            StoryManager.finishGame(this); 
+            return;
+        }
+
         setEventMenuVisible(false);
-        StoryManager.runReina(this, currentDay);
+        
+        // แสดง Transition วันใหม่ [cite: 17]
+        showDayTransition(currentDay, "START OF DAY " + currentDay, () -> {
+            StoryManager.runReina(this, currentDay);
+        });
     }
+}
 
     private void startTypewriter(String text) {
         if (typewriterTimer != null) typewriterTimer.stop();
