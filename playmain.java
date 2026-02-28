@@ -226,13 +226,14 @@ public class playmain extends BaseFrame {
         } else {
             // --- แก้ไขตรงนี้เพื่อแก้ปัญหาการแสดงเมนูซ้ำซ้อน ---
            if (isResponseMode) {
+            isResponseMode = false;
                 if (nextDayTarget != -1) {
                     // กรณี Dating: มีการตั้งข้ามวันไว้ -> เรียก handleDayTransition (มีการข้ามวัน) 
                     handleDayTransition(); 
                 } else {
                     // กรณี Gift: ไม่มีการข้ามวัน -> รันเนื้อเรื่องวันปัจจุบันต่อทันที (No Transition 2)
-                    isResponseMode = false; // ปิดโหมดตอบโต้
-                    StoryManager.runStory(this, currentGirl.getName(), currentDay); 
+                    setEventMenuVisible(true); 
+                    setupZOrder();
                 }
             } else {
                 // จบเนื้อเรื่องหลัก -> ไปสู่หน้าเลือกกิจกรรม (ที่มี Transition)
@@ -311,8 +312,7 @@ public class playmain extends BaseFrame {
     if (currentPlayer < totalPlayers - 1) {
         currentPlayer++; // เลื่อนเป็น Player ถัดไป
         
-        // รีเซ็ตค่าสถานะสำหรับการเล่นใหม่ในวันเดิม
-        this.ap = 0; 
+        // ไม่รีเซ็ต AP ให้เก็บสะสมได้ทั้งวันและระหว่างผู้เล่น
         updateUI();
         pTurnLabel.setText("PLAYER " + (currentPlayer + 1));
         
@@ -320,23 +320,21 @@ public class playmain extends BaseFrame {
         showDayTransition(currentDay, "PLAYER " + (currentPlayer + 1) + "'S TURN", () -> {
             StoryManager.runStory(this, currentGirl.getName(), currentDay);
         });
-        
     } else {
         // 2. ถ้าเล่นครบทุกคนแล้ว ค่อยเริ่มวันใหม่ที่ Player 1
         currentPlayer = 0;
-        this.ap = 0;
-        pTurnLabel.setText("PLAYER 1"); 
-        
-        if (nextDayTarget != -1) { 
-            this.currentDay = nextDayTarget; 
-            nextDayTarget = -1; 
-        } else { 
-            this.currentDay++; 
+        pTurnLabel.setText("PLAYER 1");
+
+        if (nextDayTarget != -1) {
+            this.currentDay = nextDayTarget;
+            nextDayTarget = -1;
+        } else {
+            this.currentDay++;
         }
 
         // ตรวจสอบเงื่อนไขจบเกม
         if (this.currentDay >= 8 || nextDayTarget == 99) {
-            StoryManager.finishGame(this); 
+            StoryManager.finishGame(this);
             return;
         }
 
@@ -368,6 +366,15 @@ public class playmain extends BaseFrame {
             }
         });
         typewriterTimer.start();
+    }
+
+    // เพิ่มเพื่อให้ StoryManager เรียกใช้งานได้
+    public Character getCurrentGirl() { 
+        return this.currentGirl; 
+    }
+
+    public int getCurrentPlayer() { 
+        return this.currentPlayer; 
     }
 
     private void stopTypewriter(String fullText) {

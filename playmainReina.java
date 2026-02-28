@@ -6,6 +6,10 @@ public class playmainReina extends BaseFrame {
 
     private int currentPlayer = 0;
     private int totalPlayers;
+
+    private int ap = 0;
+    private int[] playerAp;
+
     private JPanel transitionPanel, textWindow, choicePanel;
     private JLabel transitionLabel, nameLabel, apLabel;
     private JTextArea dialogueArea;
@@ -14,7 +18,6 @@ public class playmainReina extends BaseFrame {
     
     private int pointer = 0; 
     private int nextDayTarget = -1;
-    private int ap = 0;           
     private int giftCount = 0;    
     private int dateCount = 0;    
     private int currentDay = 1; 
@@ -36,6 +39,8 @@ public class playmainReina extends BaseFrame {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
         this.totalPlayers = players;
+        this.playerAp = new int[players];
+        this.ap = 0;
         
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         initGameUI();
@@ -190,7 +195,7 @@ public class playmainReina extends BaseFrame {
         if (datingBtn != null) datingBtn.setVisible(visible);
         if (nextBtn != null) nextBtn.setVisible(visible);
         if (textWindow != null) textWindow.setVisible(!visible);
-        if (apLabel != null) apLabel.setVisible(visible);
+        
     }
 
     public void advanceDialogue() {
@@ -210,11 +215,12 @@ public class playmainReina extends BaseFrame {
                 isWaitingForResponse = true;
             } else {
                 if (isResponseMode) {
+                    isResponseMode = false;
                     if (nextDayTarget != -1) {
                         handleDayTransition(); 
                     } else {
-                        isResponseMode = false;
-                        StoryManager.runReina(this, currentDay); 
+                        setEventMenuVisible(true); 
+                        setupZOrder();
                     }
                 } else {
                     triggerEveningChoice(); 
@@ -232,8 +238,19 @@ public class playmainReina extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); });
-        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); });
+       btnA.addActionListener(e -> { 
+        AudioManager.playSound("umamusume_click.wav"); 
+        score += scoreA; 
+        handleSelection(resA); 
+        StoryManager.onChoiceSelected(this, scoreA); // ส่งแต้มไปคำนวณ AP
+    });
+    
+    btnB.addActionListener(e -> { 
+        AudioManager.playSound("umamusume_click.wav"); 
+        score += scoreB; 
+        handleSelection(resB); 
+        StoryManager.onChoiceSelected(this, scoreB); // ส่งแต้มไปคำนวณ AP
+    });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);
@@ -273,7 +290,6 @@ public class playmainReina extends BaseFrame {
         
         showDayTransition(currentDay, "Evening Activities", () -> {
             setEventMenuVisible(true);
-            earnAP(); 
             setupZOrder();
         });
     }
@@ -283,38 +299,31 @@ public class playmainReina extends BaseFrame {
     if (currentPlayer < totalPlayers - 1) {
         currentPlayer++; // เลื่อนเป็น Player ถัดไป
         
-        // รีเซ็ตค่าสถานะสำหรับการเล่นใหม่ในวันเดิม
-        this.ap = 0; 
+        // ไม่รีเซ็ต AP; ค่าจะถูกสะสมระหว่างผู้เล่น
         updateUI();
         pTurnLabel.setText("PLAYER " + (currentPlayer + 1));
         
-        // แสดง Transition แจ้งตาผู้เล่นคนถัดไป (โดยยังเป็นวันเดิม) 
         showDayTransition(currentDay, "PLAYER " + (currentPlayer + 1) + "'S TURN", () -> {
             StoryManager.runReina(this, currentDay);
         });
-        
     } else {
-        // 2. ถ้าเล่นครบทุกคนแล้ว ค่อยเริ่มวันใหม่ที่ Player 1
         currentPlayer = 0;
-        this.ap = 0;
-        pTurnLabel.setText("PLAYER 1"); 
-        
-        if (nextDayTarget != -1) { 
-            this.currentDay = nextDayTarget; 
-            nextDayTarget = -1; 
-        } else { 
-            this.currentDay++; 
+        pTurnLabel.setText("PLAYER 1");
+
+        if (nextDayTarget != -1) {
+            this.currentDay = nextDayTarget;
+            nextDayTarget = -1;
+        } else {
+            this.currentDay++;
         }
 
-        // ตรวจสอบเงื่อนไขจบเกม
         if (this.currentDay >= 8 || nextDayTarget == 99) {
-            StoryManager.finishGame(this); 
+            StoryManager.finishGame(this);
             return;
         }
 
         setEventMenuVisible(false);
         
-        // แสดง Transition วันใหม่ [cite: 17]
         showDayTransition(currentDay, "START OF DAY " + currentDay, () -> {
             StoryManager.runReina(this, currentDay);
         });
@@ -340,6 +349,15 @@ public class playmainReina extends BaseFrame {
         typewriterTimer.start();
     }
 
+    // เพิ่มเพื่อให้ StoryManager เรียกใช้งานได้
+    public Character getCurrentGirl() { 
+        return this.currentGirl; 
+    }
+
+    public int getCurrentPlayer() { 
+        return this.currentPlayer; 
+    }
+
     private void stopTypewriter(String fullText) {
         if (typewriterTimer != null) typewriterTimer.stop();
         dialogueArea.setText(fullText);
@@ -359,6 +377,7 @@ public class playmainReina extends BaseFrame {
             return false;
         }
         ap -= cost;
+        if (playerAp != null && currentPlayer < playerAp.length) playerAp[currentPlayer] = ap;
         if (type.equals("gift")) giftCount++; else dateCount++;
         updateUI(); return true;
     }
@@ -376,7 +395,11 @@ public class playmainReina extends BaseFrame {
     }
 
     private void updateUI() { if (apLabel != null) apLabel.setText("AP: " + ap); }
-    public void earnAP() { this.ap++; updateUI(); } 
+    public void earnAP() { 
+        this.ap++;
+        if (playerAp != null && currentPlayer < playerAp.length) playerAp[currentPlayer] = ap;
+        updateUI();
+    }
     public void setDialoguePointer(int p) { this.pointer = p; }
     public void setDialogueQueue(DialogueLine[] queue) { this.currentQueue = queue; this.pointer = 0; advanceDialogue(); }
     public int getCurrentGirlScore() { return this.score; }

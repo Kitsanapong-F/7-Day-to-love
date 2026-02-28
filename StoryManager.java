@@ -180,7 +180,28 @@ public class StoryManager {
     }
 
     // ระบบเพิ่ม AP เมื่อเลือกตอบถูก
-    public static void onChoiceSelected(playmain ui, int scoreChange) {
-        if (ui != null && scoreChange > 0) ui.earnAP();
+    public static void onChoiceSelected(playmain ui, int points) { // เปลี่ยน scoreChange เป็น points
+    // แก้ไข: เข้าถึงตัวแปรโดยตรง (เนื่องจากอยู่ใน Package เดียวกันหรือใช้ Getter)
+    ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+
+    // ทุกครั้งที่ได้คะแนนบวก ให้ AP เพิ่มหนึ่ง
+    if (points > 0) {
+        ui.earnAP(); 
+        System.out.println("[Log] Player " + (ui.getCurrentPlayer() + 1) + " earns 1 AP! (" + points + " pts)");
     }
+    }
+
+    public static void onChoiceSelected(playmainReina ui, int points) {
+    ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+    if (points >= 10) {
+        ui.earnAP();
+    }
+    }
+
+    public static void onChoiceSelected(playmainShiori ui, int points) {
+    ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+    if (points >= 10) {
+        ui.earnAP();
+    }
+}
 }
