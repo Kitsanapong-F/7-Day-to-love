@@ -4,6 +4,8 @@ import javax.swing.*;
 
 public class playmain extends BaseFrame {
 
+    private int currentPlayer = 0;
+    private int totalPlayers;
     private JPanel transitionPanel, textWindow, choicePanel;
     private JLabel transitionLabel, nameLabel;
     private JTextArea dialogueArea;
@@ -13,6 +15,7 @@ public class playmain extends BaseFrame {
     private int ap = 0;           
     private int giftCount = 0;    
     private int dateCount = 0;    
+    private JLabel pTurnLabel;
 
     private JButton giftBtn, datingBtn, nextBtn;
     private JLabel apLabel; 
@@ -30,20 +33,23 @@ public class playmain extends BaseFrame {
     this.isResponseMode = mode; 
 }
 
-    public playmain(Character selectedGirl) {
+    public playmain(Character selectedGirl, int players) {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
+        this.totalPlayers = players;
         
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         initGameUI();
         setupZOrder(); // จัดเลเยอร์ครั้งแรกตอนเริ่มเกม
         
         if (currentGirl != null) {
-            StoryManager.runStory(this, currentGirl.getName(), currentDay);
+            showDayTransition(currentDay, "PLAYER 1'S TURN", () -> {
+                StoryManager.runStory(this, currentGirl.getName(), currentDay);
+            });
         } else {
             System.err.println("Warning: No character selected!");
         }
-    }
+    }   
 
     private void initGameUI() {
         // 1. Sprite Panel (Layer 3 - อยู่ด้านหลัง)
@@ -84,6 +90,11 @@ public class playmain extends BaseFrame {
         
         addComponent(textWindow, 50, 510, 1180, 170);
 
+        pTurnLabel = new JLabel("PLAYER 1");
+        pTurnLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+        pTurnLabel.setForeground(Color.CYAN);
+        addComponent(pTurnLabel, 1100, 20, 150, 40);
+
         // 4. Choice Panel (Layer 1)
         choicePanel = new JPanel(new GridLayout(2, 1, 0, 20));
         choicePanel.setOpaque(false);
@@ -107,7 +118,7 @@ public class playmain extends BaseFrame {
             AudioManager.playSound("umamusume_click.wav");
 
             if(canPerformAction(1, "gift")) { 
-            currentGirl.addScore(10); 
+            currentGirl.addScore(currentPlayer, 10);
             setEventMenuVisible(false); // ซ่อนปุ่มเลือกกิจกรรมก่อน
         
             showDayTransition(currentDay, "A Small Gift", () -> {
@@ -127,12 +138,13 @@ public class playmain extends BaseFrame {
         updateUI();
         } 
         });
-        datingBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); currentGirl.addScore(25);} 
+        datingBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); if(canPerformAction(2, "date")) { DatingEvent.startDate(this, currentGirl.getName(), currentDay); currentGirl.addScore(currentPlayer, 25);} 
         });
         nextBtn.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav");
         setEventMenuVisible(false);
-        isResponseMode = false; // รีเซ็ตโหมด
-        StoryManager.runStory(this, currentGirl.getName(), currentDay); // เริ่มเนื้อเรื่องของวันที่เพิ่งเปลี่ยนมา
+            isResponseMode = false;
+            // เรียก handleDayTransition อย่างเดียว เพราะข้างในมีการเรียก runStory อยู่แล้ว
+            handleDayTransition(); 
         });
 
         // 6. Transition Panel (Layer 0 - อยู่หน้าสุดเสมอ)
@@ -169,6 +181,7 @@ public class playmain extends BaseFrame {
      */
     private void setupZOrder() {
     if (transitionPanel != null) mainPanel.setComponentZOrder(transitionPanel, 0); // หน้าสุด
+    if (pTurnLabel != null) mainPanel.setComponentZOrder(pTurnLabel, 1);
     if (choicePanel != null) mainPanel.setComponentZOrder(choicePanel, 1);
 
     if (giftBtn != null) mainPanel.setComponentZOrder(giftBtn, 1);
@@ -269,8 +282,7 @@ public class playmain extends BaseFrame {
     }
 
         public void triggerEveningChoice() {
-    // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)
-    this.currentDay++;       
+    // แก้ไข: เพิ่มวันก่อน เพื่อให้ Transition แสดงเป็น "Day 3" (ถ้าจบ Day 2)   
     String name = currentGirl.getName().trim();
     String newBG = null;
 
@@ -295,28 +307,47 @@ public class playmain extends BaseFrame {
     
 
    private void handleDayTransition() {
-    // 1. ตรวจสอบเงื่อนไขจบเกมก่อนเป็นอันดับแรก
-    // ถ้า currentDay เป็น 8 หรือ Target เป็น 99 แสดงว่าจบฉากจบแล้ว
-    if (this.currentDay >= 8 || nextDayTarget == 99) {
-        StoryManager.finishGame(this); 
-        return; // หยุดการทำงานเพื่อไม่ให้รัน StoryManager.runStory ซ้ำ
-    }
+    // 1. ตรวจสอบว่ายังมีผู้เล่นคนถัดไปในวันเดียวกันหรือไม่
+    if (currentPlayer < totalPlayers - 1) {
+        currentPlayer++; // เลื่อนเป็น Player ถัดไป
+        
+        // รีเซ็ตค่าสถานะสำหรับการเล่นใหม่ในวันเดิม
+        this.ap = 0; 
+        updateUI();
+        pTurnLabel.setText("PLAYER " + (currentPlayer + 1));
+        
+        // แสดง Transition แจ้งตาผู้เล่นคนถัดไป (โดยยังเป็นวันเดิม) 
+        showDayTransition(currentDay, "PLAYER " + (currentPlayer + 1) + "'S TURN", () -> {
+            StoryManager.runStory(this, currentGirl.getName(), currentDay);
+        });
+        
+    } else {
+        // 2. ถ้าเล่นครบทุกคนแล้ว ค่อยเริ่มวันใหม่ที่ Player 1
+        currentPlayer = 0;
+        this.ap = 0;
+        pTurnLabel.setText("PLAYER 1"); 
+        
+        if (nextDayTarget != -1) { 
+            this.currentDay = nextDayTarget; 
+            nextDayTarget = -1; 
+        } else { 
+            this.currentDay++; 
+        }
 
-    isResponseMode = false; 
-    giftCount = 0; dateCount = 0; 
-    
-    if (nextDayTarget != -1) { 
-        this.currentDay = nextDayTarget; 
-        nextDayTarget = -1; 
-    } else { 
-        this.currentDay++; 
+        // ตรวจสอบเงื่อนไขจบเกม
+        if (this.currentDay >= 8 || nextDayTarget == 99) {
+            StoryManager.finishGame(this); 
+            return;
+        }
+
+        setEventMenuVisible(false);
+        
+        // แสดง Transition วันใหม่ [cite: 17]
+        showDayTransition(currentDay, "START OF DAY " + currentDay, () -> {
+            StoryManager.runStory(this, currentGirl.getName(), currentDay);
+        });
     }
-    
-    setEventMenuVisible(false);
-    
-    // 2. ส่งค่าไปให้ StoryManager รันเนื้อเรื่องวันถัดไป หรือรัน Ending
-    StoryManager.runStory(this, currentGirl.getName(), currentDay);
-    }
+}
 
     private void startTypewriter(String text) {
         if (typewriterTimer != null) typewriterTimer.stop();
