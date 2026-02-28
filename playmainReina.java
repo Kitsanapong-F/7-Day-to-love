@@ -34,7 +34,6 @@ public class playmainReina extends BaseFrame {
         this.currentGirl = selectedGirl;
         
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
-        
         initGameUI();
         setupZOrder(); 
         
@@ -220,8 +219,8 @@ public class playmainReina extends BaseFrame {
         JButton btnB = new JButton("<html><center>" + choices[1] + "</center></html>");
         styleChoiceButton(btnA); styleChoiceButton(btnB);
 
-        btnA.addActionListener(e -> { score += scoreA; handleSelection(resA); });
-        btnB.addActionListener(e -> { score += scoreB; handleSelection(resB); });
+        btnA.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreA; handleSelection(resA); });
+        btnB.addActionListener(e -> { AudioManager.playSound("umamusume_click.wav"); score += scoreB; handleSelection(resB); });
 
         choicePanel.add(btnA);
         choicePanel.add(btnB);
@@ -328,6 +327,18 @@ public class playmainReina extends BaseFrame {
         ap -= cost;
         if (type.equals("gift")) giftCount++; else dateCount++;
         updateUI(); return true;
+    }
+
+    public void playDayBGM(int day) {
+
+        switch (day) {
+            case 1 -> BGMManager.playBGM("Blue_Archive_Future_Bossa.wav");
+            case 2 -> BGMManager.playBGM("Blue_Archive_Mischievous_Step.wav");
+            case 3 -> BGMManager.playBGM("Blue_Archive_Lovely_Picnic.wav");
+            case 4 -> BGMManager.playBGM("Blue_Archive_Midsummer_Cat.wav");
+            case 5 -> BGMManager.playBGM("Blue_Archive_Shooting_Stars.wav");
+            case 6 -> BGMManager.playBGM("Blue_Archive_Morose_Dreamer.wav");
+        }
     }
 
     private void updateUI() { if (apLabel != null) apLabel.setText("AP: " + ap); }

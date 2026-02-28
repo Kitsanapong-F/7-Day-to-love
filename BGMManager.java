@@ -49,4 +49,6 @@ public class BGMManager {
             bgmClip.close();
         }
     }
+
+    public static float getVolume() { return currentVolume; }
 }

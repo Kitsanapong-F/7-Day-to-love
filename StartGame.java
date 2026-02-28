@@ -5,6 +5,7 @@ public class StartGame extends BaseFrame {
         super("7 Days to Love - Main Menu");
         // แนะนำ: หากรันบน Mac/Linux อาจต้องใช้ / แทน \\ 
         // แต่สำหรับ Windows ใช้ image\\... ถูกต้องแล้วครับ
+        BGMManager.playBGM("Blue_Archive_MX_Adventure.wav");
         setBackgroundImage("image\\cover\\15a52c75-9650-403e-b795-101302a74f6b.png");
         initUI();
     }
@@ -33,6 +34,8 @@ public class StartGame extends BaseFrame {
         
 
         settingBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_con.wav");
+            SceneManager.switchScene(new SettingScene()); 
         });
         
 
@@ -46,6 +49,10 @@ public class StartGame extends BaseFrame {
                 AudioManager.playSound("sound/umamusume_back.wav");
                 System.exit(0);
             }
+            if (confirm == JOptionPane.YES_OPTION) {
+                AudioManager.saveSettings(); // บันทึกก่อนปิดเกม
+                System.exit(0);
+            }
         });
     }
          public static void main(String[] args) {
@@ -56,6 +63,7 @@ public class StartGame extends BaseFrame {
 
         // เริ่มต้นเกมผ่าน SceneManager
         SwingUtilities.invokeLater(() -> {
+            AudioManager.loadSettings();
             SceneManager.switchScene(new StartGame());
         });
     }
