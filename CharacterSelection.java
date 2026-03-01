@@ -13,6 +13,7 @@ public class CharacterSelection extends BaseFrame {
     public CharacterSelection() {
         super("Select Heroine");
         // ตรวจสอบ Path รูปพื้นหลัง
+        BGMManager.playBGM("Blue_Archive_Irasshaimase.wav");
         setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg");
         setupUI();
     }
@@ -61,41 +62,14 @@ public class CharacterSelection extends BaseFrame {
         addComponent(selectBtn, 440, 600, 400, 60);
 
         selectBtn.addActionListener(e -> {
-        // 1. สร้าง Object Character สำหรับนางเอกที่เลือก
-        AudioManager.playSound("umamusume_con.wav");
-        Character heroine = new Character(selectedName);
-
-        if (selectedName.equals("Akari")) {
-            // เข้าสู่รูท Akari (ใช้ playmain ปกติ)
-            playmain gameUI = new playmain(heroine);
-            SceneManager.switchScene(gameUI);
-            
+            AudioManager.playSound("umamusume_con.wav");
+            Character heroine = new Character(selectedName);
+            // Go to player mode selection; that screen will launch the
+            // appropriate playmain variant with the correct constructor.
+            SceneManager.switchScene(new PlayerSelectionScene(heroine));
             if (detailFrame != null) detailFrame.dispose();
             this.dispose();
-
-        } else if (selectedName.equals("Reina")) {
-            // เข้าสู่รูท Reina (ใช้ playmainReina )
-            playmainReina gameUI = new playmainReina(heroine);
-            SceneManager.switchScene(gameUI);
-            
-            if (detailFrame != null) detailFrame.dispose();
-            this.dispose();
-
-        } else if (selectedName.equals("Shiori")) {
-            // เข้าสู่รูท Shiori (ใช้ playmainShiori )
-            playmainShiori gameUI = new playmainShiori(heroine);
-            SceneManager.switchScene(gameUI);
-            
-            if (detailFrame != null) detailFrame.dispose();
-            this.dispose(); 
-        }
-        else {
-            // สำหรับรูทหรืออื่นๆ ที่ยังไม่เสร็จ
-            JOptionPane.showMessageDialog(this, 
-                "Currently, " + selectedName + "'s route is still under development!", 
-                "Coming Soon", JOptionPane.INFORMATION_MESSAGE);
-        }
-    });
+        });
     }
 
     private void addCard(String name, String path, String bio, int x, int y) {
