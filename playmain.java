@@ -33,7 +33,7 @@ public class playmain extends BaseFrame {
     private boolean isWaitingForResponse = false;
     private Timer typewriterTimer;
     private boolean isResponseMode = false;
-
+    
     public playmain(Character selectedGirl, int players) {
         super("7 Days to Love - " + (selectedGirl != null ? selectedGirl.getName() : "Story"));
         this.currentGirl = selectedGirl;
