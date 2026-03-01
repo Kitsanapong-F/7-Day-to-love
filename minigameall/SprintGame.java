@@ -10,8 +10,8 @@ public class SprintGame extends JPanel implements KeyListener {
     enum GameState { WAITING, COUNTDOWN, PLAYING, FINISHED }
     private GameState currentState = GameState.WAITING;
 
-    private int p1X = 50, p2X = 50, p3X = 50;
-    private final int finishLine = 1100;
+    private int p1X = 35, p2X = 35, p3X = 35;
+    private final int finishLine = 1115;
     private String winnerText = "";
     
     private boolean p1Ready = false, p2Ready = false, p3Ready = false;
@@ -22,18 +22,18 @@ public class SprintGame extends JPanel implements KeyListener {
     private Timer countdownTimer, gameLoopTimer;
 
     // --- การตั้งค่ารูปภาพ (ใส่ Path รูปของคุณตรงนี้) ---
-    private Image bgImage = new ImageIcon("image\\miniGame\\Sp_bg").getImage();
-    private Image p1Image = new ImageIcon("res/p1_char.png").getImage();
-    private Image p2Image = new ImageIcon("res/p2_char.png").getImage();
-    private Image p3Image = new ImageIcon("res/p3_char.png").getImage();
+    private Image bgImage = new ImageIcon("image\\miniGame\\Sp\\Sp_bg2.png").getImage();
+    private Image p1Image = new ImageIcon("image\\miniGame\\Sp\\P1_run.png").getImage();
+    private Image p2Image = new ImageIcon("image\\miniGame\\Sp\\P2_run.png").getImage();
+    private Image p3Image = new ImageIcon("image\\miniGame\\Sp\\P3_run.png").getImage();
 
     // รูปภาพตัวละครเชียร์ (แนะนำให้ตัดรูปตัวละคร 1 ตัว เซฟเป็น PNG แบบไม่มีพื้นหลัง)
-    private Image cheerImage = new ImageIcon("image\\miniGame\\Sp_1.png").getImage();
+    private Image cheerImage = new ImageIcon("image\\miniGame\\Sp\\Sp_1.png").getImage();
     
     // --- ตัวแปรสำหรับแอนิเมชันกระโดดของตัวละครเชียร์ ---
     private int cheerYOffset = 0;     // ระยะกระโดดแกน Y
     private int cheerVelocity = 0;    // ความเร็วในการกระโดด
-    private final int CHEER_BASE_Y = 520; // ตำแหน่งยืนแกน Y เริ่มต้น (มุมขวาล่าง)
+    private final int CHEER_BASE_Y = 540; // ตำแหน่งยืนแกน Y เริ่มต้น (มุมขวาล่าง)
     
     private final int CHEER_X = 950;      // ตำแหน่งแกน X ของตัวละครเชียร์
     // คลาสสำหรับเอฟเฟกต์ฝุ่น
@@ -112,7 +112,7 @@ public class SprintGame extends JPanel implements KeyListener {
 
         // วาดเส้นชัย
         g2d.setColor(new Color(255, 255, 255, 200));
-        g2d.fillRect(finishLine, 100, 20, 500);
+        g2d.fillRect(finishLine, 35, 20, 520);
 
         // วาดฝุ่นวิ่ง (Effects)
         g2d.setColor(Color.WHITE);
@@ -124,9 +124,9 @@ public class SprintGame extends JPanel implements KeyListener {
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)); // Reset Alpha
 
         // ฟังก์ชันวาดตัวละครวิ่ง
-        drawPlayer(g2d, p1Image, Color.RED, p1X, 175, p1Ready || currentState != GameState.WAITING);
-        drawPlayer(g2d, p2Image, Color.GREEN, p2X, 325, p2Ready || currentState != GameState.WAITING);
-        drawPlayer(g2d, p3Image, Color.BLUE, p3X, 475, p3Ready || currentState != GameState.WAITING);
+        drawPlayer(g2d, p1Image, Color.RED, p1X, 90, p1Ready || currentState != GameState.WAITING);
+        drawPlayer(g2d, p2Image, Color.GREEN, p2X, 245, p2Ready || currentState != GameState.WAITING);
+        drawPlayer(g2d, p3Image, Color.BLUE, p3X, 400, p3Ready || currentState != GameState.WAITING);
 
         // --- วาดตัวละครเชียร์มุมขวาล่าง ---
         int currentCheerY = CHEER_BASE_Y + cheerYOffset; // คำนวณตำแหน่ง Y ตอนกระโดด
@@ -147,20 +147,20 @@ public class SprintGame extends JPanel implements KeyListener {
         } else if (currentState == GameState.PLAYING) {
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
-            g2d.drawString("P1 กด A", 50, 140);
-            g2d.drawString("P2 กด J", 50, 290);
-            g2d.drawString("P3 กด ^", 50, 440);
+            g2d.drawString("P1 กด A", 50, 80);
+            g2d.drawString("P2 กด J", 50, 235);
+            g2d.drawString("P3 กด ^", 50, 385);
         } else if (currentState == GameState.FINISHED) {
             g2d.setFont(new Font("Tahoma", Font.BOLD, 60));
             g2d.setColor(Color.YELLOW);
-            g2d.drawString(winnerText, 350, 100);
+            g2d.drawString(winnerText, 350, 625);
         }
     }
 
     private void drawPlayer(Graphics2D g2d, Image img, Color fallbackCol, int x, int y, boolean isActive) {
         if (!isActive) g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         if (img.getWidth(null) > 0) {
-            g2d.drawImage(img, x, y, 50, 50, this);
+            g2d.drawImage(img, x, y, 100, 100, this);
         } else {
             g2d.setColor(fallbackCol); g2d.fillOval(x, y, 50, 50);
         }
@@ -205,15 +205,15 @@ public class SprintGame extends JPanel implements KeyListener {
         if (currentState == GameState.PLAYING) {
             int step = 15;
             if (key == KeyEvent.VK_A && !p1Pressed && p1Active) { 
-                p1X += step; p1Pressed = true; addDust(p1X, 175); 
+                p1X += step; p1Pressed = true; addDust(p1X, 130); 
                 triggerCheerJump(); // <--- เรียกให้กระโดดตอนกด
             }
             if (key == KeyEvent.VK_J && !p2Pressed && p2Active) { 
-                p2X += step; p2Pressed = true; addDust(p2X, 325); 
+                p2X += step; p2Pressed = true; addDust(p2X, 285); 
                 triggerCheerJump(); // <--- เรียกให้กระโดดตอนกด
             } 
             if (key == KeyEvent.VK_UP && !p3Pressed && p3Active) { 
-                p3X += step; p3Pressed = true; addDust(p3X, 475); 
+                p3X += step; p3Pressed = true; addDust(p3X, 440); 
                 triggerCheerJump(); // <--- เรียกให้กระโดดตอนกด
             }
             checkWinner(); repaint();
