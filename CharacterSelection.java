@@ -3,6 +3,9 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
+import audio.AudioManager;
+import audio.BGMManager;
+
 public class CharacterSelection extends BaseFrame {
     private String selectedName = "";
     private JLabel bioLabel;

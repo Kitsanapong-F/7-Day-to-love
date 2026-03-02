@@ -1,4 +1,8 @@
 import javax.swing.*;
+
+import audio.AudioManager;
+import audio.BGMManager;
+
 import java.awt.*;
 
 public class StartGame extends BaseFrame {
