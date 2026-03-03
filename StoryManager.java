@@ -1,6 +1,7 @@
 import javax.swing.*;
-
 import audio.BGMManager;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StoryManager {
     private static String currentRoute = "";
@@ -12,7 +13,8 @@ public class StoryManager {
         ui.setEventMenuVisible(false);
         ui.playDayBGM(day);
 
-        if (day >= 7) {
+        // แก้ไข: เปลี่ยนจาก 7 เป็น 8 เพื่อให้วันที่ 7 เล่นเนื้อเรื่องได้จนจบ
+        if (day >= 8) {
             handleEnding(ui, girlName);
             return;
         }
@@ -61,62 +63,14 @@ public class StoryManager {
     }
 
     public static void handleEnding(playmain ui, String girlName) {
-        // ดึงคะแนนของผู้เล่นทุกคนออกมาหาผู้ชนะ
-        int[] scores = ui.getCurrentGirl().getScores();
-        int winner = 0;
-        int maxScore = -100;
-        for (int i = 0; i < scores.length; i++) {
-            if (scores[i] > maxScore) {
-                maxScore = scores[i];
-                winner = i;
-            }
+        List<Integer> playerQueue = new ArrayList<>();
+        for (int i = 0; i < ui.getTotalPlayers(); i++) {
+            playerQueue.add(i);
         }
-
-        final int finalWinner = winner;
-        final int finalScore = maxScore;
-
-        ui.showDayTransition(7, "THE FINAL DAY", () -> {
-            if (girlName.equalsIgnoreCase("Akari")) {
-                if (finalScore >= 80) {
-                    BGMManager.playBGM("Blue_Archive_Connected_Sky.wav");
-                    ui.setBackgroundImage("image\\ending\\akari_happy.png");
-                    ui.setDialogueQueue(endingData.getAkariGoodEnding()); // แก้ให้ตรงกับไฟล์ endingData.java
-                } else {
-                    BGMManager.playBGM("Skyfall.wav");
-                    ui.setBackgroundImage("image\\bad ending\\bad_end.png");
-                    ui.setDialogueQueue(endingData.getAkariBadEnding());
-                }
-            } 
-            else if (girlName.equalsIgnoreCase("Reina")) {
-                if (finalScore >= 90) {
-                    BGMManager.playBGM("Blue_Archive_Connected_Sky.wav");
-                    ui.setBackgroundImage("image\\ending\\reina_happy.png");
-                    ui.setDialogueQueue(endingData.getReinaGoodEnding()); // แก้ให้ตรงกับไฟล์ endingData.java
-                } else {
-                    BGMManager.playBGM("Skyfall.wav");
-                    ui.setBackgroundImage("image\\bad ending\\bad_end.png");
-                    ui.setDialogueQueue(endingData.getReinaBadEnding());
-                }
-            }
-            else if (girlName.equalsIgnoreCase("Shiori")) {
-                if (finalScore >= 75) {
-                    BGMManager.playBGM("Blue_Archive_Connected_Sky.wav");
-                    ui.setBackgroundImage("image\\ending\\shiori_happy.png");
-                    ui.setDialogueQueue(endingData.getShioriGoodEnding());
-                } else {
-                    BGMManager.playBGM("Skyfall.wav");
-                    ui.setBackgroundImage("image\\bad ending\\bad_end.png");
-                    ui.setDialogueQueue(endingData.getShioriGoodEnding());
-                }
-            }
-            
-            ui.setNextDayTarget(99); 
-            JOptionPane.showMessageDialog(ui, "Player " + (finalWinner + 1) + " is the winner with " + finalScore + " points!");
-        });
+        ui.startEndingSequence(playerQueue, girlName);
     }
 
     public static void finishGame(playmain ui) {
-        JOptionPane.showMessageDialog(ui, "ขอบคุณที่เล่นเกม 7 Days to Love!\nคะแนนสุดท้ายของคุณจะถูกบันทึกไว้");
         ui.dispose();
         SceneManager.switchScene(new StartGame());
     }
