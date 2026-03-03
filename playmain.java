@@ -310,13 +310,13 @@ public class playmain extends BaseFrame {
             }
 
             // ดักจับ: จบเนื้อเรื่องวันสุดท้ายให้ไปมินิเกมทันที
-            if (currentDay >= 6 && !isResponseMode) {
-                System.out.println("[System] Day 7 Dialogue Done -> Mini-Game Selector");
-                BGMManager.stopBGM();
-                SceneManager.switchScene(new MiniGameSelector(currentGirl, currentGirl.getName(), totalPlayers));
-                this.dispose();
-                return; 
-            }
+            // if (currentDay >= 6 && !isResponseMode) {
+            //     System.out.println("[System] Day 7 Dialogue Done -> Mini-Game Selector");
+            //     BGMManager.stopBGM();
+            //     SceneManager.switchScene(new MiniGameSelector(currentGirl, currentGirl.getName(), totalPlayers));
+            //     this.dispose();
+            //     return; 
+            // }
 
             if (choicePanel.getComponentCount() > 0 && !isWaitingForResponse) {
                 choicePanel.setVisible(true); 

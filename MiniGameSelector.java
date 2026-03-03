@@ -2,118 +2,148 @@ import javax.swing.*;
 import audio.AudioManager;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 
 /**
- * MiniGameSelector: หน้าจอสำหรับเลือกมินิเกมตัดสินชะตาในช่วงวันที่ 7
- * รับข้อมูลตัวละครและจำนวนผู้เล่นเพื่อส่งต่อข้อมูลไปยังมินิเกมที่เลือก
+ * MiniGameSelector: หน้าจอสำหรับสุ่มมินิเกมตัดสินชะตาในช่วงวันที่ 7
+ * รับข้อมูลตัวละครและจำนวนผู้เล่นเพื่อส่งต่อข้อมูลไปยังมินิเกมที่สุ่มได้
  */
 public class MiniGameSelector extends BaseFrame {
     
     private Character currentGirl;
     private String girlName;
     private int totalPlayers;
+    
+    // รายชื่อมินิเกมที่มีในระบบ (สามารถเพิ่มหรือลดได้ที่นี่)
+    private final String[] gameOptions = {
+        "Sprint Challenge", 
+        "Hot Potato: Bomb Dash", 
+        "Mini Sumo Arena"
+    };
 
-    /**
-     * Constructor รับค่าข้อมูลจาก StoryManager
-     * @param girl ข้อมูลตัวละครที่กำลังเล่น
-     * @param name ชื่อรูทตัวละคร (Akari, Reina, Shiori)
-     * @param players จำนวนผู้เล่นที่ร่วมเล่น (1-3 คน)
-     */
     public MiniGameSelector(Character girl, String name, int players) {
-        super("7 Days to Love - Select Mini-Game");
+        super("7 Days to Love - Random Mini-Game");
         this.currentGirl = girl;
         this.girlName = name;
         this.totalPlayers = players;
-        
-        // ตั้งค่าพื้นหลัง
+
+        // ข้ามไปฉากจบเลยถ้าเล่นคนเดียว
+        if (this.totalPlayers == 1) {
+            SwingUtilities.invokeLater(() -> {
+                playmain finalScene = new playmain(currentGirl, 1);
+                SceneManager.switchScene(finalScene);
+                StoryManager.handleEnding(finalScene, girlName);
+                this.dispose();
+            });
+            return;
+        }
+
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg"); 
         initUI();
     }
 
     private void initUI() {
-        // 1. ส่วนหัวข้อ (Title)
-        JLabel titleLabel = new JLabel("CHOOSE YOUR FINAL CHALLENGE!", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("DECIDING YOUR FINAL CHALLENGE...", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Tahoma", Font.BOLD, 42));
-        titleLabel.setForeground(new Color(255, 215, 0)); // สีทองตัดสินชะตา
-        addComponent(titleLabel, 0, 80, 1280, 80);
+        titleLabel.setForeground(new Color(255, 215, 0));
+        addComponent(titleLabel, 0, 100, 1280, 80);
 
-        // แสดงข้อมูลโหมดปัจจุบัน
         JLabel infoLabel = new JLabel("Final Challenge for " + totalPlayers + " Player(s)", SwingConstants.CENTER);
         infoLabel.setFont(new Font("Tahoma", Font.ITALIC, 22));
         infoLabel.setForeground(Color.WHITE);
-        addComponent(infoLabel, 0, 150, 1280, 40);
+        addComponent(infoLabel, 0, 180, 1280, 40);
 
-        // 2. สร้างปุ่มเลือกมินิเกม
-        String[] gameOptions = {"Sprint Challenge (Speed)", "Heart Catch (Agility)", "Coming Soon..."};
-        int startY = 250;
-        int spacingY = 90;
-        int btnWidth = 420;
-        int btnHeight = 70;
-        int centerX = (1280 - btnWidth) / 2;
+        // ป้ายแสดงชื่อเกมที่จะสุ่ม
+        JLabel randomGameLabel = new JLabel("???", SwingConstants.CENTER);
+        randomGameLabel.setFont(new Font("Tahoma", Font.BOLD, 55));
+        randomGameLabel.setForeground(Color.CYAN);
+        addComponent(randomGameLabel, 0, 320, 1280, 100);
 
-        for (int i = 0; i < gameOptions.length; i++) {
-            final int gameIndex = i;
-            JButton btn = new JButton(gameOptions[i]);
-            styleButton(btn); // ใช้สไตล์ปุ่มจาก BaseFrame
-            btn.setFont(new Font("Tahoma", Font.BOLD, 24));
-            
-            // ปิดปุ่มที่ยังไม่พัฒนา (Coming Soon)
-            if (i >= 1) btn.setEnabled(false);
+        // ปุ่มสำหรับกดเพื่อเริ่มสุ่ม
+        JButton spinBtn = new JButton("SPIN ROULETTE!");
+        styleButton(spinBtn);
+        int spinBtnWidth = 300;
+        int spinCenterX = (1280 - spinBtnWidth) / 2;
+        addComponent(spinBtn, spinCenterX, 480, spinBtnWidth, 60);
 
-            addComponent(btn, centerX, startY + (i * spacingY), btnWidth, btnHeight);
-            
-            btn.addActionListener(e -> {
-                AudioManager.playSound("umamusume_click.wav");
-                System.out.println("[System] Launching Game: " + gameOptions[gameIndex]);
-                
-                // เริ่มมินิเกมที่เลือก
-                launchMiniGame(gameIndex);
-            });
-        }
-
-        // 3. ปุ่มย้อนกลับ (Back)
-        JButton backBtn = new JButton("BACK");
-        styleButton(backBtn);
-        int backBtnWidth = 160;
-        int backCenterX = (1280 - backBtnWidth) / 2;
-        addComponent(backBtn, backCenterX, 580, backBtnWidth, 45);
-        
-        backBtn.addActionListener(e -> {
-            AudioManager.playSound("umamusume_back.wav");
-            // กลับไปหน้า playmain (ใช้พารามิเตอร์เดิม)
-            SceneManager.switchScene(new playmain(currentGirl, totalPlayers));
+        spinBtn.addActionListener(e -> {
+            AudioManager.playSound("umamusume_click.wav");
+            spinBtn.setVisible(false); // ซ่อนปุ่มหลังกดแล้ว
+            startRandomizer(randomGameLabel);
         });
-        
-        // Refresh หน้าจอ
+
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
     /**
-     * เมธอดสำหรับเปลี่ยนหน้าไปยังมินิเกมที่เลือก
-     * @param gameIndex ลำดับของเกมที่เลือก
+     * ระบบแอนิเมชันสลับชื่อเกมไปมา และหยุดที่ผลลัพธ์สุดท้าย
+     */
+    private void startRandomizer(JLabel displayLabel) {
+        Random rand = new Random();
+        int finalGameIndex = rand.nextInt(gameOptions.length); // เลือกล็อกมงผลลัพธ์ไว้ก่อน
+        
+        Timer timer = new Timer(100, null); // ความเร็วในการกระพริบสลับชื่อ
+        final int[] ticks = {0};
+        final int maxTicks = 25; // จำนวนรอบที่กระพริบก่อนหยุด
+
+        timer.addActionListener(e -> {
+            ticks[0]++;
+            // สุ่มโชว์ชื่อมั่วๆ ระหว่างหมุน
+            int tempIndex = rand.nextInt(gameOptions.length);
+            displayLabel.setText(gameOptions[tempIndex]);
+            
+            // ใช้เสียงพิมพ์ตอนหมุนรูเล็ต (สามารถเปลี่ยนเป็นเสียงอื่นได้)
+            AudioManager.playSound("undertale_type.wav"); 
+
+            if (ticks[0] >= maxTicks) {
+                timer.stop();
+                // แสดงผลลัพธ์ที่แท้จริง
+                displayLabel.setText(gameOptions[finalGameIndex]);
+                displayLabel.setForeground(Color.YELLOW);
+                AudioManager.playSound("umamusume_click.wav"); // เสียงตอนยืนยันผล
+                
+                // หน่วงเวลาให้ผู้เล่นดูชื่อเกม 1.5 วินาที ก่อนตัดเข้ามินิเกม
+                Timer delay = new Timer(1500, evt -> launchMiniGame(finalGameIndex));
+                delay.setRepeats(false);
+                delay.start();
+            }
+        });
+        timer.start();
+    }
+
+    /**
+     * ดึงหน้าต่างมินิเกมตามลำดับที่สุ่มได้
      */
     private void launchMiniGame(int gameIndex) {
-        // สลับไปหน้ามินิเกมที่เลือก โดยส่งข้อมูลที่จำเป็นไปด้วย
+        System.out.println("[System] Launching Game: " + gameOptions[gameIndex]);
+        
+        JFrame gameFrame = new JFrame(gameOptions[gameIndex] + " - Final Countdown");
+        JPanel gamePanel = null;
+
+        // สลับเข้าคลาสของมินิเกมแต่ละตัว
         if (gameIndex == 0) {
-            // สร้าง JFrame ใหม่สำหรับครอบ SprintGame เพื่อให้ KeyListener ทำงานแยกอิสระ
-            JFrame gameFrame = new JFrame("Sprint Game - Final Countdown");
-            
-            // เรียกใช้ SprintGame พร้อมส่งพารามิเตอร์ครบถ้วนตามความต้องการของคลาส
-            SprintGame gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
-            
-            gameFrame.add(gamePanel);
-            gameFrame.pack();
-            gameFrame.setLocationRelativeTo(null); // แสดงกึ่งกลางหน้าจอ
-            gameFrame.setVisible(true);
-            
-            // ปิดหน้าจอเลือกมินิเกม
-            this.dispose();
+            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+        } else if (gameIndex == 1) {
+            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+        } else if (gameIndex == 2) {
+            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
         }
+
+        // ระบบ Fallback ป้องกันเกมพัง: ถ้าสุ่มได้เกมที่ยังเขียนคลาสไม่เสร็จ จะดึง SprintGame มาเล่นแทนชั่วคราว
+        if (gamePanel == null) {
+            System.out.println("[System] Game class not instantiated yet. Fallback to SprintGame.");
+            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+        }
+
+        gameFrame.add(gamePanel);
+        gameFrame.pack();
+        gameFrame.setLocationRelativeTo(null);
+        gameFrame.setVisible(true);
+        
+        this.dispose(); // ปิดหน้าสุ่ม
     }
 
     @Override
-    protected void onPositionUpdated(double scaleX, double scaleY) {
-        // อัปเดตตำแหน่งเมื่อมีการขยายหน้าต่าง
-    }
+    protected void onPositionUpdated(double scaleX, double scaleY) {}
 }
