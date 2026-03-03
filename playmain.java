@@ -2,6 +2,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import audio.AudioManager;
+import audio.BGMManager;
+
 /**
  * playmain: คลาสหลักสำหรับหน้าจอเกมเพลย์
  * รองรับระบบ Multiplayer, AP, และจำกัดกิจกรรม 1 อย่างต่อวันตามเงื่อนไข

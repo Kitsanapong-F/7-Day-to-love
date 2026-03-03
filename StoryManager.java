@@ -1,5 +1,7 @@
 import javax.swing.*;
 
+import audio.BGMManager;
+
 public class StoryManager {
     private static String currentRoute = "";
 

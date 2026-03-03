@@ -12,7 +12,7 @@ public class TestMiniGames {
         frame.setLocationRelativeTo(null);
         
         // สลับชื่อคลาสตรงนี้เพื่อเลือกทดสอบเกมที่ต้องการ
-        PowerGaugeGame gamePanel = new PowerGaugeGame();
+        SprintGame gamePanel = new SprintGame();
         
         frame.add(gamePanel);
         frame.setVisible(true);

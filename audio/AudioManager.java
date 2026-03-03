@@ -1,3 +1,4 @@
+package audio;
 import javax.sound.sampled.*;
 
 import java.io.FileInputStream;
