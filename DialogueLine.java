@@ -3,11 +3,13 @@ public class DialogueLine {
     public String characterName;
     public String text;
     public String spritePath;
+    public String voicePath;
 
-    public DialogueLine(String name, String text, String path) {
+    public DialogueLine(String name, String text, String path, String voice) {
         this.characterName = name;
         this.text = text;
         this.spritePath = path;
+        this.voicePath = voice;
     }
 
     // (Optional) เมธอดสำหรับ Debug เพื่อเช็คค่าใน Console

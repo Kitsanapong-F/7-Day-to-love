@@ -214,6 +214,11 @@ public class playmain extends BaseFrame {
         DialogueLine line = currentQueue[pointer];
         nameLabel.setText(line.characterName);
         startTypewriter(line.text);
+
+        if (line.voicePath != null) {
+            AudioManager.playVoice(line.voicePath); // สั่งเล่นเสียงพากย์
+        }
+        
         if (line.spritePath != null && !line.spritePath.isEmpty()) {
             spritePanel.updateImage(line.spritePath);
         }
