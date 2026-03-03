@@ -4,6 +4,8 @@ import javax.swing.JFrame;
 // import minigameall.HurdleJumpGame;
 // import minigameall.PowerGaugeGame;
 
+import SprintGame;
+
 public class TestMiniGames {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Test Multiplayer Minigames");

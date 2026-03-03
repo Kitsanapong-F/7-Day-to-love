@@ -1,18 +1,22 @@
-package minigameall;
-
 import javax.swing.*;
-
 import audio.AudioManager;
 import audio.BGMManager;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * SprintGame: มินิเกมวิ่งแข่งสำหรับผู้เล่น 1-3 คน
+ * ใช้ KeyListener ในการรับค่าการกดรัวปุ่มเพื่อเคลื่อนที่ตัวละคร
+ */
 public class SprintGame extends JPanel implements KeyListener {
     enum GameState { WAITING, COUNTDOWN, PLAYING, FINISHED }
     private GameState currentState = GameState.WAITING;
+
+    private Character targetGirl;
+    private String targetName;
+    private int totalPlayers;
 
     private int p1X = 35, p2X = 35, p3X = 35;
     private final int finishLine = 1115;
@@ -43,20 +47,23 @@ public class SprintGame extends JPanel implements KeyListener {
     }
     private ArrayList<Dust> particles = new ArrayList<>();
 
-    public SprintGame() {
+    public SprintGame(Character girl, String name, int playerCount) {
+        this.targetGirl = girl;
+        this.targetName = name;
+        this.totalPlayers = playerCount;
+
         setPreferredSize(new Dimension(1280, 720));
         setFocusable(true);
         addKeyListener(this);
 
-        // โหลดและเริ่มเล่นเพลงประกอบเกม (BGM) ทันทีที่เข้าหน้านี้
         BGMManager.playBGM("race_bgm.wav"); 
 
         countdownTimer = new Timer(1000, e -> {
             countdownValue--;
             if (countdownValue > 0) {
-                AudioManager.playSound("countdown.wav"); // เสียงนับ 2, 1
+                AudioManager.playSound("countdown.wav"); 
             } else if (countdownValue == 0) {
-                AudioManager.playSound("go.wav");        // เสียงตอนขึ้นคำว่า GO!
+                AudioManager.playSound("go.wav");        
             } else {
                 currentState = GameState.PLAYING;
                 countdownTimer.stop();
@@ -118,9 +125,9 @@ public class SprintGame extends JPanel implements KeyListener {
         }
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)); 
 
-        drawPlayer(g2d, p1Image, Color.RED, p1X, 90, p1Ready || currentState != GameState.WAITING);
-        drawPlayer(g2d, p2Image, Color.GREEN, p2X, 245, p2Ready || currentState != GameState.WAITING);
-        drawPlayer(g2d, p3Image, Color.BLUE, p3X, 400, p3Ready || currentState != GameState.WAITING);
+        if (totalPlayers >= 1) drawPlayer(g2d, p1Image, Color.RED, p1X, 90, p1Ready || currentState != GameState.WAITING);
+        if (totalPlayers >= 2) drawPlayer(g2d, p2Image, Color.GREEN, p2X, 245, p2Ready || currentState != GameState.WAITING);
+        if (totalPlayers >= 3) drawPlayer(g2d, p3Image, Color.BLUE, p3X, 400, p3Ready || currentState != GameState.WAITING);
 
         int currentCheerY = CHEER_BASE_Y + cheerYOffset; 
         if (cheerImage.getWidth(null) > 0) {
@@ -131,15 +138,18 @@ public class SprintGame extends JPanel implements KeyListener {
         }
 
         if (currentState == GameState.WAITING) {
-            drawOverlay(g2d, "P1(A)  |  P2(J)  |  P3(^)", "รอผู้เล่นพร้อม...", p1Ready, p2Ready, p3Ready);
+            String keys = "P1(A)";
+            if (totalPlayers >= 2) keys += "  |  P2(J)";
+            if (totalPlayers >= 3) keys += "  |  P3(^)";
+            drawOverlay(g2d, keys, "รอผู้เล่นพร้อม...", p1Ready, p2Ready, p3Ready);
         } else if (currentState == GameState.COUNTDOWN) {
             drawCountdown(g2d);
         } else if (currentState == GameState.PLAYING) {
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
-            g2d.drawString("P1 กด A", 50, 80);
-            g2d.drawString("P2 กด J", 50, 235);
-            g2d.drawString("P3 กด ^", 50, 385);
+            if (totalPlayers >= 1) g2d.drawString("P1 กด A", 50, 80);
+            if (totalPlayers >= 2) g2d.drawString("P2 กด J", 50, 235);
+            if (totalPlayers >= 3) g2d.drawString("P3 กด ^", 50, 385);
             
         } else if (currentState == GameState.FINISHED) {
             g2d.setColor(new Color(0, 0, 0, 180)); 
@@ -160,7 +170,7 @@ public class SprintGame extends JPanel implements KeyListener {
             
             g2d.setColor(Color.WHITE);
             g2d.setFont(new Font("Tahoma", Font.PLAIN, 24));
-            g2d.drawString("กด ESC เพื่อออก", 550, 600);
+            g2d.drawString("กำลังเตรียมหน้าสรุปคะแนนรวม...", 480, 600);
         }
     }
 
@@ -175,8 +185,12 @@ public class SprintGame extends JPanel implements KeyListener {
         g2d.setColor(new Color(0, 0, 0, 180)); g2d.fillRect(0, 0, 1280, 720);
         g2d.setColor(Color.WHITE); g2d.setFont(new Font("Tahoma", Font.BOLD, 40)); g2d.drawString(title, 480, 200);
         g2d.setFont(new Font("Tahoma", Font.PLAIN, 30)); g2d.drawString(keys, 450, 300);
-        int c = (r1?1:0) + (r2?1:0) + (r3?1:0);
-        if (c >= 2) { g2d.setColor(Color.YELLOW); g2d.drawString("กด ENTER เพื่อเริ่ม (" + c + " คน)", 450, 400); }
+        
+        int readyCount = (r1?1:0) + (r2?1:0) + (r3?1:0);
+        if (readyCount == totalPlayers) { 
+            g2d.setColor(Color.YELLOW); 
+            g2d.drawString("กด ENTER เพื่อเริ่ม (" + readyCount + " คน)", 450, 400); 
+        }
     }
 
     private void drawCountdown(Graphics2D g2d) {
@@ -186,52 +200,59 @@ public class SprintGame extends JPanel implements KeyListener {
         g2d.drawString(t, t.equals("GO!") ? 500 : 600, 400);
     }
 
+    // ค้นหาเมธอด checkFinishers() ในไฟล์ SprintGame.java ของคุณแล้วปรับแก้ตามนี้ครับ
     private void checkFinishers() {
-        boolean someoneFinished = false;
-        if (p1Active && p1X >= finishLine) someoneFinished = true;
-        if (p2Active && p2X >= finishLine) someoneFinished = true;
-        if (p3Active && p3X >= finishLine) someoneFinished = true;
+        if (p1Active && p1X >= finishLine && !finisherOrder.contains(1)) finisherOrder.add(1);
+        if (p2Active && p2X >= finishLine && !finisherOrder.contains(2)) finisherOrder.add(2);
+        if (p3Active && p3X >= finishLine && !finisherOrder.contains(3)) finisherOrder.add(3);
 
-        if (someoneFinished) {
+        if (finisherOrder.size() == totalPlayers) {
             currentState = GameState.FINISHED;
-            
-            // หยุดเพลง BGM และเล่นเสียงจบเกม
+            gameLoopTimer.stop();
             BGMManager.stopBGM(); 
             AudioManager.playSound("win.wav"); 
             
-            calculateRankings();
-        }
-    }
+            // *** จุดแก้ไขสำคัญ: เปลี่ยนจาก new int[3] เป็น new int[totalPlayers] ***
+            int[] bonus = new int[totalPlayers]; 
+            
+            for (int i = 0; i < finisherOrder.size(); i++) {
+                int pIdx = finisherOrder.get(i) - 1; 
+                // ตรวจสอบ Index เพื่อความปลอดภัยก่อนใส่คะแนนโบนัส
+                if (pIdx < bonus.length) {
+                    bonus[pIdx] = (i == 0) ? 30 : (i == 1) ? 20 : 10;
+                }
+            }
 
-    private void calculateRankings() {
-        finisherOrder.clear();
-        class PlayerScore {
-            int id, xDistance;
-            PlayerScore(int id, int xDistance) { this.id = id; this.xDistance = xDistance; }
+            Timer delay = new Timer(2000, e -> {
+                Window win = SwingUtilities.getWindowAncestor(this);
+                if (win != null) win.dispose();
+                // ส่ง Array bonus ที่มีขนาดเท่ากับผู้เล่นจริงไปที่ ScoreBoard
+                SceneManager.switchScene(new ScoreBoard(targetGirl, targetName, bonus));
+            });
+            delay.setRepeats(false);
+            delay.start();
         }
-        ArrayList<PlayerScore> scores = new ArrayList<>();
-        if (p1Active) scores.add(new PlayerScore(1, p1X));
-        if (p2Active) scores.add(new PlayerScore(2, p2X));
-        if (p3Active) scores.add(new PlayerScore(3, p3X));
-        
-        scores.sort((pA, pB) -> Integer.compare(pB.xDistance, pA.xDistance));
-        for (PlayerScore p : scores) finisherOrder.add(p.id);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         if (currentState == GameState.WAITING) {
-            // เล่นเสียงเมื่อกดปุ่มพร้อม (เช็คสถานะก่อนเพื่อไม่ให้เสียงทับกันตอนกดค้าง)
-            if (key == KeyEvent.VK_A && !p1Ready) { p1Ready = true; AudioManager.playSound("umamusume_con.wav"); }
-            if (key == KeyEvent.VK_J && !p2Ready) { p2Ready = true; AudioManager.playSound("umamusume_con.wav"); } 
-            if (key == KeyEvent.VK_UP && !p3Ready) { p3Ready = true; AudioManager.playSound("umamusume_con.wav"); }
+            if (key == KeyEvent.VK_A && totalPlayers >= 1 && !p1Ready) { 
+                p1Ready = true; AudioManager.playSound("umamusume_con.wav"); 
+            }
+            if (key == KeyEvent.VK_J && totalPlayers >= 2 && !p2Ready) { 
+                p2Ready = true; AudioManager.playSound("umamusume_con.wav"); 
+            } 
+            if (key == KeyEvent.VK_UP && totalPlayers >= 3 && !p3Ready) { 
+                p3Ready = true; AudioManager.playSound("umamusume_con.wav"); 
+            }
             
-            if (((p1Ready?1:0)+(p2Ready?1:0)+(p3Ready?1:0) == 3) || (key == KeyEvent.VK_ENTER && (p1Ready?1:0)+(p2Ready?1:0)+(p3Ready?1:0) >= 2)) {
+            int readyCount = (p1Ready?1:0) + (p2Ready?1:0) + (p3Ready?1:0);
+            if (readyCount == totalPlayers && (key == KeyEvent.VK_ENTER)) {
                 p1Active = p1Ready; p2Active = p2Ready; p3Active = p3Ready;
                 currentState = GameState.COUNTDOWN; 
-                
-                AudioManager.playSound("countdown.wav"); // เล่นเสียงสำหรับเลข 3
+                AudioManager.playSound("countdown.wav"); 
                 countdownTimer.start();
             }
             repaint(); return;
@@ -240,28 +261,16 @@ public class SprintGame extends JPanel implements KeyListener {
         if (currentState == GameState.PLAYING) {
             int step = 15;
             if (key == KeyEvent.VK_A && !p1Pressed && p1Active) { 
-                p1X += step; p1Pressed = true; addDust(p1X, 130); 
-                triggerCheerJump();
-                
+                p1X += step; p1Pressed = true; addDust(p1X, 130); triggerCheerJump();
             }
             if (key == KeyEvent.VK_J && !p2Pressed && p2Active) { 
-                p2X += step; p2Pressed = true; addDust(p2X, 285); 
-                triggerCheerJump();
-                
+                p2X += step; p2Pressed = true; addDust(p2X, 285); triggerCheerJump();
             } 
             if (key == KeyEvent.VK_UP && !p3Pressed && p3Active) { 
-                p3X += step; p3Pressed = true; addDust(p3X, 440); 
-                triggerCheerJump();
-                
+                p3X += step; p3Pressed = true; addDust(p3X, 440); triggerCheerJump();
             }
-            
             checkFinishers(); 
             repaint();
-        }
-        
-        if (currentState == GameState.FINISHED && key == KeyEvent.VK_ESCAPE) {
-            BGMManager.stopBGM(); // สั่งหยุดเพลงเผื่อไว้ก่อนปิดหน้านี้
-            System.exit(0); 
         }
     }
 

@@ -1,6 +1,7 @@
 /**
  * คลาสสำหรับเก็บฐานข้อมูลบทสนทนาในฉากจบ (Endings) ทั้งหมดของเกม
  * แบ่งเป็น Good Ending และ Bad Ending สำหรับตัวละครแต่ละตัว
+ * ปรับปรุงให้รองรับการแสดงหมายเลขผู้เล่นที่ชนะในฉากจบที่ดี
  */
 public class endingData {
     
@@ -8,10 +9,10 @@ public class endingData {
     // AKARI ENDINGS (เพื่อนสมัยเด็ก)
     // ==========================================
     
-    public static DialogueLine[] getAkariGoodEnding() {
+    public static DialogueLine[] getAkariGoodEnding(int playerNum) {
         return new DialogueLine[] {
             new DialogueLine("อาคาริ", "ฮึก... ในที่สุดมันก็จบลงจริงๆ สักทีนะ นายรู้ไหม... ตอนที่ฉันอยู่กลางสนามแข่ง ฉันคิดแค่ว่าถ้าไม่มีนายตะโกนเชียร์อยู่ตรงนั้น ฉันคงจะก้าวขาไม่ออกไปแล้ว", "image\\Akari\\happy_tear.png"),
-            new DialogueLine("พระเอก", "ผมบอกแล้วไงว่าผมจะรอรับเธอที่เส้นชัยเอง เห็นไหมว่าเธอทำได้!", "image\\Bgscene\\track_field.jpg"),
+            new DialogueLine("พระเอก (Player " + playerNum + ")", "ผมบอกแล้วไงว่าผมจะรอรับเธอที่เส้นชัยเอง เห็นไหมว่าเธอทำได้!", "image\\Bgscene\\track_field.jpg"),
             new DialogueLine("อาคาริ", "ขอบคุณนะ... ขอบคุณที่เชื่อมั่นในตัวฉัน มากกว่าที่ฉันเชื่อมั่นในตัวเองซะอีก... จากนี้ไป ตำแหน่ง 'ถังออกซิเจน' และคนข้างๆ ของฉัน... ฉันขอจองให้นายคนเดียวตลอดไปเลยนะ!", "image\\Akari\\propose.png")
         };
     }
@@ -28,10 +29,10 @@ public class endingData {
     // SHIORI ENDINGS (บรรณารักษ์)
     // ==========================================
 
-    public static DialogueLine[] getShioriGoodEnding() {
+    public static DialogueLine[] getShioriGoodEnding(int playerNum) {
         return new DialogueLine[] {
             new DialogueLine("ชิโอริ", "(เอื้อมมือมากุมมือคุณไว้บนหนังสือเล่มโปรด) \"ขอบคุณนะคะ... ขอบคุณที่ปกป้องโลกใบเล็กๆ ที่เงียบเหงาของฉันเอาไว้... และขอบคุณที่เข้ามาเป็น 'ผู้อ่าน' คนแรกที่เข้าใจความรู้สึกของฉันจริงๆ\"", "image\\Shiori\\sweet_smile.png"),
-            new DialogueLine("พระเอก", "นิยายเรื่องนี้ของเธอ ผมอยากจะเป็นพระเอกไปจนถึงหน้าสุดท้ายเลยล่ะ", "image\\Bgscene\\library_sunset.jpg"),
+            new DialogueLine("พระเอก (Player " + playerNum + ")", "นิยายเรื่องนี้ของเธอ ผมอยากจะเป็นพระเอกไปจนถึงหน้าสุดท้ายเลยล่ะ", "image\\Bgscene\\library_sunset.jpg"),
             new DialogueLine("ชิโอริ", "(ยิ้มอย่างอ่อนโยนที่สุด) \"นั่นน่ะ... คือตอนจบที่ฉันตั้งใจเขียนไว้เลยค่ะ ต่อจากนี้ไป เรื่องราวบทใหม่ของพวกเรา... เรามาเขียนมันไปพร้อมๆ กันตลอดไปนะคะ\"", "image\\Shiori\\holding_hands.png")
         };
     }
@@ -48,10 +49,10 @@ public class endingData {
     // REINA ENDINGS (คุณหนูประธานนักเรียน)
     // ==========================================
 
-    public static DialogueLine[] getReinaGoodEnding() {
+    public static DialogueLine[] getReinaGoodEnding(int playerNum) {
         return new DialogueLine[] {
             new DialogueLine("เรย์นะ", "(ก้มหน้าแดงก่ำ เธอเอื้อมมือมาคว้าแขนเสื้อของคุณไว้แน่น) \"อย่า... อย่าทิ้งฉันไว้คนเดียวเด็ดขาดนะ! นายรู้ไหมว่านายทำอะไรลงไป... นายทำให้ประธานนักเรียนที่แสนเย็นชาคนนี้... กลายเป็นแค่ผู้หญิงที่เอาแต่คิดถึงเรื่องของนายจนแทบบ้า!\"", "image\\Reina\\blushing_crying.png"),
-            new DialogueLine("พระเอก", "ผมยินดีจะรับผิดชอบเรื่องนี้ไปตลอดชีวิตครับ เรย์นะ", "image\\Bgscene\\student_council_room.jpg"),
+            new DialogueLine("พระเอก (Player " + playerNum + ")", "ผมยินดีจะรับผิดชอบเรื่องนี้ไปตลอดชีวิตครับ เรย์นะ", "image\\Bgscene\\student_council_room.jpg"),
             new DialogueLine("เรย์นะ", "(ซุกหน้าลงกับแขนเสื้อของคุณ) \"ฮึก... สัญญาแล้วนะ... นายห้ามไปทำแบบนี้กับใครอีก... ตำแหน่งคนสำคัญของฉันน่ะ... นายต้องรับผิดชอบมันไปตลอดกาลเลยนะ เข้าใจไหม!\"", "image\\Reina\\happy_ending.png")
         };
     }
