@@ -4,8 +4,6 @@
 // // import minigameall.HurdleJumpGame;
 // // import minigameall.PowerGaugeGame;
 
-// // import SprintGame;
-
 // public class TestMiniGames {
 //     public static void main(String[] args) {
 //         JFrame frame = new JFrame("Test Multiplayer Minigames");
@@ -14,7 +12,9 @@
 //         frame.setLocationRelativeTo(null);
         
 //         // สลับชื่อคลาสตรงนี้เพื่อเลือกทดสอบเกมที่ต้องการ
-//         // SprintGame gamePanel = new SprintGame();
+//         // SprintGameV2 gamePanel = new SprintGameV2();
+//         //SumoGame gamePanel = new SumoGame();
+//         // HotPotatoGame gamePanel = new HotPotatoGame();
         
 //         frame.add(gamePanel);
 //         frame.setVisible(true);

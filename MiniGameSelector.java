@@ -123,17 +123,17 @@ public class MiniGameSelector extends BaseFrame {
 
         // สลับเข้าคลาสของมินิเกมแต่ละตัว
         if (gameIndex == 0) {
-            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
         } else if (gameIndex == 1) {
-            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
         } else if (gameIndex == 2) {
-            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
         }
 
         // ระบบ Fallback ป้องกันเกมพัง: ถ้าสุ่มได้เกมที่ยังเขียนคลาสไม่เสร็จ จะดึง SprintGame มาเล่นแทนชั่วคราว
         if (gamePanel == null) {
             System.out.println("[System] Game class not instantiated yet. Fallback to SprintGame.");
-            gamePanel = new SprintGame(currentGirl, girlName, totalPlayers);
+            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
         }
 
         gameFrame.add(gamePanel);
