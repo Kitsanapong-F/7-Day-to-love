@@ -1,111 +1,131 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import javax.swing.*;
+
+import audio.AudioManager;
+import audio.BGMManager;
 
 public class CharacterSelection extends BaseFrame {
     private String selectedName = "";
     private JLabel bioLabel;
     private JButton selectBtn;
     private ArrayList<CharacterPanel> panels = new ArrayList<>();
-    private CharacterDetailFrame detailFrame = null; // เก็บอ้างอิงหน้าต่าง Detail
+    private CharacterDetailFrame detailFrame = null;
 
-    public CharacterSelection(boolean fs) {
+    public CharacterSelection() {
         super("Select Heroine");
-        // อย่าลืมตรวจสอบว่ามีโฟลเดอร์และไฟล์ภาพตาม Path นี้จริง
-        setBackgroundImage("image/Bgscene/_front_of_classroom_1.jpg");
+        // ตรวจสอบ Path รูปพื้นหลัง
+        BGMManager.playBGM("Blue_Archive_Irasshaimase.wav");
+        setBackgroundImage("image\\Bgscene\\_front_of_classroom_1.jpg");
         setupUI();
     }
 
     private void setupUI() {
         // หัวข้อหน้าจอ
-        JLabel title = new JLabel("Select Your Character", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 40));
-        title.setForeground(Color.WHITE);
-        addComponent(title, 0, 30, 1280, 50);
+        JLabel title = new JLabel("SELECT YOUR DESTINY", SwingConstants.CENTER);
+        title.setFont(new Font("Tahoma", Font.BOLD, 45));
+        title.setForeground(new Color(255, 255, 255));
+        // เพิ่มเงาให้ข้อความอ่านง่ายขึ้น
+        addComponent(title, 0, 30, 1280, 60);
 
-        // ปุ่มย้อนกลับไปหน้าเมนู
-        JButton backBtn = new JButton("<- BACK");
+        // ปุ่มย้อนกลับไปหน้าแรก
+        JButton backBtn = new JButton("BACK");
         styleButton(backBtn);
-        addComponent(backBtn, 40, 30, 120, 40);
+        addComponent(backBtn, 40, 30, 140, 45);
         backBtn.addActionListener(e -> {
-            SceneManager.switchScene(new StartGame());
+            AudioManager.playSound("umamusume_back.wav");
+            SceneManager.switchScene(new StartGame()); 
         });
 
-        // สร้างการ์ด 3 ใบ (ชื่อ, Path รูป, คำโปรยสั้นๆ, พิกัด x, พิกัด y)
-        addCard("Akari", "image/Akari/22b9ada1-d037-49df-95c0-35e2c5531ded.png", 
+        // ใน CharacterSelection.java (ตัวอย่างพิกัดที่แนะนำ)
+
+        // สร้างการ์ดตัวละคร 3 ตัว (ปรับตำแหน่ง X ให้สมดุลขึ้น)
+        addCard("Akari", "image\\Akari\\22b9ada1-d037-49df-95c0-35e2c5531ded.png", 
                 "Energetic childhood friend who's always by your side.", 120, 120);
         
-        addCard("Shiori", "image/Shiori/fa52fd12-fbd0-4119-8341-014c0b18c47a.png", 
+        addCard("Shiori", "image\\Shiori\\fa52fd12-fbd0-4119-8341-014c0b18c47a.png", 
                 "The mysterious librarian who loves quiet moments.", 515, 120);
         
-        addCard("Reina", "image/Reina/a1fd8ce0-99fb-4881-bbee-4677d1b32676.png", 
+        addCard("Reina", "image\\Reina\\a1fd8ce0-99fb-4881-bbee-4677d1b32676.png", 
                 "The proud heiress with a hidden warm heart.", 910, 120);
 
-        // คำโปรยด้านล่าง
-        bioLabel = new JLabel("Select a heroine to start your story...", SwingConstants.CENTER);
-        bioLabel.setForeground(Color.WHITE);
-        bioLabel.setFont(new Font("Tahoma", Font.BOLD, 22));
-        addComponent(bioLabel, 0, 550, 1280, 40);
+        // ส่วนแสดงคำโปรย (Bio) พร้อมสีพื้นหลังจางๆ ให้อ่านง่าย
+        bioLabel = new JLabel("Click on a heroine to see her story...", SwingConstants.CENTER);
+        bioLabel.setForeground(new Color(255, 255, 200));
+        bioLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+        addComponent(bioLabel, 0, 540, 1280, 50);
 
-        // ปุ่มเลือกเพื่อเข้าสู่เกม
-        selectBtn = new JButton("SELECT");
+        // ปุ่มยืนยันการเลือก
+        selectBtn = new JButton("START STORY");
+
         styleButton(selectBtn);
-        selectBtn.setEnabled(false); // ปิดไว้ก่อนจนกว่าจะเลือกตัวละคร
-        addComponent(selectBtn, 490, 610, 300, 50);
+        selectBtn.setEnabled(false);
+        selectBtn.setBackground(new Color(255, 150, 200)); // สีเบอกความพร้อม
+        addComponent(selectBtn, 440, 600, 400, 60);
 
         selectBtn.addActionListener(e -> {
-            if (selectedName.equals("Akari")) {
-                // 1. สร้างหน้าจอเล่นของ Akari
-                playAkari gameUI = new playAkari(); 
-                
-                // 2. สลับหน้าจอโดยใช้ SceneManager
-                SceneManager.switchScene(gameUI);
-                
-                // 3. เริ่มรันเนื้อเรื่องวันที่ 1 ผ่าน StoryManager
-                StoryManager.runAkari(gameUI, 1); 
-            } else {
-                JOptionPane.showMessageDialog(this, "The story for " + selectedName + " is coming soon!");
-            }
+            AudioManager.playSound("umamusume_con.wav");
+            Character heroine = new Character(selectedName);
+            // Go to player mode selection; that screen will launch the
+            // appropriate playmain variant with the correct constructor.
+            SceneManager.switchScene(new PlayerSelectionScene(heroine));
+            if (detailFrame != null) detailFrame.dispose();
+            this.dispose();
         });
     }
 
     private void addCard(String name, String path, String bio, int x, int y) {
-        // สร้าง Panel รูปตัวละคร
+        // กรอบรูปตัวละคร
         CharacterPanel p = new CharacterPanel(path);
         panels.add(p);
-        addComponent(p, x, y, 250, 380);
+        p.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        addComponent(p, x, y, 250, 395);
         
-        // สร้างปุ่ม Detail
-        JButton det = new JButton("Detail");
+        // ปุ่มดูรายละเอียด (Detail)
+        JButton det = new JButton("VIEW PROFILE");
         styleButton(det);
-        det.setFont(new Font("Tahoma", Font.BOLD, 14));
-        addComponent(det, x + 75, y + 390, 100, 30);
+        det.setFont(new Font("Tahoma", Font.BOLD, 12));
+        addComponent(det, x + 50, y + 395, 150, 35);
         
-        // เมื่อกด Detail ให้เปิดหน้าต่างข้อมูล (CharacterDetailFrame)
         det.addActionListener(e -> {
-            if (detailFrame != null && detailFrame.isDisplayable()) {
-                detailFrame.toFront(); // ถ้าเปิดค้างไว้ให้เอามาไว้ด้านหน้า
-            } else {
-                detailFrame = new CharacterDetailFrame(name);
-            }
+            AudioManager.playSound("umamusume_click.wav");
+            // ป้องกันการเปิดหน้าต่างซ้ำซ้อน
+            if (detailFrame != null) detailFrame.dispose();
+            detailFrame = new CharacterDetailFrame(name);
         });
         
-        // เมื่อคลิกที่รูปตัวละครเพื่อเลือก
+        // Mouse Events สำหรับการเลือก
         p.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // ล้างขอบของตัวอื่นออก
-                for(CharacterPanel cp : panels) cp.setBorder(null);
-                
-                // ใส่ขอบให้ตัวที่เลือก
-                p.setBorder(BorderFactory.createLineBorder(Color.CYAN, 5));
+                AudioManager.playSound("umamusume_click.wav");
+                // ล้างสถานะเก่า
+                for(CharacterPanel cp : panels) {
+                    cp.setBorder(null);
+                }
+                // ไฮไลท์ตัวใหม่ด้วยสี Cyan
+                p.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 255), 6));
                 selectedName = name;
                 
-                // อัปเดตข้อความ Bio และสถานะปุ่ม SELECT
                 bioLabel.setText("<html><center>" + bio + "</center></html>");
-                selectBtn.setText("CONFIRM: " + name.toUpperCase());
+                selectBtn.setText("PROCEED WITH " + name.toUpperCase());
                 selectBtn.setEnabled(true);
+                selectBtn.setBackground(new Color(255, 105, 180));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (!selectedName.equals(name)) {
+                    p.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (!selectedName.equals(name)) {
+                    p.setBorder(null);
+                }
             }
         });
     }

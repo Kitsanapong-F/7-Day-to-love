@@ -1,86 +1,77 @@
+import javax.swing.*;
+import audio.BGMManager;
+import java.util.ArrayList;
+import java.util.List;
+
 public class StoryManager {
-    public static void runAkari(playAkari ui, int day) {
+    private static String currentRoute = "";
 
+    public static void runStory(playmain ui, String girlName, int day) {
+        if (ui == null) return;
+        currentRoute = girlName;
         ui.setDialoguePointer(0);
+        ui.setEventMenuVisible(false);
+        ui.playDayBGM(day);
 
-        switch (day) {
-            case 1:
-                ui.runDayLogic(
-                    storyData.getAkariDay1Backgroud(),
-                    storyData.getAkariDay1story(),
-                    storyData.getAkariDay1Choice(),
-                    15, -10,
-                    storyData.getAkariDay1ResponseA(),
-                    storyData.getAkariDay1ResponseB()
-                );
-                break;
-            
-            case 2:
-                ui.runDayLogic(
-                    storyData.getAkariDay2Backgroud(),
-                    storyData.getAkariDay2story(),
-                    storyData.getAkariDay2Choice(),
-                    15, -10,
-                    storyData.getAkariDay2ResponseA(),
-                    storyData.getAkariDay2ResponseB()
-                );
-                break;
+        // แก้ไข: เปลี่ยนจาก 7 เป็น 8 เพื่อให้วันที่ 7 เล่นเนื้อเรื่องได้จนจบ
+        if (day >= 8) {
+            handleEnding(ui, girlName);
+            return;
+        }
 
-            case 3:
+        String dayTitle = "Daily Life with " + girlName;
+        ui.showDayTransition(day, dayTitle, () -> {
+            if (girlName.equalsIgnoreCase("Akari")) {
                 ui.runDayLogic(
-                    storyData.getAkariDay3Backgroud(),
-                    storyData.getAkariDay3story(),
-                    storyData.getAkariDay3Choice(),
+                    storyData.getAkariDayBackground(day), 
+                    storyData.getAkariDayStory(day), 
+                    storyData.getAkariDayChoice(day), 
                     15, -10,
-                    storyData.getAkariDay3ResponseA(),
-                    storyData.getAkariDay3ResponseB()
+                    storyData.getAkariDayResponseA(day), 
+                    storyData.getAkariDayResponseB(day)
                 );
-                break;
-            
-            case 4:
+            } 
+            else if (girlName.equalsIgnoreCase("Reina")) {
                 ui.runDayLogic(
-                    storyData.getAkariDay4Backgroud(),
-                    storyData.getAkariDay4story(),
-                    storyData.getAkariDay4Choice(),
-                    15, -10,
-                    storyData.getAkariDay4ResponseA(),
-                    storyData.getAkariDay4ResponseB()
+                    storyDataReina.getRaynaDayBackground(day), 
+                    storyDataReina.getRaynaDayStory(day), 
+                    storyDataReina.getRaynaDayChoice(day), 
+                    20, -5, 
+                    storyDataReina.getRaynaDayResponseA(day), 
+                    storyDataReina.getRaynaDayResponseB(day)
                 );
-                break;
+            } 
+            else if (girlName.equalsIgnoreCase("Shiori")) {
+                ui.runDayLogic(
+                    storyDataShiori.getShioriDayBackground(day), 
+                    storyDataShiori.getShioriDayStory(day), 
+                    storyDataShiori.getShioriDayChoice(day), 
+                    15, 0, 
+                    storyDataShiori.getShioriDayResponseA(day), 
+                    storyDataShiori.getShioriDayResponseB(day)
+                );
+            }
+        });
+    }
 
-            case 5:
-                ui.runDayLogic(
-                    storyData.getAkariDay5Backgroud(),
-                    storyData.getAkariDay5story(),
-                    storyData.getAkariDay5Choice(),
-                    15, -10,
-                    storyData.getAkariDay5ResponseA(),
-                    storyData.getAkariDay5ResponseB()
-                );
-                break;
+    public static void onChoiceSelected(playmain ui, int points) {
+        ui.getCurrentGirl().addScore(ui.getCurrentPlayer(), points);
+        if (points > 0) {
+            ui.earnAP(); 
+            System.out.println("[Log] Player " + (ui.getCurrentPlayer() + 1) + " +1 AP bonus!");
+        }
+    }
 
-            case 6:
-                ui.runDayLogic(
-                    storyData.getAkariDay6Backgroud(),
-                    storyData.getAkariDay6story(),
-                    storyData.getAkariDay6Choice(),
-                    15, -10,
-                    storyData.getAkariDay6ResponseA(),
-                    storyData.getAkariDay6ResponseB()
-                );
-                break;
+    public static void handleEnding(playmain ui, String girlName) {
+        List<Integer> playerQueue = new ArrayList<>();
+        for (int i = 0; i < ui.getTotalPlayers(); i++) {
+            playerQueue.add(i);
+        }
+        ui.startEndingSequence(playerQueue, girlName);
+    }
 
-            case 7:
-                ui.setBackgroundImage("image\\Gemini_Generated_Image_oq0tuvoq0tuvoq0t.png");
-                if (ui.getCurrentGirlScore() >= 80) {
-                    ui.setDialogueQueue(endingData.getAkariGoodEnding());
-                }
-                else {
-                    // ui.setDialogueQueue(endingData.getAkariBadEnding());
-                }
-                ui.hideChoices();
-                ui.advanceDialogue();
-                break;
-        }   
+    public static void finishGame(playmain ui) {
+        ui.dispose();
+        SceneManager.switchScene(new StartGame());
     }
 }
