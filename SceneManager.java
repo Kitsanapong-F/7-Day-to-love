@@ -32,6 +32,7 @@ public class SceneManager {
                 previousState = currentScene.getExtendedState();
                 
                 // ปิดหน้าจอเก่าและคืนทรัพยากรหน่วยความจำ
+                currentScene.enableFullScreen();
                 currentScene.dispose();
             }
 

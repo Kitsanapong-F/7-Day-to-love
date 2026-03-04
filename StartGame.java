@@ -64,6 +64,8 @@ public class StartGame extends BaseFrame {
     }
 
     public static void main(String[] args) {
+
+        
         // ตั้งค่า Look and Feel ให้เข้ากับระบบปฏิบัติการ
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -73,6 +75,7 @@ public class StartGame extends BaseFrame {
         SwingUtilities.invokeLater(() -> {
             AudioManager.loadSettings(); // โหลดค่าที่บันทึกไว้ (เช่น ระดับเสียง)
             SceneManager.switchScene(new StartGame());
+            
         });
     }
 }
