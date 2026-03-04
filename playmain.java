@@ -94,7 +94,8 @@ public class playmain extends BaseFrame {
 
     // 2. กำหนดเกณฑ์คะแนน (Threshold)
     int threshold = (endingGirlName.equalsIgnoreCase("Akari")) ? 80 : 
-                    (endingGirlName.equalsIgnoreCase("Reina")) ? 90 : 75;
+                    (endingGirlName.equalsIgnoreCase("Reina")) ? 80 : 
+                    (endingGirlName.equalsIgnoreCase("Shiori")) ? 80 : 75;
 
     // 3. ตัดสินฉากจบ: ต้องเป็นคนที่คะแนนสูงสุด (topPlayerIdx) และต้องถึงเกณฑ์ด้วย
     boolean isWinnerAndPassed = (pIdx == topPlayerIdx) && (score >= threshold);
@@ -103,15 +104,16 @@ public class playmain extends BaseFrame {
         if (isWinnerAndPassed) {
             // --- กรณีได้ Good Ending (ต้องเป็นที่ 1 และผ่านเกณฑ์เท่านั้น) ---
             BGMManager.playBGM("Blue_Archive_Connected_Sky.wav");
-            setBackgroundImage("image\\ending\\" + endingGirlName.toLowerCase() + "_happy.png");
             
-            if (endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariGoodEnding(playerNum));
+            setBackgroundImage("image\\goodending\\" + endingGirlName.toLowerCase() +"_happy.png");
+            
+            if(endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariGoodEnding(playerNum));
             else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaGoodEnding(playerNum));
             else if (endingGirlName.equalsIgnoreCase("Shiori")) setDialogueQueue(endingData.getShioriGoodEnding(playerNum));
         } else {
             // --- กรณีได้ Bad Ending (คนที่ไม่ใช่ที่ 1 หรือที่ 1 ที่คะแนนไม่ถึงเกณฑ์) ---
             BGMManager.playBGM("Skyfall.wav");
-            setBackgroundImage("image\\bad ending\\bad_end.png");
+            setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
             
             if (endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariBadEnding());
             else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaBadEnding());
