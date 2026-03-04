@@ -4,21 +4,17 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 
-/**
- * MiniGameSelector: หน้าจอสำหรับสุ่มมินิเกมตัดสินชะตาในช่วงวันที่ 7
- * รับข้อมูลตัวละครและจำนวนผู้เล่นเพื่อส่งต่อข้อมูลไปยังมินิเกมที่สุ่มได้
- */
 public class MiniGameSelector extends BaseFrame {
     
     private Character currentGirl;
     private String girlName;
     private int totalPlayers;
+    private JPanel glassPanel; // ประกาศเป็นตัวแปรระดับคลาสเพื่อให้เข้าถึงได้จาก Listener
     
-    // รายชื่อมินิเกมที่มีในระบบ (สามารถเพิ่มหรือลดได้ที่นี่)
     private final String[] gameOptions = {
-        "Sprint Challenge", 
-        "Hot Potato: Bomb Dash", 
-        "Mini Sumo Arena"
+        "SPRINT CHALLENGE", 
+        "HOT POTATO: BOMB DASH", 
+        "MINI SUMO ARENA"
     };
 
     public MiniGameSelector(Character girl, String name, int players) {
@@ -27,7 +23,6 @@ public class MiniGameSelector extends BaseFrame {
         this.girlName = name;
         this.totalPlayers = players;
 
-        // ข้ามไปฉากจบเลยถ้าเล่นคนเดียว
         if (this.totalPlayers == 1) {
             SwingUtilities.invokeLater(() -> {
                 playmain finalScene = new playmain(currentGirl, 1);
@@ -38,111 +33,158 @@ public class MiniGameSelector extends BaseFrame {
             return;
         }
 
-        setBackgroundImage("image\\Place\\_school_in_spring_2.jpg"); 
+        setBackgroundImage("image\\cover\\Gemini_Generated_Image_q6t82lq6t82lq6t8.png"); 
         initUI();
+
+        // เพิ่ม Listener เพื่อจัดตำแหน่งใหม่ทุกครั้งที่ขยายหน้าจอ
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                centerUI();
+            }
+        });
     }
 
     private void initUI() {
-        JLabel titleLabel = new JLabel("DECIDING YOUR FINAL CHALLENGE...", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Tahoma", Font.BOLD, 42));
-        titleLabel.setForeground(new Color(255, 215, 0));
-        addComponent(titleLabel, 0, 100, 1280, 80);
+        // บังคับให้ใช้ null layout เพื่อให้ addComponent ทำงานได้ตามปกติ
+        mainPanel.setLayout(null);
 
-        JLabel infoLabel = new JLabel("Final Challenge for " + totalPlayers + " Player(s)", SwingConstants.CENTER);
-        infoLabel.setFont(new Font("Tahoma", Font.ITALIC, 22));
-        infoLabel.setForeground(Color.WHITE);
-        addComponent(infoLabel, 0, 180, 1280, 40);
+        glassPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(new Color(0, 0, 0, 150)); 
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+                g2d.setColor(new Color(255, 255, 255, 50)); 
+                g2d.setStroke(new BasicStroke(3));
+                g2d.drawRoundRect(2, 2, getWidth()-4, getHeight()-4, 30, 30);
+                g2d.dispose();
+            }
+        };
+        glassPanel.setOpaque(false);
+        glassPanel.setLayout(null);
+        
+        // เพิ่ม glassPanel เข้าไปในระบบของ BaseFrame
+        // เริ่มต้นด้วยพิกัดเริ่มต้นก่อน แล้วค่อยให้ centerUI() จัดให้กึ่งกลาง
+        addComponent(glassPanel, 240, 200, 800, 500);
 
-        // ป้ายแสดงชื่อเกมที่จะสุ่ม
-        JLabel randomGameLabel = new JLabel("???", SwingConstants.CENTER);
-        randomGameLabel.setFont(new Font("Tahoma", Font.BOLD, 55));
-        randomGameLabel.setForeground(Color.CYAN);
-        addComponent(randomGameLabel, 0, 320, 1280, 100);
+        // ── ส่วนประกอบภายใน glassPanel ──
+        JLabel infoLabel = new JLabel("Preparing challenges for " + totalPlayers + " participants...", SwingConstants.CENTER);
+        infoLabel.setFont(new Font("Tahoma", Font.ITALIC, 20));
+        infoLabel.setForeground(Color.LIGHT_GRAY);
+        infoLabel.setBounds(0, 100, 800, 30);
+        glassPanel.add(infoLabel);
 
-        // ปุ่มสำหรับกดเพื่อเริ่มสุ่ม
-        JButton spinBtn = new JButton("SPIN ROULETTE!");
-        styleButton(spinBtn);
-        int spinBtnWidth = 300;
-        int spinCenterX = (1280 - spinBtnWidth) / 2;
-        addComponent(spinBtn, spinCenterX, 480, spinBtnWidth, 60);
+        JLabel randomGameLabel = new JLabel("READY TO SPIN?", SwingConstants.CENTER);
+        randomGameLabel.setFont(new Font("Tahoma", Font.BOLD, 50));
+        randomGameLabel.setForeground(new Color(0, 255, 255)); 
+        randomGameLabel.setBounds(0, 200, 800, 100);
+        glassPanel.add(randomGameLabel);
+
+        JButton spinBtn = new JButton("START ROULETTE");
+        spinBtn.setFont(new Font("Tahoma", Font.BOLD, 24));
+        spinBtn.setFocusPainted(false);
+        spinBtn.setBackground(new Color(255, 69, 0)); 
+        spinBtn.setForeground(Color.WHITE);
+        spinBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        spinBtn.setBounds(250, 350, 300, 70);
+        
+        spinBtn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { spinBtn.setBackground(new Color(255, 140, 0)); }
+            public void mouseExited(MouseEvent e) { spinBtn.setBackground(new Color(255, 69, 0)); }
+        });
 
         spinBtn.addActionListener(e -> {
             AudioManager.playSound("umamusume_click.wav");
-            spinBtn.setVisible(false); // ซ่อนปุ่มหลังกดแล้ว
+            spinBtn.setEnabled(false); 
+            spinBtn.setVisible(false);
             startRandomizer(randomGameLabel);
         });
+        glassPanel.add(spinBtn);
 
+        centerUI(); // เรียกจัดกึ่งกลางครั้งแรก
         mainPanel.revalidate();
         mainPanel.repaint();
     }
 
-    /**
-     * ระบบแอนิเมชันสลับชื่อเกมไปมา และหยุดที่ผลลัพธ์สุดท้าย
-     */
+    // ฟังก์ชันคำนวณตำแหน่งกึ่งกลางจอ
+    private void centerUI() {
+        if (glassPanel != null) {
+            int x = (this.getWidth() - 800) / 2;
+            int y = (this.getHeight() - 500) / 2 + 50; // +50 เพื่อขยับลงมาหน่อยตามที่คุณต้องการ
+            glassPanel.setBounds(x, y, 800, 500);
+        }
+    }
+
     private void startRandomizer(JLabel displayLabel) {
         Random rand = new Random();
-        int finalGameIndex = rand.nextInt(gameOptions.length); // เลือกล็อกมงผลลัพธ์ไว้ก่อน
+        int finalGameIndex = rand.nextInt(gameOptions.length); 
         
-        Timer timer = new Timer(100, null); // ความเร็วในการกระพริบสลับชื่อ
+        Timer timer = new Timer(80, null); 
         final int[] ticks = {0};
-        final int maxTicks = 25; // จำนวนรอบที่กระพริบก่อนหยุด
+        final int maxTicks = 30; 
 
         timer.addActionListener(e -> {
             ticks[0]++;
-            // สุ่มโชว์ชื่อมั่วๆ ระหว่างหมุน
             int tempIndex = rand.nextInt(gameOptions.length);
             displayLabel.setText(gameOptions[tempIndex]);
-            
-            // ใช้เสียงพิมพ์ตอนหมุนรูเล็ต (สามารถเปลี่ยนเป็นเสียงอื่นได้)
+            displayLabel.setForeground(new Color(rand.nextInt(256), 255, rand.nextInt(256)));
             AudioManager.playSound("undertale_type.wav"); 
 
             if (ticks[0] >= maxTicks) {
                 timer.stop();
-                // แสดงผลลัพธ์ที่แท้จริง
-                displayLabel.setText(gameOptions[finalGameIndex]);
+                displayLabel.setText("▶ " + gameOptions[finalGameIndex] + " ◀");
                 displayLabel.setForeground(Color.YELLOW);
-                AudioManager.playSound("umamusume_click.wav"); // เสียงตอนยืนยันผล
+                displayLabel.setFont(new Font("Tahoma", Font.BOLD, 55)); 
+                AudioManager.playSound("umamusume_click.wav");
                 
-                // หน่วงเวลาให้ผู้เล่นดูชื่อเกม 1.5 วินาที ก่อนตัดเข้ามินิเกม
-                Timer delay = new Timer(1500, evt -> launchMiniGame(finalGameIndex));
-                delay.setRepeats(false);
-                delay.start();
+                Timer blink = new Timer(200, null);
+                final int[] blinkCount = {0};
+                blink.addActionListener(ev -> {
+                    displayLabel.setVisible(!displayLabel.isVisible());
+                    if (blinkCount[0]++ > 5) {
+                        blink.stop();
+                        displayLabel.setVisible(true);
+                        launchMiniGame(finalGameIndex);
+                    }
+                });
+                blink.start();
             }
         });
         timer.start();
     }
 
-    /**
-     * ดึงหน้าต่างมินิเกมตามลำดับที่สุ่มได้
-     */
     private void launchMiniGame(int gameIndex) {
-        System.out.println("[System] Launching Game: " + gameOptions[gameIndex]);
-        
-        JFrame gameFrame = new JFrame(gameOptions[gameIndex] + " - Final Countdown");
-        JPanel gamePanel = null;
+        Timer delay = new Timer(1000, e -> {
+            JFrame gameFrame = new JFrame(gameOptions[gameIndex]);
+            gameFrame.setBounds(this.getBounds()); 
 
-        // สลับเข้าคลาสของมินิเกมแต่ละตัว
-        if (gameIndex == 0) {
-            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
-        } else if (gameIndex == 1) {
-            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
-        } else if (gameIndex == 2) {
-            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
-        }
+            JPanel gamePanel = null;
+            if (gameIndex == 0) gamePanel = new SprintGameV2(currentGirl, girlName, totalPlayers);
+            else if (gameIndex == 1) gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
+            else if (gameIndex == 2) gamePanel = new SumoGame(currentGirl, girlName, totalPlayers);
 
-        // ระบบ Fallback ป้องกันเกมพัง: ถ้าสุ่มได้เกมที่ยังเขียนคลาสไม่เสร็จ จะดึง SprintGame มาเล่นแทนชั่วคราว
-        if (gamePanel == null) {
-            System.out.println("[System] Game class not instantiated yet. Fallback to SprintGame.");
-            gamePanel = new HotPotatoGame(currentGirl, girlName, totalPlayers);
-        }
+            if (gamePanel == null) gamePanel = new SprintGameV2(currentGirl, girlName, totalPlayers);
 
-        gameFrame.add(gamePanel);
-        gameFrame.pack();
-        gameFrame.setLocationRelativeTo(null);
-        gameFrame.setVisible(true);
-        
-        this.dispose(); // ปิดหน้าสุ่ม
+            gameFrame.add(gamePanel);
+            gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            gameFrame.setLocationRelativeTo(null); 
+            gameFrame.setVisible(true);
+            this.dispose(); 
+        });
+        delay.setRepeats(false);
+        delay.start();
     }
+
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> {
+    //         MiniGameSelector testFrame = new MiniGameSelector(null, "Test Player", 3);
+    //         testFrame.setSize(1280, 720);
+    //         testFrame.setLocationRelativeTo(null);
+    //         testFrame.setVisible(true);
+    //     });
+    // }
 
     @Override
     protected void onPositionUpdated(double scaleX, double scaleY) {}
