@@ -345,11 +345,11 @@ pTurnContainer.add(pTurnLabel);
 
     public boolean canPerformAction(int cost) {
         if (hasDoneActionThisTurn) {
-            JOptionPane.showMessageDialog(this, "คุณทำกิจกรรมของวันนี้ไปแล้ว!");
+            JOptionPane.showMessageDialog(this, "You've finished today's activities!");
             return false;
         }
         if (playerAP[currentPlayer] < cost) {
-            JOptionPane.showMessageDialog(this, "แต้ม AP ไม่พอ!");
+            JOptionPane.showMessageDialog(this, "Not enough AP points!");
             return false;
         }
         playerAP[currentPlayer] -= cost;
