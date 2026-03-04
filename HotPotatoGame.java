@@ -1,7 +1,6 @@
 import javax.swing.*;
 import audio.AudioManager;
 import audio.BGMManager;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -15,14 +14,14 @@ public class HotPotatoGame extends JPanel implements KeyListener {
 
     private GameState currentState = GameState.WAITING;
 
-    // ── ข้อมูลเกมหลัก (เพิ่มจาก SprintGame) ──────────────────────────────────
+    // ── ข้อมูลเกมหลัก ──────────────────────────────────────────────────
     private Character targetGirl;
     private String targetName;
     private int totalPlayers;
 
-    // ตำแหน่งของผู้เล่นทั้ง 3 มุม (P1 ซ้ายล่าง, P2 ขวาล่าง, P3 กลางบน)
-    private final int[] START_X = {340, 940, 640};
-    private final int[] START_Y = {520, 520, 200};
+    // ปรับให้เป็น Ratio (0.0 - 1.0) เพื่อขยายตามหน้าจอ
+    private final double[] START_X_RATIO = {0.26, 0.73, 0.50}; // P1 ซ้าย, P2 ขวา, P3 กลาง
+    private final double[] START_Y_RATIO = {0.72, 0.72, 0.28}; // ล่าง, ล่าง, บน
 
     private ArrayList<Integer> fallenOrder = new ArrayList<>();
     private ArrayList<Integer> finisherOrder = new ArrayList<>();
@@ -71,9 +70,14 @@ public class HotPotatoGame extends JPanel implements KeyListener {
             this.img = img;
         }
 
-        void resetPlayer(int index) {
-            this.x = START_X[index];
-            this.y = START_Y[index];
+        // เมธอดสำหรับอัปเดตตำแหน่งตามขนาดหน้าจอจริง
+        void updateResponsivePos(int w, int h) {
+            this.x = w * START_X_RATIO[id];
+            this.y = h * START_Y_RATIO[id];
+            this.radius = (int)(w * 0.046); // ปรับรัศมีตัวละครตามความกว้างจอ
+        }
+
+        void resetPlayer() {
             this.alive = true;
             this.lives = 3;
             this.charging = false;
@@ -84,13 +88,10 @@ public class HotPotatoGame extends JPanel implements KeyListener {
     private Player p1, p2, p3;
     private ArrayList<Player> players = new ArrayList<>();
 
-    // ─────────────────────────────────────────────
-    // Constructor เดิม (standalone / debug)
     public HotPotatoGame() {
         this(null, null, 3);
     }
 
-    // Constructor หลัก: รับ Character + ชื่อ + จำนวนผู้เล่น (เพิ่มจาก SprintGame)
     public HotPotatoGame(Character girl, String name, int playerCount) {
         this.targetGirl   = girl;
         this.targetName   = name;
@@ -138,12 +139,11 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         gameLoopTimer.start();
     }
 
-    // ─────────────────────────────────────────────
     private void initGame() {
-        // เปิดใช้เฉพาะผู้เล่นที่ Ready และไม่เกิน totalPlayers
-        if (p1.ready && totalPlayers >= 1) { p1.active = true; p1.resetPlayer(0); }
-        if (p2.ready && totalPlayers >= 2) { p2.active = true; p2.resetPlayer(1); }
-        if (p3.ready && totalPlayers >= 3) { p3.active = true; p3.resetPlayer(2); }
+        int w = getWidth(), h = getHeight();
+        if (p1.ready && totalPlayers >= 1) { p1.active = true; p1.resetPlayer(); p1.updateResponsivePos(w, h); }
+        if (p2.ready && totalPlayers >= 2) { p2.active = true; p2.resetPlayer(); p2.updateResponsivePos(w, h); }
+        if (p3.ready && totalPlayers >= 3) { p3.active = true; p3.resetPlayer(); p3.updateResponsivePos(w, h); }
 
         fallenOrder.clear();
         assignRandomBombHolder();
@@ -178,9 +178,11 @@ public class HotPotatoGame extends JPanel implements KeyListener {
     }
 
     private void updateGameLogic() {
+        int w = getWidth(), h = getHeight();
         if (bombCooldown > 0) bombCooldown--;
 
         for (Player p : players) {
+            p.updateResponsivePos(w, h); // อัปเดตพิกัดตามขนาดจอทุกเฟรม
             if (p.charging) {
                 p.chargeTicks++;
                 if (p.chargeTicks > p.MAX_CHARGE) p.chargeTicks = p.MAX_CHARGE;
@@ -192,7 +194,7 @@ public class HotPotatoGame extends JPanel implements KeyListener {
             double dx   = target.x - bombX;
             double dy   = target.y - bombY;
             double dist = Math.hypot(dx, dy);
-            double speed = 25.0;
+            double speed = w * 0.02; // ความเร็วระเบิดปรับตามขนาดจอ
 
             if (dist < speed) {
                 bombX = target.x;
@@ -212,7 +214,6 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         }
 
         if (hiddenBombTimer > 0) hiddenBombTimer--;
-
         if (hiddenBombTimer <= 0 && !bombTraveling) triggerExplosion();
     }
 
@@ -275,7 +276,6 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         roundOverTimer.start();
     }
 
-    // ─────────────────────────────────────────────
     private void checkGameOver() {
         int aliveCount = 0;
         for (Player p : players) {
@@ -296,11 +296,10 @@ public class HotPotatoGame extends JPanel implements KeyListener {
             finisherOrder = new ArrayList<>(fallenOrder);
             Collections.reverse(finisherOrder);
 
-            // ── คำนวณโบนัส + ส่งต่อ ScoreBoard (เพิ่มจาก SprintGame) ──────────
             int[] bonus = new int[totalPlayers > 0 ? totalPlayers : 3];
 
             for (int i = 0; i < finisherOrder.size(); i++) {
-                int pIdx = finisherOrder.get(i); // id ของ HotPotato เริ่มจาก 0
+                int pIdx = finisherOrder.get(i);
                 if (pIdx >= 0 && pIdx < bonus.length) {
                     bonus[pIdx] = (i == 0) ? 30 : (i == 1) ? 20 : 10;
                 }
@@ -319,15 +318,15 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         }
     }
 
-    // ─────────────────────────────────────────────
     private void drawHearts(Graphics2D g2d, int lives, int startX, int startY) {
+        int hSize = (int)(getWidth() * 0.031); // ปรับขนาดหัวใจตามจอ
         for (int i = 0; i < lives; i++) {
-            int x = startX + (i * 45);
+            int x = startX + (i * (hSize + 5));
             if (heartImage != null && heartImage.getWidth(null) > 0) {
-                g2d.drawImage(heartImage, x, startY, 40, 40, this);
+                g2d.drawImage(heartImage, x, startY, hSize, hSize, this);
             } else {
                 g2d.setColor(Color.RED);
-                g2d.fillArc(x,      startY, 20, 20, 0, 180);
+                g2d.fillArc(x, startY, 20, 20, 0, 180);
                 g2d.fillArc(x + 20, startY, 20, 20, 0, 180);
                 int[] px = {x, x + 40, x + 20};
                 int[] py = {startY + 10, startY + 10, startY + 35};
@@ -336,18 +335,19 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         }
     }
 
-    // ─────────────────────────────────────────────
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int w = getWidth(), h = getHeight();
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2d.setColor(new Color(40, 40, 60));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
 
         // ── วาดผู้เล่น ────────────────────────────
         for (Player p : players) {
+            p.updateResponsivePos(w, h); // อัปเดตตำแหน่งตามจอ
             if (p.active && p.alive) {
                 if (bombHolder == p.id && currentState == GameState.PLAYING) {
                     g2d.setColor(new Color(255, 0, 0, 100));
@@ -365,14 +365,14 @@ public class HotPotatoGame extends JPanel implements KeyListener {
                     g2d.drawOval((int) p.x - p.radius, (int) p.y - p.radius, p.radius * 2, p.radius * 2);
                 }
 
-                g2d.setFont(new Font("Tahoma", Font.BOLD, 22));
+                g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.017)));
                 g2d.setColor(Color.WHITE);
                 String pLabel = "P" + (p.id + 1);
                 FontMetrics fm = g2d.getFontMetrics();
                 g2d.drawString(pLabel, (int)p.x - (fm.stringWidth(pLabel) / 2), (int)p.y - p.radius - 10);
 
                 if (p.charging) {
-                    int barWidth = 80, barHeight = 10;
+                    int barWidth = (int)(w * 0.06), barHeight = (int)(h * 0.014);
                     int barX = (int) p.x - (barWidth / 2);
                     int barY = (int) p.y + p.radius + 15;
                     g2d.setColor(Color.DARK_GRAY);
@@ -382,20 +382,17 @@ public class HotPotatoGame extends JPanel implements KeyListener {
                 }
 
             } else if (p.active && !p.alive && currentState != GameState.FINISHED) {
+                int deadSize = (int)(w * 0.078);
                 if (deadImage != null && deadImage.getWidth(null) > 0) {
-                    g2d.drawImage(deadImage, (int) p.x - 50, (int) p.y - 50, 100, 100, this);
+                    g2d.drawImage(deadImage, (int) p.x - deadSize/2, (int) p.y - deadSize/2, deadSize, deadSize, this);
                 } else {
                     g2d.setColor(new Color(0, 0, 0, 100));
                     g2d.fillOval((int) p.x - 20, (int) p.y - 20, 40, 40);
-                    g2d.setColor(Color.WHITE);
-                    g2d.drawLine((int) p.x - 15, (int) p.y - 15, (int) p.x + 15, (int) p.y + 15);
-                    g2d.drawLine((int) p.x + 15, (int) p.y - 15, (int) p.x - 15, (int) p.y + 15);
                 }
-                g2d.setFont(new Font("Tahoma", Font.BOLD, 16));
+                g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.012)));
                 g2d.setColor(Color.GRAY);
                 String pLabel = "P" + (p.id + 1);
-                FontMetrics fm = g2d.getFontMetrics();
-                g2d.drawString(pLabel, (int)p.x - (fm.stringWidth(pLabel) / 2), (int)p.y - 55);
+                g2d.drawString(pLabel, (int)p.x - (g2d.getFontMetrics().stringWidth(pLabel) / 2), (int)p.y - deadSize/2 - 5);
             }
         }
 
@@ -403,6 +400,7 @@ public class HotPotatoGame extends JPanel implements KeyListener {
         if (currentState == GameState.PLAYING || currentState == GameState.ROUND_OVER) {
             int drawBombX = (int) bombX;
             int drawBombY = (int) bombY;
+            int bSize = (int)(w * 0.078); // ขนาดระเบิดปรับตามจอ
 
             if (currentState == GameState.PLAYING && hiddenBombTimer < 180) {
                 drawBombX += random.nextInt(9) - 4;
@@ -411,123 +409,112 @@ public class HotPotatoGame extends JPanel implements KeyListener {
 
             if (currentState == GameState.ROUND_OVER) {
                 g2d.setColor(Color.ORANGE);
-                g2d.fillOval(drawBombX - 80, drawBombY - 80, 160, 160);
-                g2d.setColor(Color.YELLOW);
-                g2d.fillOval(drawBombX - 50, drawBombY - 50, 100, 100);
+                g2d.fillOval(drawBombX - bSize, drawBombY - bSize, bSize * 2, bSize * 2);
             } else {
                 if (bombImage != null && bombImage.getWidth(null) > 0) {
-                    g2d.drawImage(bombImage, drawBombX - 50, drawBombY - 50, 100, 100, this);
+                    g2d.drawImage(bombImage, drawBombX - bSize/2, drawBombY - bSize/2, bSize, bSize, this);
                 } else {
                     g2d.setColor(Color.BLACK);
                     g2d.fillOval(drawBombX - 25, drawBombY - 25, 50, 50);
-                    g2d.setColor(hiddenBombTimer % 10 < 5 ? Color.RED : Color.YELLOW);
-                    g2d.fillOval(drawBombX + 10, drawBombY - 35, 15, 15);
-                    g2d.setColor(Color.WHITE);
-                    g2d.setStroke(new BasicStroke(2));
-                    g2d.drawArc(drawBombX, drawBombY - 30, 20, 20, 0, 90);
                 }
             }
         }
 
         // ── HUD ──────────────────────────────────
         if (currentState != GameState.WAITING) {
-            g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
+            g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.018)));
             if (p1.active) {
                 g2d.setColor(p1.color);
-                g2d.drawString("P1: ส่ง (A)", 40, 630);
-                drawHearts(g2d, p1.lives, 40, 640);
+                g2d.drawString("P1: ส่ง (A)", (int)(w * 0.03), (int)(h * 0.87));
+                drawHearts(g2d, p1.lives, (int)(w * 0.03), (int)(h * 0.89));
             }
             if (p2.active) {
                 g2d.setColor(p2.color);
-                g2d.drawString("P2: ส่ง (J)", 1050, 630);
-                drawHearts(g2d, p2.lives, 1050, 640);
+                g2d.drawString("P2: ส่ง (J)", (int)(w * 0.82), (int)(h * 0.87));
+                drawHearts(g2d, p2.lives, (int)(w * 0.82), (int)(h * 0.89));
             }
             if (p3.active) {
                 g2d.setColor(p3.color);
-                g2d.drawString("P3: ส่ง (^)", 570, 50);
-                drawHearts(g2d, p3.lives, 550, 60);
+                g2d.drawString("P3: ส่ง (^)", (int)(w * 0.44), (int)(h * 0.07));
+                drawHearts(g2d, p3.lives, (int)(w * 0.43), (int)(h * 0.08));
             }
         }
 
-        // ── UI ตามสถานะ ───────────────────────────
+        // ── Overlay UI ─────────────────────────────
         if (currentState == GameState.WAITING) {
             String keys = "P1(A)";
             if (totalPlayers >= 2) keys += "  |  P2(J)";
             if (totalPlayers >= 3) keys += "  |  P3(^)";
-            drawOverlay(g2d, keys, "HOT POTATO: BOMB DASH", p1.ready, p2.ready, p3.ready);
+            drawOverlay(g2d, keys, "HOT POTATO: BOMB DASH", p1.ready, p2.ready, p3.ready, w, h);
         } else if (currentState == GameState.COUNTDOWN) {
-            drawCountdown(g2d);
+            drawCountdown(g2d, w, h);
         } else if (currentState == GameState.FINISHED) {
-            drawFinishScreen(g2d);
+            drawFinishScreen(g2d, w, h);
         }
     }
 
-    // ─────────────────────────────────────────────
-    private void drawOverlay(Graphics2D g2d, String keys, String title, boolean r1, boolean r2, boolean r3) {
+    private void drawOverlay(Graphics2D g2d, String keys, String title, boolean r1, boolean r2, boolean r3, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
         g2d.setColor(Color.ORANGE);
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 50));
-        g2d.drawString(title, 320, 200);
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.039)));
+        g2d.drawString(title, (int)(w * 0.25), (int)(h * 0.28));
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Tahoma", Font.PLAIN, 30));
-        g2d.drawString(keys, 450, 300);
+        g2d.setFont(new Font("Tahoma", Font.PLAIN, (int)(w * 0.023)));
+        g2d.drawString(keys, (int)(w * 0.35), (int)(h * 0.42));
 
         int c = (r1 ? 1 : 0) + (r2 ? 1 : 0) + (r3 ? 1 : 0);
-        if (c >= 2) {
+        if (c >= 2 || (totalPlayers == 1 && c == 1)) {
             g2d.setColor(Color.YELLOW);
-            g2d.drawString("กด ENTER เพื่อเริ่ม (" + c + " คน)", 450, 400);
+            g2d.drawString("กด ENTER เพื่อเริ่ม (" + c + " คน)", (int)(w * 0.35), (int)(h * 0.55));
         }
 
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
-        if (totalPlayers >= 1) { g2d.setColor(r1 ? Color.GREEN : Color.RED); g2d.drawString("P1: " + (r1 ? "Ready" : "Waiting"), 300, 500); }
-        if (totalPlayers >= 2) { g2d.setColor(r2 ? Color.GREEN : Color.RED); g2d.drawString("P2: " + (r2 ? "Ready" : "Waiting"), 600, 500); }
-        if (totalPlayers >= 3) { g2d.setColor(r3 ? Color.GREEN : Color.RED); g2d.drawString("P3: " + (r3 ? "Ready" : "Waiting"), 900, 500); }
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.018)));
+        if (totalPlayers >= 1) { g2d.setColor(r1 ? Color.GREEN : Color.RED); g2d.drawString("P1: " + (r1 ? "Ready" : "Waiting"), (int)(w * 0.23), (int)(h * 0.69)); }
+        if (totalPlayers >= 2) { g2d.setColor(r2 ? Color.GREEN : Color.RED); g2d.drawString("P2: " + (r2 ? "Ready" : "Waiting"), (int)(w * 0.46), (int)(h * 0.69)); }
+        if (totalPlayers >= 3) { g2d.setColor(r3 ? Color.GREEN : Color.RED); g2d.drawString("P3: " + (r3 ? "Ready" : "Waiting"), (int)(w * 0.70), (int)(h * 0.69)); }
     }
 
-    private void drawCountdown(Graphics2D g2d) {
+    private void drawCountdown(Graphics2D g2d, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 150));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
         g2d.setColor(Color.YELLOW);
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 150));
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.11)));
         String t = countdownValue == 0 ? "START!" : String.valueOf(countdownValue);
-        g2d.drawString(t, t.equals("START!") ? 380 : 600, 400);
+        g2d.drawString(t, (int)(w * 0.3), (int)(h * 0.55));
     }
 
-    private void drawFinishScreen(Graphics2D g2d) {
+    private void drawFinishScreen(Graphics2D g2d, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRect(0, 0, 1280, 720);
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 60));
+        g2d.fillRect(0, 0, w, h);
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.046)));
         g2d.setColor(Color.YELLOW);
-        g2d.drawString("ผู้ชนะคือ!", 500, 150);
+        g2d.drawString("ผู้ชนะคือ!", (int)(w * 0.39), (int)(h * 0.21));
 
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 40));
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.031)));
         Color[] textColors = {Color.RED, Color.GREEN, new Color(50, 150, 255)};
 
         for (int i = 0; i < finisherOrder.size(); i++) {
             int playerNum = finisherOrder.get(i);
             g2d.setColor(textColors[playerNum]);
-            g2d.drawString("อันดับที่ " + (i + 1) + " : Player " + (playerNum + 1), 480, 260 + (i * 80));
+            g2d.drawString("อันดับที่ " + (i + 1) + " : Player " + (playerNum + 1), (int)(w * 0.37), (int)(h * 0.36 + (i * h * 0.11)));
         }
 
-        // ── เปลี่ยนจาก "กด ESC เพื่อออก" เป็นข้อความเดียวกับ SprintGame ──
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        g2d.drawString("กำลังเตรียมหน้าสรุปคะแนนรวม...", 480, 600);
+        g2d.setFont(new Font("Tahoma", Font.PLAIN, (int)(w * 0.018)));
+        g2d.drawString("กำลังเตรียมหน้าสรุปคะแนนรวม...", (int)(w * 0.37), (int)(h * 0.83));
     }
 
-    // ─────────────────────────────────────────────
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-
         if (currentState == GameState.WAITING) {
             if (key == KeyEvent.VK_A  && totalPlayers >= 1 && !p1.ready) { p1.ready = true; AudioManager.playSound("umamusume_con.wav"); }
             if (key == KeyEvent.VK_J  && totalPlayers >= 2 && !p2.ready) { p2.ready = true; AudioManager.playSound("umamusume_con.wav"); }
             if (key == KeyEvent.VK_UP && totalPlayers >= 3 && !p3.ready) { p3.ready = true; AudioManager.playSound("umamusume_con.wav"); }
 
             int readyCount = (p1.ready ? 1 : 0) + (p2.ready ? 1 : 0) + (p3.ready ? 1 : 0);
-            if (readyCount == 3 || (key == KeyEvent.VK_ENTER && readyCount >= 2)) {
+            if (key == KeyEvent.VK_ENTER && readyCount >= totalPlayers) {
                 initGame();
                 currentState = GameState.COUNTDOWN;
                 AudioManager.playSound("umamusume_back.wav");
@@ -541,8 +528,6 @@ public class HotPotatoGame extends JPanel implements KeyListener {
             if (key == KeyEvent.VK_J  && bombHolder == 1 && p2.alive) p2.charging = true;
             if (key == KeyEvent.VK_UP && bombHolder == 2 && p3.alive) p3.charging = true;
         }
-
-        // ── ลบ System.exit(0) ออก: ปล่อย checkGameOver() จัดการแทน ────────────
     }
 
     @Override

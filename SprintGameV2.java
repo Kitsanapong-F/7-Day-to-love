@@ -53,7 +53,7 @@ public class SprintGameV2 extends JPanel implements KeyListener {
         this.targetName   = name;
         this.totalPlayers = playerCount;
 
-        setPreferredSize(new Dimension(1280, 720));
+        // ไม่ฟิกขนาดตายตัวเพื่อให้ขยายตามหน้าต่างที่รับมาจาก Selector
         setFocusable(true);
         addKeyListener(this);
 
@@ -117,6 +117,11 @@ public class SprintGameV2 extends JPanel implements KeyListener {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // คำนวณ Scale เพื่อให้พิกัด 1280x720 เดิมขยายตามหน้าจอจริงที่รับมา
+        double scaleX = (double) getWidth() / 1280.0;
+        double scaleY = (double) getHeight() / 720.0;
+        g2d.scale(scaleX, scaleY);
+
         // ── ฉากหลัง ──────────────────────────────
         if (bgImage.getWidth(null) > 0) {
             g2d.drawImage(bgImage, 0, 0, 1280, 720, this);
@@ -134,10 +139,10 @@ public class SprintGameV2 extends JPanel implements KeyListener {
         g2d.fillRect(finishLine, 35, 20, 520);
 
         // ── ฝุ่น ──────────────────────────────────
+        g2d.setColor(Color.WHITE);
         for (Dust d : particles) {
             float alpha = (float) d.life / d.maxLife;
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-            g2d.setColor(Color.WHITE);
             g2d.fillOval(d.x, d.y, 15, 15);
         }
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
@@ -229,7 +234,7 @@ public class SprintGameV2 extends JPanel implements KeyListener {
         g2d.drawString(keys, 450, 300);
 
         int readyCount = (r1 ? 1 : 0) + (r2 ? 1 : 0) + (r3 ? 1 : 0);
-        if (readyCount >= 2) {
+        if (readyCount == totalPlayers) {
             g2d.setColor(Color.YELLOW);
             g2d.drawString("กด ENTER เพื่อเริ่ม (" + readyCount + " คน)", 450, 400);
         }
@@ -265,8 +270,8 @@ public class SprintGameV2 extends JPanel implements KeyListener {
         if (p2Active && p2X >= finishLine && !finisherOrder.contains(2)) finisherOrder.add(2);
         if (p3Active && p3X >= finishLine && !finisherOrder.contains(3)) finisherOrder.add(3);
 
-        int activePlayers = (p1Active ? 1 : 0) + (p2Active ? 1 : 0) + (p3Active ? 1 : 0);
-        if (finisherOrder.size() == activePlayers) {
+        int activeCount = (p1Active ? 1 : 0) + (p2Active ? 1 : 0) + (p3Active ? 1 : 0);
+        if (finisherOrder.size() == activeCount) {
             currentState = GameState.FINISHED;
             gameLoopTimer.stop();
             BGMManager.stopBGM();
@@ -275,7 +280,7 @@ public class SprintGameV2 extends JPanel implements KeyListener {
             int[] bonus = new int[totalPlayers];
             for (int i = 0; i < finisherOrder.size(); i++) {
                 int pIdx = finisherOrder.get(i) - 1;
-                if (pIdx < bonus.length) {
+                if (pIdx >= 0 && pIdx < bonus.length) {
                     bonus[pIdx] = (i == 0) ? 30 : (i == 1) ? 20 : 10;
                 }
             }
@@ -308,11 +313,8 @@ public class SprintGameV2 extends JPanel implements KeyListener {
 
             int readyCount = (p1Ready ? 1 : 0) + (p2Ready ? 1 : 0) + (p3Ready ? 1 : 0);
 
-            // ▶ V2: เริ่มอัตโนมัติเมื่อครบ 3 คน หรือกด ENTER เมื่อมีคนพร้อม >= 2
-            boolean autoStart  = (readyCount == 3);
-            boolean enterStart = (key == KeyEvent.VK_ENTER && readyCount >= 2);
-
-            if (autoStart || enterStart) {
+            // ▶ V2: เริ่มเมื่อคนครบตามจำนวน totalPlayers และกด ENTER
+            if (readyCount == totalPlayers && (key == KeyEvent.VK_ENTER)) {
                 p1Active = p1Ready; p2Active = p2Ready; p3Active = p3Ready;
                 currentState = GameState.COUNTDOWN;
                 AudioManager.playSound("umamusume_back.wav"); // เสียงเลข 3
@@ -340,6 +342,7 @@ public class SprintGameV2 extends JPanel implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        int key = e.getKeyCode();
         if (e.getKeyCode() == KeyEvent.VK_A)  p1Pressed = false;
         if (e.getKeyCode() == KeyEvent.VK_J)  p2Pressed = false;
         if (e.getKeyCode() == KeyEvent.VK_UP) p3Pressed = false;
