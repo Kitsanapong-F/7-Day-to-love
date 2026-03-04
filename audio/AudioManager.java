@@ -1,6 +1,7 @@
 package audio;
 import javax.sound.sampled.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -81,4 +82,25 @@ public class AudioManager {
     }
 
 public static float getSFXVolume() { return sfxVolume; }
+
+    private static Clip currentVoiceClip;
+
+public static void playVoice(String fileName) {
+    if (fileName == null || fileName.isEmpty()) return;
+    
+    // หยุดเสียงพากย์เดิมก่อนเล่นเสียงใหม่
+    if (currentVoiceClip != null && currentVoiceClip.isRunning()) {
+        currentVoiceClip.stop();
+    }
+
+    try {
+        File file = new File("sound/voice/" + fileName); // กำหนดที่อยู่โฟลเดอร์หลัก
+        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        currentVoiceClip = AudioSystem.getClip();
+        currentVoiceClip.open(stream);
+        currentVoiceClip.start();
+    } catch (Exception e) {
+        System.err.println("Error playing voice: " + fileName);
+    }
+}
 }
