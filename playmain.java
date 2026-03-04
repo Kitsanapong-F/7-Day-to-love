@@ -11,11 +11,19 @@ import audio.BGMManager;
  */
 public class playmain extends BaseFrame {
 
+    private final String[] GOOD_ENDING_IMAGES = {
+    "4dd1e007-648f-448d-8ccb-2a0d4d2885d0.png", // ภาพของ Akari (ใส่ชื่อเต็ม)
+    "Gemini_Generated_Image_bgkyu3bgkyu3bgky.png", // ภาพของ Reina (ใส่ชื่อเต็ม)
+    "Gemini_Generated_Image_yhiutiyhiutiyhiu.png" // ภาพของ Shiori (ใส่ชื่อเต็ม)
+};
+
+    private final String BAD_ENDING_IMAGE = "Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png";
+    
     // --- ระบบผู้เล่น (Multiplayer) ---
     private int currentPlayer = 0;
     private int totalPlayers;
     private int[] playerAP; 
-    private final int MAX_AP = 5;
+    private final int MAX_AP = 3;
     private boolean hasDoneActionThisTurn = false;
 
     // --- UI Components ---
@@ -45,7 +53,7 @@ public class playmain extends BaseFrame {
         this.currentGirl = selectedGirl;
         this.totalPlayers = players;
         this.playerAP = new int[players];
-        for(int i = 0; i < players; i++) playerAP[i] = 2; 
+        for(int i = 0; i < players; i++) playerAP[i] = 0; 
 
         setBackgroundImage("image\\Place\\_school_in_spring_2.jpg");
         initGameUI();
@@ -100,25 +108,38 @@ public class playmain extends BaseFrame {
     // 3. ตัดสินฉากจบ: ต้องเป็นคนที่คะแนนสูงสุด (topPlayerIdx) และต้องถึงเกณฑ์ด้วย
     boolean isWinnerAndPassed = (pIdx == topPlayerIdx) && (score >= threshold);
 
-    showDayTransition(playerNum, "ENDING: PLAYER " + playerNum, () -> {
-        if (isWinnerAndPassed) {
-            // --- กรณีได้ Good Ending (ต้องเป็นที่ 1 และผ่านเกณฑ์เท่านั้น) ---
-            BGMManager.playBGM("Blue_Archive_Connected_Sky.wav");
-            
-            setBackgroundImage("image\\goodending\\" + endingGirlName.toLowerCase() +"_happy.png");
-            
-            if(endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariGoodEnding(playerNum));
-            else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaGoodEnding(playerNum));
-            else if (endingGirlName.equalsIgnoreCase("Shiori")) setDialogueQueue(endingData.getShioriGoodEnding(playerNum));
-        } else {
-            // --- กรณีได้ Bad Ending (คนที่ไม่ใช่ที่ 1 หรือที่ 1 ที่คะแนนไม่ถึงเกณฑ์) ---
-            BGMManager.playBGM("Skyfall.wav");
-            setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
-            
-            if (endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariBadEnding());
-            else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaBadEnding());
-            else if (endingGirlName.equalsIgnoreCase("Shiori")) setDialogueQueue(endingData.getShioriBadEnding());
-        }
+   showDayTransition(playerNum, "ENDING: PLAYER " + playerNum, () -> {
+    // ซ่อนตัวละคร Sprite ปกติเพื่อให้เห็นภาพ CG ฉากหลังได้ชัดเจน
+    if (spritePanel != null) spritePanel.setVisible(false);
+
+    if (isWinnerAndPassed) {
+        // --- 🟢 กรณีได้ Good Ending ---
+        BGMManager.playBGM("Blue_Archive_Aira.wav");
+        
+        // ใช้การต่อชื่อไฟล์อัตโนมัติ (เช่น image\goodending\akari_happy.png) 
+        // มั่นใจว่าได้เปลี่ยนชื่อไฟล์ในโฟลเดอร์ให้เป็นชื่อตัวละครตามด้วย _happy.png แล้ว
+        String happyImgPath = "image\\goodending\\" + endingGirlName.toLowerCase() + "_happy.png";
+        setBackgroundImage(happyImgPath);
+        
+        if (endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariGoodEnding(playerNum));
+        else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaGoodEnding(playerNum));
+        else if (endingGirlName.equalsIgnoreCase("Shiori")) setDialogueQueue(endingData.getShioriGoodEnding(playerNum));
+        
+    } else {
+        // --- 🔴 กรณีได้ Bad Ending ---
+        BGMManager.playBGM("Skyfall.wav");
+        
+        // ใช้รูปภาพที่เจนจาก Gemini สำหรับฉากจบที่ผิดหวัง
+        setBackgroundImage("image\\bad ending\\Gemini_Generated_Image_f8nd7jf8nd7jf8nd.png");
+        
+        if (endingGirlName.equalsIgnoreCase("Akari")) setDialogueQueue(endingData.getAkariBadEnding());
+        else if (endingGirlName.equalsIgnoreCase("Reina")) setDialogueQueue(endingData.getReinaBadEnding());
+        else if (endingGirlName.equalsIgnoreCase("Shiori")) setDialogueQueue(endingData.getShioriBadEnding());
+    }
+
+    // บังคับให้ UI อัปเดตการแสดงผลภาพใหม่
+    mainPanel.revalidate();
+    mainPanel.repaint();
     });
 }
 
@@ -126,16 +147,63 @@ public class playmain extends BaseFrame {
         spritePanel = new CharacterPanel("");
         addComponent(spritePanel, 540, 100, 200, 600); 
 
-        apLabel = new JLabel("AP: 2");
-        apLabel.setFont(new Font("Tahoma", Font.BOLD, 28));
-        apLabel.setForeground(new Color(255, 80, 80));
-        addComponent(apLabel, 30, 20, 200, 40);
+       JPanel apContainer = new JPanel(null) {
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // วาดพื้นหลังสีดำโปร่งแสง
+        g2d.setColor(new Color(0, 0, 0, 160)); 
+        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+        
+        // วาดเส้นขอบสีชมพูแดงจางๆ ให้เข้ากับสีตัวอักษร
+        g2d.setColor(new Color(255, 80, 80, 100));
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 20, 20);
+        
+        g2d.dispose();
+    }
+};
+    apContainer.setOpaque(false);
+    // ปรับตำแหน่งและขนาดให้ครอบคลุมตัวอักษร
+    addComponent(apContainer, 25, 15, 180, 55); 
 
+    // ปรับปรุง apLabel เดิม
+    apLabel = new JLabel("AP: 0", SwingConstants.CENTER); // ตั้งกึ่งกลาง
+    apLabel.setFont(new Font("Tahoma", Font.BOLD, 32)); // ขยายขนาดให้ชัดขึ้น
+    apLabel.setForeground(new Color(255, 100, 100)); // สีชมพูแดงสว่างขึ้น
+    apLabel.setBounds(0, 0, 180, 55);
+
+    // นำ Label ใส่เข้าไปใน Container
+    apContainer.add(apLabel);
         pTurnLabel = new JLabel("PLAYER 1");
         pTurnLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
         pTurnLabel.setForeground(Color.CYAN);
         addComponent(pTurnLabel, 1080, 20, 150, 40);
-
+        JPanel pTurnContainer = new JPanel(null) {
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // วาดพื้นหลังสีดำโปร่งแสง
+        g2d.setColor(new Color(0, 0, 0, 160)); 
+        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+        
+        // วาดเส้นขอบสี Cyan จางๆ ให้ดูเหมือนแสง Neon
+        g2d.setColor(new Color(0, 255, 255, 100)); 
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 20, 20);
+        
+        g2d.dispose();
+    }
+};
+pTurnContainer.setOpaque(false);
+// ปรับตำแหน่งให้สมดุลกับมุมขวาบน (ขยายความกว้างเผื่อ Player เลข 2 หลัก)
+addComponent(pTurnContainer, 1050, 15, 200, 55); 
+// 3. นำ Label ใส่เข้าไปใน Container
+pTurnContainer.add(pTurnLabel);
         textWindow = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -268,7 +336,7 @@ public class playmain extends BaseFrame {
                 StoryManager.finishGame(this);
             } else {
                 for(int i = 0; i < totalPlayers; i++) {
-                    playerAP[i] = Math.min(playerAP[i] + 2, MAX_AP);
+                    playerAP[i] = Math.min(playerAP[i] + 0, MAX_AP);
                 }
                 startTurn();
             }
