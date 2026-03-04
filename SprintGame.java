@@ -18,6 +18,7 @@ public class SprintGame extends JPanel implements KeyListener {
     private String targetName;
     private int totalPlayers;
 
+    // ใช้พิกัดเดิมของคุณ แต่จะถูกคำนวณผ่าน Graphics2D.scale ใน paintComponent
     private int p1X = 35, p2X = 35, p3X = 35;
     private final int finishLine = 1115;
     
@@ -52,7 +53,7 @@ public class SprintGame extends JPanel implements KeyListener {
         this.targetName = name;
         this.totalPlayers = playerCount;
 
-        setPreferredSize(new Dimension(1280, 720));
+        // ไม่ฟิกขนาดตายตัวเพื่อให้ขยายตามหน้าต่างที่รับมาจาก Selector
         setFocusable(true);
         addKeyListener(this);
 
@@ -105,6 +106,11 @@ public class SprintGame extends JPanel implements KeyListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // คำนวณ Scale เพื่อให้พิกัด 1280x720 เดิมขยายตามหน้าจอจริงที่รับมา
+        double scaleX = (double) getWidth() / 1280.0;
+        double scaleY = (double) getHeight() / 720.0;
+        g2d.scale(scaleX, scaleY);
 
         if (bgImage.getWidth(null) > 0) {
             g2d.drawImage(bgImage, 0, 0, 1280, 720, this);
@@ -200,7 +206,6 @@ public class SprintGame extends JPanel implements KeyListener {
         g2d.drawString(t, t.equals("GO!") ? 500 : 600, 400);
     }
 
-    // ค้นหาเมธอด checkFinishers() ในไฟล์ SprintGame.java ของคุณแล้วปรับแก้ตามนี้ครับ
     private void checkFinishers() {
         if (p1Active && p1X >= finishLine && !finisherOrder.contains(1)) finisherOrder.add(1);
         if (p2Active && p2X >= finishLine && !finisherOrder.contains(2)) finisherOrder.add(2);
@@ -212,13 +217,12 @@ public class SprintGame extends JPanel implements KeyListener {
             BGMManager.stopBGM(); 
             AudioManager.playSound("win.wav"); 
             
-            // *** จุดแก้ไขสำคัญ: เปลี่ยนจาก new int[3] เป็น new int[totalPlayers] ***
+            // ปรับแก้ขนาด Array ให้เท่ากับผู้เล่นจริงเพื่อป้องกัน Error ใน ScoreBoard
             int[] bonus = new int[totalPlayers]; 
             
             for (int i = 0; i < finisherOrder.size(); i++) {
                 int pIdx = finisherOrder.get(i) - 1; 
-                // ตรวจสอบ Index เพื่อความปลอดภัยก่อนใส่คะแนนโบนัส
-                if (pIdx < bonus.length) {
+                if (pIdx >= 0 && pIdx < bonus.length) {
                     bonus[pIdx] = (i == 0) ? 30 : (i == 1) ? 20 : 10;
                 }
             }
@@ -226,7 +230,6 @@ public class SprintGame extends JPanel implements KeyListener {
             Timer delay = new Timer(2000, e -> {
                 Window win = SwingUtilities.getWindowAncestor(this);
                 if (win != null) win.dispose();
-                // ส่ง Array bonus ที่มีขนาดเท่ากับผู้เล่นจริงไปที่ ScoreBoard
                 SceneManager.switchScene(new ScoreBoard(targetGirl, targetName, bonus));
             });
             delay.setRepeats(false);

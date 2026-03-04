@@ -15,15 +15,15 @@ public class SumoGame extends JPanel implements KeyListener {
 
     private GameState currentState = GameState.WAITING;
 
-    // ── ข้อมูลเกมหลัก (เพิ่มจาก SprintGame) ──────────────────────────────────
+    // ── ข้อมูลเกมหลัก (คงเดิม 100%) ──────────────────────────────────
     private Character targetGirl;
     private String targetName;
     private int totalPlayers;
 
-    // ขนาดของเวทีซูโม่
-    private final int ARENA_CENTER_X = 640;
-    private final int ARENA_CENTER_Y = 360;
-    private final int ARENA_RADIUS = 300;
+    // สัดส่วนเวทีซูโม่ (ใช้ Ratio เพื่อให้ขยายตาม MiniGameSelector)
+    private final double ARENA_X_RATIO = 640.0 / 1280.0;
+    private final double ARENA_Y_RATIO = 360.0 / 720.0;
+    private final double ARENA_RADIUS_RATIO = 300.0 / 720.0;
 
     // จัดเก็บลำดับคนที่ตกเวทีเพื่อคำนวณอันดับตอนจบ
     private ArrayList<Integer> fallenOrder = new ArrayList<>();
@@ -47,14 +47,12 @@ public class SumoGame extends JPanel implements KeyListener {
     // ระบบกองเชียร์
     private int cheerYOffset = 0;
     private int cheerVelocity = 0;
-    private final int CHEER_BASE_Y = 520;
-    private final int CHEER_X = 980;
 
     // ─────────────────────────────────────────────
     class Player {
         int id;
         double x, y;
-        double startX, startY, startAngle;
+        double startX_Ratio, startY_Ratio, startAngle;
         double vx = 0, vy = 0;
         double angle;
         double spinSpeed = 0.08;
@@ -81,13 +79,22 @@ public class SumoGame extends JPanel implements KeyListener {
             this.img = img;
         }
 
-        void resetPosition(double startX, double startY, double startAngle) {
-            this.startX = startX;
-            this.startY = startY;
+        // อัปเดตตำแหน่งและขนาดให้ Responsive
+        void updateResponsivePos(int w, int h) {
+            if (currentState == GameState.WAITING) {
+                this.x = w * startX_Ratio;
+                this.y = h * startY_Ratio;
+            }
+            this.radius = (int)(h * 0.0416); // สัดส่วนรัศมีตัวละคร
+        }
+
+        void resetPosition(double startX_R, double startY_R, double startAngle) {
+            this.startX_Ratio = startX_R;
+            this.startY_Ratio = startY_R;
             this.startAngle = startAngle;
 
-            this.x = startX;
-            this.y = startY;
+            this.x = getWidth() * startX_Ratio;
+            this.y = getHeight() * startY_Ratio;
             this.angle = startAngle;
             this.vx = 0;
             this.vy = 0;
@@ -101,8 +108,8 @@ public class SumoGame extends JPanel implements KeyListener {
         }
 
         void respawn() {
-            this.x = startX;
-            this.y = startY;
+            this.x = getWidth() * startX_Ratio;
+            this.y = getHeight() * startY_Ratio;
             this.vx = 0;
             this.vy = 0;
             this.angle = startAngle;
@@ -146,12 +153,10 @@ public class SumoGame extends JPanel implements KeyListener {
     private ArrayList<Player> players = new ArrayList<>();
 
     // ─────────────────────────────────────────────
-    // Constructor เดิม (standalone / debug)
     public SumoGame() {
         this(null, null, 3);
     }
 
-    // Constructor หลัก: รับ Character + ชื่อ + จำนวนผู้เล่น (เพิ่มจาก SprintGame)
     public SumoGame(Character girl, String name, int playerCount) {
         this.targetGirl   = girl;
         this.targetName   = name;
@@ -199,18 +204,17 @@ public class SumoGame extends JPanel implements KeyListener {
 
     // ─────────────────────────────────────────────
     private void initGame() {
-        // เปิดใช้เฉพาะผู้เล่นที่ Ready และไม่เกิน totalPlayers
         if (p1.ready && totalPlayers >= 1) {
             p1.active = true;
-            p1.resetPosition(ARENA_CENTER_X - 150, ARENA_CENTER_Y + 80, -Math.PI / 4);
+            p1.resetPosition((640.0 - 150.0)/1280.0, (360.0 + 80.0)/720.0, -Math.PI / 4);
         }
         if (p2.ready && totalPlayers >= 2) {
             p2.active = true;
-            p2.resetPosition(ARENA_CENTER_X + 150, ARENA_CENTER_Y + 80, -Math.PI * 3 / 4);
+            p2.resetPosition((640.0 + 150.0)/1280.0, (360.0 + 80.0)/720.0, -Math.PI * 3 / 4);
         }
         if (p3.ready && totalPlayers >= 3) {
             p3.active = true;
-            p3.resetPosition(ARENA_CENTER_X, ARENA_CENTER_Y - 150, Math.PI / 2);
+            p3.resetPosition(640.0/1280.0, (360.0 - 150.0)/720.0, Math.PI / 2);
         }
 
         fallenOrder.clear();
@@ -235,11 +239,16 @@ public class SumoGame extends JPanel implements KeyListener {
 
     // ─────────────────────────────────────────────
     private void updatePhysics() {
+        int w = getWidth(), h = getHeight();
+        double arenaCenterX = w * ARENA_X_RATIO;
+        double arenaCenterY = h * ARENA_Y_RATIO;
+        double arenaRadius = h * ARENA_RADIUS_RATIO;
+
         for (Player p : players) {
             if (p.active) p.update();
         }
 
-        // ตรวจสอบการชนกัน
+        // ตรวจสอบการชนกัน (Physics 100%)
         for (int i = 0; i < players.size(); i++) {
             for (int j = i + 1; j < players.size(); j++) {
                 Player a = players.get(i);
@@ -285,8 +294,8 @@ public class SumoGame extends JPanel implements KeyListener {
         for (Player p : players) {
             if (p.active) {
                 if (p.alive) {
-                    double distFromCenter = Math.hypot(p.x - ARENA_CENTER_X, p.y - ARENA_CENTER_Y);
-                    if (distFromCenter > ARENA_RADIUS) {
+                    double distFromCenter = Math.hypot(p.x - arenaCenterX, p.y - arenaCenterY);
+                    if (distFromCenter > arenaRadius) {
                         p.lives--;
                         AudioManager.playSound("fall.wav");
 
@@ -319,7 +328,6 @@ public class SumoGame extends JPanel implements KeyListener {
         BGMManager.stopBGM();
         AudioManager.playSound("win.wav");
 
-        // เพิ่มคนที่รอดอยู่เป็นผู้ชนะ
         for (Player p : players) {
             if (p.active && p.alive) fallenOrder.add(p.id);
         }
@@ -327,7 +335,6 @@ public class SumoGame extends JPanel implements KeyListener {
         finisherOrder = new ArrayList<>(fallenOrder);
         Collections.reverse(finisherOrder);
 
-        // ── คำนวณโบนัส + ส่งต่อ ScoreBoard (เพิ่มจาก SprintGame) ─────────────
         int[] bonus = new int[totalPlayers > 0 ? totalPlayers : 3];
 
         for (int i = 0; i < finisherOrder.size(); i++) {
@@ -347,14 +354,15 @@ public class SumoGame extends JPanel implements KeyListener {
     }
 
     // ─────────────────────────────────────────────
-    private void drawHearts(Graphics2D g2d, int lives, int startX, int startY) {
+    private void drawHearts(Graphics2D g2d, int lives, int startX, int startY, int w) {
+        int hSize = (int)(w * 0.03125);
         for (int i = 0; i < lives; i++) {
-            int x = startX + (i * 45);
+            int x = startX + (i * (int)(w * 0.035));
             if (heartImage != null && heartImage.getWidth(null) > 0) {
-                g2d.drawImage(heartImage, x, startY, 40, 40, this);
+                g2d.drawImage(heartImage, x, startY, hSize, hSize, this);
             } else {
                 g2d.setColor(Color.RED);
-                g2d.fillArc(x,      startY, 20, 20, 0, 180);
+                g2d.fillArc(x, startY, 20, 20, 0, 180);
                 g2d.fillArc(x + 20, startY, 20, 20, 0, 180);
                 int[] px = { x, x + 40, x + 20 };
                 int[] py = { startY + 10, startY + 10, startY + 35 };
@@ -367,35 +375,37 @@ public class SumoGame extends JPanel implements KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int w = getWidth(), h = getHeight();
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        double arenaCenterX = w * ARENA_X_RATIO;
+        double arenaCenterY = h * ARENA_Y_RATIO;
+        double arenaRadius = h * ARENA_RADIUS_RATIO;
+
         // ── พื้นหลัง + เวทีซูโม่ ──────────────────
         g2d.setColor(new Color(30, 144, 255));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
 
         g2d.setColor(Color.WHITE);
-        g2d.fillOval(ARENA_CENTER_X - ARENA_RADIUS - 5, ARENA_CENTER_Y - ARENA_RADIUS - 5,
-                     (ARENA_RADIUS * 2) + 10, (ARENA_RADIUS * 2) + 10);
+        g2d.fillOval((int)(arenaCenterX - arenaRadius - 5), (int)(arenaCenterY - arenaRadius - 5),
+                     (int)(arenaRadius * 2) + 10, (int)(arenaRadius * 2) + 10);
         g2d.setColor(new Color(205, 133, 63));
-        g2d.fillOval(ARENA_CENTER_X - ARENA_RADIUS, ARENA_CENTER_Y - ARENA_RADIUS,
-                     ARENA_RADIUS * 2, ARENA_RADIUS * 2);
+        g2d.fillOval((int)(arenaCenterX - arenaRadius), (int)(arenaCenterY - arenaRadius),
+                     (int)(arenaRadius * 2), (int)(arenaRadius * 2));
 
-        // ── กองเชียร์ (เฉพาะตอน PLAYING) ─────────
+        // ── กองเชียร์ ─────────────────
         if (currentState == GameState.PLAYING) {
-            int currentCheerY = CHEER_BASE_Y + cheerYOffset;
+            int cheerX = (int)(w * 0.765), cheerY = (int)(h * 0.72) + cheerYOffset;
+            int cheerW = (int)(w * 0.195), cheerH = (int)(h * 0.194);
             if (cheerImage != null && cheerImage.getWidth(null) > 0) {
-                g2d.drawImage(cheerImage, CHEER_X, currentCheerY, 250, 140, this);
-            } else {
-                g2d.setColor(Color.PINK);
-                g2d.fillOval(CHEER_X + 20,  currentCheerY + 40, 50, 80);
-                g2d.fillOval(CHEER_X + 90,  currentCheerY + 20, 50, 80);
-                g2d.fillOval(CHEER_X + 160, currentCheerY + 40, 50, 80);
+                g2d.drawImage(cheerImage, cheerX, cheerY, cheerW, cheerH, this);
             }
         }
 
         // ── วาดผู้เล่น ────────────────────────────
         for (Player p : players) {
+            p.updateResponsivePos(w, h);
             if (p.active && p.alive) {
                 if (p.invincibilityTicks > 0 && (p.invincibilityTicks / 5) % 2 == 0) continue;
 
@@ -405,15 +415,13 @@ public class SumoGame extends JPanel implements KeyListener {
                 } else {
                     g2d.setColor(p.color);
                     g2d.fillOval((int) p.x - p.radius, (int) p.y - p.radius, p.radius * 2, p.radius * 2);
-                    g2d.setColor(Color.BLACK);
-                    g2d.setStroke(new BasicStroke(3));
-                    g2d.drawOval((int) p.x - p.radius, (int) p.y - p.radius, p.radius * 2, p.radius * 2);
                 }
 
                 java.awt.geom.AffineTransform oldTx = g2d.getTransform();
                 g2d.translate(p.x, p.y);
                 g2d.rotate(p.angle);
-                int[] arrowX = { 25, 5, 5 };
+                int arrowSize = (int)(h * 0.0347);
+                int[] arrowX = { arrowSize, 5, 5 };
                 int[] arrowY = { 0, -10, 10 };
                 g2d.setColor(Color.WHITE);
                 g2d.fillPolygon(arrowX, arrowY, 3);
@@ -430,11 +438,9 @@ public class SumoGame extends JPanel implements KeyListener {
                 }
 
             } else if (p.active && !p.alive && currentState != GameState.FINISHED) {
+                int deadSize = (int)(h * 0.111);
                 if (deadImage != null && deadImage.getWidth(null) > 0) {
-                    g2d.drawImage(deadImage, (int) p.x - 40, (int) p.y - 40, 80, 80, this);
-                } else {
-                    g2d.setColor(new Color(0, 0, 0, 100));
-                    g2d.fillOval((int) p.x - 15, (int) p.y - 15, 30, 30);
+                    g2d.drawImage(deadImage, (int) p.x - deadSize/2, (int) p.y - deadSize/2, deadSize, deadSize, this);
                 }
             }
         }
@@ -444,88 +450,87 @@ public class SumoGame extends JPanel implements KeyListener {
             String keys = "P1(A)";
             if (totalPlayers >= 2) keys += "  |  P2(J)";
             if (totalPlayers >= 3) keys += "  |  P3(^)";
-            drawOverlay(g2d, keys, "รอผู้เล่นพร้อม...", p1.ready, p2.ready, p3.ready);
+            drawOverlay(g2d, keys, "รอผู้เล่นพร้อม...", p1.ready, p2.ready, p3.ready, w, h);
 
         } else if (currentState == GameState.COUNTDOWN
                 || currentState == GameState.PLAYING
                 || currentState == GameState.FINISHED) {
-            g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
+            g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.01875)));
             if (p1.active) {
                 g2d.setColor(Color.WHITE);
-                g2d.drawString("P1: กดค้าง A เพื่อพุ่ง", 20, 50);
-                drawHearts(g2d, p1.lives, 20, 60);
+                g2d.drawString("P1: กดค้าง A เพื่อพุ่ง", (int)(w*0.015), (int)(h*0.07));
+                drawHearts(g2d, p1.lives, (int)(w*0.015), (int)(h*0.08), w);
             }
             if (p2.active) {
                 g2d.setColor(Color.WHITE);
-                g2d.drawString("P2: กดค้าง J เพื่อพุ่ง", 1020, 50);
-                drawHearts(g2d, p2.lives, 1020, 60);
+                g2d.drawString("P2: กดค้าง J เพื่อพุ่ง", (int)(w*0.8), (int)(h*0.07));
+                drawHearts(g2d, p2.lives, (int)(w*0.8), (int)(h*0.08), w);
             }
             if (p3.active) {
                 g2d.setColor(Color.WHITE);
-                g2d.drawString("P3: กดค้าง ^ เพื่อพุ่ง", 20, 640);
-                drawHearts(g2d, p3.lives, 20, 650);
+                g2d.drawString("P3: กดค้าง ^ เพื่อพุ่ง", (int)(w*0.015), (int)(h*0.89));
+                drawHearts(g2d, p3.lives, (int)(w*0.015), (int)(h*0.9), w);
             }
         }
 
         if (currentState == GameState.COUNTDOWN) {
-            drawCountdown(g2d);
+            drawCountdown(g2d, w, h);
         } else if (currentState == GameState.FINISHED) {
-            drawFinishScreen(g2d);
+            drawFinishScreen(g2d, w, h);
         }
     }
 
     // ─────────────────────────────────────────────
-    private void drawOverlay(Graphics2D g2d, String keys, String title, boolean r1, boolean r2, boolean r3) {
+    private void drawOverlay(Graphics2D g2d, String keys, String title, boolean r1, boolean r2, boolean r3, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 40));
-        g2d.drawString(title, 480, 200);
-        g2d.setFont(new Font("Tahoma", Font.PLAIN, 30));
-        g2d.drawString(keys, 450, 300);
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.031)));
+        g2d.drawString(title, (int)(w * 0.375), (int)(h * 0.27));
+        g2d.setFont(new Font("Tahoma", Font.PLAIN, (int)(w * 0.023)));
+        g2d.drawString(keys, (int)(w * 0.35), (int)(h * 0.416));
 
         int c = (r1 ? 1 : 0) + (r2 ? 1 : 0) + (r3 ? 1 : 0);
         if (c >= 2) {
             g2d.setColor(Color.YELLOW);
-            g2d.drawString("กด ENTER เพื่อเริ่ม (" + c + " คน)", 450, 400);
+            g2d.drawString("กด ENTER เพื่อเริ่ม (" + c + " คน)", (int)(w * 0.35), (int)(h * 0.55));
         }
 
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 24));
-        if (totalPlayers >= 1) { g2d.setColor(r1 ? Color.GREEN : Color.RED); g2d.drawString("P1: " + (r1 ? "Ready" : "Waiting"), 300, 500); }
-        if (totalPlayers >= 2) { g2d.setColor(r2 ? Color.GREEN : Color.RED); g2d.drawString("P2: " + (r2 ? "Ready" : "Waiting"), 600, 500); }
-        if (totalPlayers >= 3) { g2d.setColor(r3 ? Color.GREEN : Color.RED); g2d.drawString("P3: " + (r3 ? "Ready" : "Waiting"), 900, 500); }
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.018)));
+        if (totalPlayers >= 1) { g2d.setColor(r1 ? Color.GREEN : Color.RED); g2d.drawString("P1: " + (r1 ? "Ready" : "Waiting"), (int)(w * 0.23), (int)(h * 0.69)); }
+        if (totalPlayers >= 2) { g2d.setColor(r2 ? Color.GREEN : Color.RED); g2d.drawString("P2: " + (r2 ? "Ready" : "Waiting"), (int)(w * 0.46), (int)(h * 0.69)); }
+        if (totalPlayers >= 3) { g2d.setColor(r3 ? Color.GREEN : Color.RED); g2d.drawString("P3: " + (r3 ? "Ready" : "Waiting"), (int)(w * 0.7), (int)(h * 0.69)); }
     }
 
-    private void drawCountdown(Graphics2D g2d) {
+    private void drawCountdown(Graphics2D g2d, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 150));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
         g2d.setColor(Color.YELLOW);
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 150));
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.117)));
         String t = countdownValue == 0 ? "FIGHT!" : String.valueOf(countdownValue);
-        g2d.drawString(t, t.equals("FIGHT!") ? 400 : 600, 400);
+        g2d.drawString(t, (int)(w * 0.31), (int)(h * 0.55));
     }
 
-    private void drawFinishScreen(Graphics2D g2d) {
+    private void drawFinishScreen(Graphics2D g2d, int w, int h) {
         g2d.setColor(new Color(0, 0, 0, 180));
-        g2d.fillRect(0, 0, 1280, 720);
+        g2d.fillRect(0, 0, w, h);
 
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 60));
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.046)));
         g2d.setColor(Color.YELLOW);
-        g2d.drawString("ผู้ชนะคือ!", 500, 150);
+        g2d.drawString("ผู้ชนะคือ!", (int)(w * 0.39), (int)(h * 0.208));
 
-        g2d.setFont(new Font("Tahoma", Font.BOLD, 40));
+        g2d.setFont(new Font("Tahoma", Font.BOLD, (int)(w * 0.031)));
         Color[] textColors = { Color.WHITE, Color.RED, Color.GREEN, new Color(100, 150, 255) };
 
         for (int i = 0; i < finisherOrder.size(); i++) {
             int playerNum = finisherOrder.get(i);
             g2d.setColor(textColors[playerNum]);
-            g2d.drawString("อันดับที่ " + (i + 1) + " : Player " + playerNum, 480, 260 + (i * 80));
+            g2d.drawString("อันดับที่ " + (i + 1) + " : Player " + playerNum, (int)(w * 0.375), (int)(h * 0.36 + (i * h * 0.11)));
         }
 
-        // ── เปลี่ยนจาก "กด ESC เพื่อออก" เป็นข้อความเดียวกับ SprintGame ──
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Tahoma", Font.PLAIN, 24));
-        g2d.drawString("กำลังเตรียมหน้าสรุปคะแนนรวม...", 480, 600);
+        g2d.setFont(new Font("Tahoma", Font.PLAIN, (int)(w * 0.018)));
+        g2d.drawString("กำลังเตรียมหน้าสรุปคะแนนรวม...", (int)(w * 0.375), (int)(h * 0.83));
     }
 
     // ─────────────────────────────────────────────
@@ -560,8 +565,6 @@ public class SumoGame extends JPanel implements KeyListener {
             if (key == KeyEvent.VK_J  && p2.active && p2.alive && !p2.charging) p2.charging = true;
             if (key == KeyEvent.VK_UP && p3.active && p3.alive && !p3.charging) p3.charging = true;
         }
-
-        // ── ลบ System.exit(0) ออก: ปล่อย endGame() จัดการแทน ──────────────────
     }
 
     @Override
@@ -574,6 +577,5 @@ public class SumoGame extends JPanel implements KeyListener {
         }
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {}
+    @Override public void keyTyped(KeyEvent e) {}
 }
