@@ -1,6 +1,8 @@
 import java.awt.*;
 import javax.swing.*;
 
+import audio.AudioManager;
+
 /**
  * คลาสสำหรับแสดงรายละเอียดโปรไฟล์ของตัวละครแต่ละคน
  * ออกแบบมาให้เปิดเป็นหน้าต่างแยก (Pop-up) โดยไม่ปิดโปรแกรมหลัก

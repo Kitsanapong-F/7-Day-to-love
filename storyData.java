@@ -190,7 +190,7 @@ public class storyData {
     public static String getAkariDay6Backgroud() { return "image\\Place\\_cultural_club_room_3.jpg"; }
     public static DialogueLine[] getAkariDay6story() {
         return new DialogueLine[] {
-            new DialogueLine("อาคาริ", "\"ขอบคุณที่อยู่ข้างๆ ฉันมาตลอดนะ... พรุ่งนี้คือวันสุดท้ายแล้วนะ... ไม่ว่าผลจะเป็นยังไง... สัญญาได้ไหมว่าเราจะมาอยู่ตรงนี้ด้วยกันสองคน?\"", "image\\Akari\\Gemini_Generated_Image_e7ushxe7ushxe7us.png","")
+            new DialogueLine("อาคาริ", "\"ขอบคุณที่อยู่ข้างๆ ฉันมาตลอดนะ... พรุ่งนี้คือวันสุดท้ายแล้วนะ... ไม่ว่าผลจะเป็นยังไง... สัญญาได้ไหมว่าเราจะมาอยู่ตรงนี้ด้วยกันสองคน?\"", "image\\Akari\\Gemini_Generated_Image_e7ushxe7ushxe7us - แก้ไขแล้ว.png","")
         };
     }
     public static String[] getAkariDay6Choice() { return new String[] {"ถ้าชนะ ฉันขอรางวัลเป็น 'คนข้างๆ' ตลอดไปได้มั้ย?", "ฉันจะรอเธอตรงนี้ ไม่ว่าจะเกิดอะไรขึ้นก็ตาม"}; }

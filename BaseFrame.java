@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BaseFrame extends JFrame {
+    private boolean isFullScreen = false;
     protected GameBackground mainPanel;
     private Map<Component, Rectangle> originalBounds = new ConcurrentHashMap<>();
     
@@ -20,6 +21,7 @@ public class BaseFrame extends JFrame {
         setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setupFullscreenShortcut();
 
         mainPanel = new GameBackground("");
         mainPanel.setLayout(null); 
@@ -28,12 +30,91 @@ public class BaseFrame extends JFrame {
         // ระบบตรวจจับการเปลี่ยนขนาดหน้าจอเพื่อปรับสเกล UI
         this.addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentResized(ComponentEvent e) { 
+            public void componentResized(ComponentEvent e) {
+                double scaleX = (double) getWidth() / 1280.0;
+                double scaleY = (double) getHeight() / 720.0;
+                onPositionUpdated(scaleX, scaleY); 
                 updatePositions(); 
             }
         });
 
         SwingUtilities.invokeLater(() -> updatePositions());
+    }
+
+    private void setupFullscreenShortcut() {
+        // สร้าง Action สำหรับการสลับโหมด
+        JRootPane rootPane = this.getRootPane();
+        Action toggleAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("[System] F11 Pressed - Toggling Fullscreen"); // Debug เพื่อเช็คใน Console
+                toggleFullScreen();
+            }
+        };
+
+        // ผูกปุ่ม F11 เข้ากับ Action
+        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+            KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "toggleFS"
+        );
+        rootPane.getActionMap().put("toggleFS", toggleAction);
+    }
+
+    public void toggleFullScreen() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+
+        if (!isFullScreen) {
+            // เข้าสู่โหมด Fullscreen
+            if (gd.isFullScreenSupported()) {
+                this.dispose(); 
+                this.setUndecorated(true);
+                this.setResizable(false);
+                gd.setFullScreenWindow(this);
+                this.setVisible(true);
+                isFullScreen = true;
+            }
+        } else {
+            // กลับสู่โหมดหน้าต่าง (Windowed)
+            gd.setFullScreenWindow(null);
+            this.dispose();
+            this.setUndecorated(false); // คืนค่าแถบหัวหน้าต่าง
+            this.setResizable(true);
+            this.setSize(1280, 720); // ขนาดเริ่มต้นของคุณ
+            this.setLocationRelativeTo(null);
+            this.setVisible(true);
+            isFullScreen = false;
+        }
+        
+        double scaleX = (double) getWidth() / 1280.0;
+        double scaleY = (double) getHeight() / 720.0;
+        onPositionUpdated(scaleX, scaleY);
+        // แจ้งให้ UI อัปเดตตำแหน่งปุ่มตามขนาดจอใหม่
+        revalidate();
+        repaint();
+    }
+
+    public void enableFullScreen() {
+        // Get the default screen device
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+
+        // 1. Remove window borders (must be done before the frame is visible)
+        this.dispose(); // Temporarily close to change decoration
+        this.setUndecorated(true);
+        this.setResizable(false);
+
+        // 2. Set to Fullscreen mode
+        if (gd.isFullScreenSupported()) {
+            gd.setFullScreenWindow(this);
+        } else {
+            // Fallback if Fullscreen isn't supported: Maximize the window
+            this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            this.setVisible(true);
+        }
+        
+        // 3. Re-validate layout for new size
+        this.revalidate();
+        this.repaint();
     }
 
     protected void onPositionUpdated(double scaleX, double scaleY) {}

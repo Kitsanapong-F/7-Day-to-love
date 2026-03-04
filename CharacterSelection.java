@@ -3,6 +3,9 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
+import audio.AudioManager;
+import audio.BGMManager;
+
 public class CharacterSelection extends BaseFrame {
     private String selectedName = "";
     private JLabel bioLabel;
@@ -66,7 +69,7 @@ public class CharacterSelection extends BaseFrame {
             Character heroine = new Character(selectedName);
             // Go to player mode selection; that screen will launch the
             // appropriate playmain variant with the correct constructor.
-            SceneManager.switchScene(new PlayerModeSelection(heroine));
+            SceneManager.switchScene(new PlayerSelectionScene(heroine));
             if (detailFrame != null) detailFrame.dispose();
             this.dispose();
         });

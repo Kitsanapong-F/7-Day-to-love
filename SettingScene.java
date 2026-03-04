@@ -1,6 +1,10 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicSliderUI;
+
+import audio.AudioManager;
+import audio.BGMManager;
+
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
