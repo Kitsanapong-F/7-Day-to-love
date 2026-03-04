@@ -76,6 +76,11 @@ public class playmain extends BaseFrame {
     int score = currentGirl.getScores()[pIdx];
     int playerNum = pIdx + 1;
 
+    if (pTurnLabel != null) {
+        pTurnLabel.setText("PLAYER " + playerNum);
+        pTurnLabel.setForeground(Color.CYAN); // ตั้งสีฟ้าตามรูป
+    }
+    
     // 1. หาว่าใครคือคนที่ได้คะแนนสูงสุดในกลุ่ม
     int[] allScores = currentGirl.getScores();
     int highestScore = -1;
